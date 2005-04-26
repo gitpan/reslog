@@ -1,0 +1,6 @@
+127.72.44.31 - - [23/Apr/2005:10:30:16 +0800] "GET / HTTP/1.1" 200 6289
+127.72.44.31 - - [23/Apr/2005:10:30:17 +0800] "GET /stylesheets/common.css HTTP/1.1" 200 2723
+127.72.44.31 - - [23/Apr/2005:10:30:18 +0800] "GET /images/logo.png HTTP/1.1" 304 0
+127.72.44.31 - - [23/Apr/2005:10:30:19 +0800] "GET /images/backgrnd.png HTTP/1.1" 304 0
+220-136-235-249.dynamic.hinet.net - - [23/Apr/2005:10:30:20 +0800] "GET / HTTP/1.0" 200 6289
+220-136-235-249.dynamic.hinet.net - - [23/Apr/2005:10:30:21 +0800] "GET /stylesheets/common.css HTTP/1.0" 200 2723

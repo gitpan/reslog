@@ -1,0 +1,41 @@
+reslog -- A script to reverse-resolve IP in Apache log files
+
+
+* Documentation
+
+    Type "perldoc reslog" to read the reslog manual.
+
+
+* Installation
+
+    Read INSTALL for instructions on how to install reslog.
+
+
+* News, Changes and Updates
+
+    Refer to the Changes for changes, bug fixes, updates, new functions, etc.
+
+
+* Support
+
+    reslog's website is at http://reslog.sourceforge.net/.  Visit the website
+for the current information of reslog.
+
+    reslog has a mailing list reslog-users@lists.sourceforge.net.  If you have
+any question, comment, bug report, patch, please send it to the mailing list.
+Join the list at https://lists.sourceforge.net/lists/listinfo/reslog-users .
+Do not send mails directly to me unless you have private business with me.
+The mailing list has an archive.  People having the same trouble as you may
+search the archive, find the answer and save a lot of time.
+
+
+* License
+
+    This program is distributed under GNU Gneral Pulbic License (GPL).  Please
+refer to the COPYING file for the copyright and the license of this program.
+
+
+imacat ^_*'
+2005-04-26
+imacat@mail.imacat.idv.tw
+http://www.imacat.idv.tw/

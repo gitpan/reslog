@@ -1,0 +1,55 @@
+升级指南
+
+　　若你由第二版升级到第三版，请阅读以下说明：
+
+
+◎档名由 reslog.pl 改为 reslog
+
+　　这很明显吧。 :p 若你有写程式，或设定 cron 排程来执行 reslog ，请记得更改档
+名。不过你也可以把 reslog 改名回原来的 reslog.pl ，不会有任何问题。
+
+
+◎预设安装目录，由 /usr/local/sbin 改为 /usr/bin
+
+　　还有，说明档也由 /usr/local/share/man/man8/reslog.pl.8 改为
+/usr/share/man/man1/reslog.1 。升级后，下列旧版档案：
+
+      /usr/share/man/man8/reslog.pl.8
+      /usr/local/share/man/man8/reslog.pl.8
+
+　　或你曾经改存到其它地方，请记得要删掉。不好意思， make install 不会自动帮你
+清掉旧版档案。
+
+　　若你有写程式，或设定 cron 排程来执行 reslog ，请记得更改档名。不过你也可以
+把 reslog 存到原来的目录去，不会有任何问题。
+
+　　这是 ExtUtils::MakeMaker 的问题。我个人觉得安装到 sbin 目录比较适当，因为
+reslog 是设计给系统管理员用的，不是给一般使用者用的。不过 ExtUtils::MakeMaker
+不支援安装到 sbin 目录。这种作法，其实是违反 FHS 2.2 规定的。
+
+
+◎预设 keep 原记录档保留模式是 delete
+
+　　我在说明文件上写，预设 keep 原记录档保留模式是 delete 删除，可是其实程式真
+正跑的是 restart 归零。 :p 这个问题已经修好了。如果你依预设保留模式执行，请记
+得要修正。
+
+
+◎ --keep 和 --override 选项现在一定要加模式参数
+
+　　以前可以直接用 --keep 和 --override 选项，不加参数，现在一定要加参数，以避
+免混淆选项的参数和要处理的记录档名。
+
+
+◎读取标准输入 STDIN 不会自动启动标准输出 STDOUT 模式
+
+　　一次读取多个档案时，只有标准输入 STDIN 的结果会输出到标准输出，其它档案都
+会输出到各自该输出的档案去。以前一次读取多档时，或其中有一个是标准输入，则会全
+部输出到标准输出去，现在不会了。若你需要把全部的结果输出到标准输出，请加上
+--stdout 选项。
+
+
+依玛猫
+2005-04-26
+imacat@mail.imacat.idv.tw
+http://www.imacat.idv.tw/

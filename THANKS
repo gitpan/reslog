@@ -1,0 +1,4 @@
+    Thanks to SourceForge's people to kindly provide hosting of the
+reslog.pl project.
+    Thanks to Chen-hsiu Huang <chenhsiu@gens.dhs.org> for reporting
+the bug that $WORKING_RES was not locked when opened.

@@ -1,0 +1,69 @@
+Upgrade Instruction
+
+    Here are a few hints for people upgrading from version 2 to version 3:
+
+
+* The Script Name is Changed from reslog.pl to reslog
+
+    This is obvious.  If you have any scripts or cron jobs that are running
+reslog, remember to modify your script for the new name.  Of course, you can
+rename reslog to reslog.pl.  It will still work.
+    
+    The reason I changed the script and project name is that:  A dot "." in
+the project name is not valid everywhere.  At least SourceForge don't accept
+it.  Besides, "reslog" is enough for a script name under UNIX.  The ".pl" file
+name suffix/extension may be convienent for MSWin32, but MSWin32 users won't
+run it with explorer file name association anyway, and there is a pl2bat to
+turn "reslog" to "reslog.bat", which would make more sense.  The only
+disadvantage is that I use UltraEdit, which depends on the file name extension
+for the automatic syntax highlighting rules.  But this is not much trouble.  I
+can manuall set it anyway.
+
+
+* The Default Installation Location is Changed from /usr/local/sbin to /usr/bin
+
+    Also, the man page is changed from /usr/local/share/man/man8/reslog.pl.8
+to /usr/share/man/man1/reslog.1.  Remember to clean up the following old
+files after installation:
+
+      /usr/share/man/man8/reslog.pl.8
+      /usr/local/share/man/man8/reslog.pl.8
+
+    Or any location you save your old reslog.pl  Sorry, "make install" won't
+clean them for you.
+
+    Also, if you have any scripts or cron jobs that are running reslog, remember
+to modify your script for the new reslog location.  Of course, you can copy
+reslog to the original location.  It will still work.
+
+    This is due to the limitation of ExtUtils::MakeMaker.  Although I prefer
+sbin directory, for reslog is designed for system administrators, not ordinary
+users, ExtUtils::MakeMaker won't recognize sbin directory at all.  This is a
+violation to Filesystem Hierarchy Standard 2.2, though.
+
+
+* The Default Keep Mode is Now "delete"
+
+    The documentation said the default keep mode is "delete", but the script
+actually did a "restart". :p  This is fixed.  If you are running with the
+default keep mode, remember to fix it.
+
+
+* The Argument of --keep and --override Options Are Required Now
+
+    Support for omitting --keep or --override argument is removed.  This helps
+avoiding confusion for the log file name and the option arguments.
+
+
+* Specifying STDIN Will No Longer Trigger STDOUT
+
+    When resolving multiple files, STDIN can output to STDOUT now, with other
+files output to where they should be.  Specifying an STDIN will no longer
+automatically trigger outputing everything to STDOUT.  If you want to output
+everything to STDOUT, be sure to add the --stdout option.
+
+
+imacat
+2005-04-26
+imacat@mail.imacat.idv.tw
+http://www.imacat.idv.tw/

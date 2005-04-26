@@ -1,0 +1,39 @@
+reslog -- Apache 記錄檔 IP 反解程式
+
+
+◎說明文件
+
+　　請輸入 perldoc reslog ，閱讀 reslog 的說明。
+
+
+◎安裝指南
+
+　　請詳閱 INSTALL.zh-tw 檔案的安裝指南。
+
+
+◎更新、修正說明
+
+　　請詳閱 Changes.zh-tw 檔案的更新說明，以瞭解新增功能、問題修正、更新等。
+
+
+◎技術支援
+
+　　reslog 的網站在 http://reslog.sourceforge.net/ ，請隨時上網瞭解最新訊息。
+
+　　reslog 有一個郵件通訊 reslog-users@lists.sourceforge.net ，若有任何問題、
+建議、問題回報、修補程式，請寄到郵件通訊上。請連上
+https://lists.sourceforge.net/lists/listinfo/reslog-users 加入我們的郵件通訊
+。除非有私人事務，否則請不要直接寫信給我。郵件通訊會自動歸檔，日後若其他人有
+相同問題，可以直接在通訊舊檔中找到答案，節省大家寶貴的時間。
+
+
+◎版權聲明
+
+　　本程式依 GNU 通用公共許可證（ GPL ）版權發佈，請參考 COPYING 檔案的說明，
+或是 COPYING.zh-tw 檔案的中文譯文，瞭解本程式的版權授權內容。
+
+
+依瑪貓 imacat ^_*'
+2005-04-26
+imacat@mail.imacat.idv.tw
+http://www.imacat.idv.tw/

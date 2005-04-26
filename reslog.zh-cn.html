@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="GB2312" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta name="author" content="依玛猫" />
+<meta name="copyright" content="&copy; 2001-2005 依玛猫。依玛猫保有所有权利。" />
+<meta name="keywords" content="DNS 反查, HostNameLookups, Apache, Analog, 记录档" />
+<title>reslog v3.00</title>
+</head>
+<body>
+
+<address>
+<a href="reslog.zh-tw.html">&#32321;&#39636;&#20013;&#25991;</a> |
+<a href="reslog.zh-cn.html">&#31616;&#20307;&#20013;&#25991;</a> |
+<a href="reslog.en.html">English</a>
+</address>
+<hr />
+
+
+<h1>reslog v3.00</h1>
+
+
+<div class="body">
+
+<h2>最新消息</h2>
+
+<dl>
+
+<dt>2002-09-18</dt>
+
+<dd>reslog.pl 最新版本 v2.1.0dev2 。本版修正了几个说明文件的错误，并
+把 <a href="http://sourceforge.net/">SourceForge</a> 加进 reslog.pl
+的下载网址中。你可以把它当做「申请 SourceForge 纪念版」。原则上，不需
+要急著升级。若要下载，请按<a
+href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz">这里</a>。</dd>
+
+
+<dt>2002-09-17</dt>
+
+<dd>好消息！ reslog.pl 已开始架设於 <a
+href="http://sourceforge.net/projects/reslog/">SourceForge</a> 罗！
+（虽然我几乎还完全搞不清楚要怎么架……摸索中…… ^^; ）</dd>
+
+
+<dt>2002-08-31</dt>
+
+<dd>reslog.pl 最新版本 v2.1.0dev1 。本版修正了无法在 perl 5.8.0 执行
+的错误。我暂时还把她当成是「 dev 」研发版，因为我想在 2.1.0 正式版的
+时候，支援
+<a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a> 与
+<a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a>
+。不过她其实很稳定。若要下载，请按<a
+href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz">这里</a>。</dd>
+
+</dl>
+
+
+<h2>说明</h2>
+
+<p>reslog 是记录档的反查程式，用来反查 Apache 记录档里
+<abbr>IP</abbr> 的主机名称。查过后，可以套用像 Analog 之类的记录档统
+计程式。你可以把它当做 Apache <samp>HostNameLookups</samp> 指令的替代
+品，每天一次反查当天所有的 <abbr>IP</abbr> 。</p>
+
+
+<h2>注意事项</h2>
+
+<ul>
+
+<li>反查网域名称<em>很耗时间</em>。时间主要耗在查询上：防火墙过滤网路
+封包，网域名称伺服器设错、没有开机、位在慢速网路上、等级太低反应慢、
+网路塞车……等。这些外部因素，都不是程式本身能控制的。为了避免查询途
+中，其她程式同时写入记录档，导致档案错乱，本程式用
+<samp>flock()</samp> 锁定档案，以防护同样使用 <samp>flock()</samp> 的
+程式，例如别人跑的 <samp>reslog</samp> 。为防护不用
+<samp>flock()</samp> 的程式，如 <samp>httpd</samp> ，本程式会先把原始
+档复制到暂时工作档去工作，以尽可能缩短占用原始档的时间。</li>
+
+<li>若程式半途中断，如按了 <samp>Ctrl-Break</samp> ，可能会残余一个暂
+时工作档。下次执行时碰到残存的暂时工作档，程式会拒绝执行跳出。请先处
+理残存的暂时工作档。你可以把暂时工作档当成原来的记录档来用，重新反查。</li>
+
+<li>本程式需要很多暂存资料的空间。硬碟和记忆体比起来，价格便宜，用起
+来也比较省，所以我用硬碟暂存。这个程式需要原记录档两倍以上的硬碟空间
+，才能执行（用记忆体暂存的话要用十倍）。请检查硬碟空间够不够。</li>
+
+</ul>
+
+
+<h2>系统需求</h2>
+
+<ol>
+
+<li>Perl 5.005 或以上。本程式使用 File::Temp 模组，需要 perl 5.005 以
+后才支援的一些新功能。目前大多数的 UNIX 系统都有 perl 。如果你没有
+perl 或需要升级，可以到
+<a href="http://www.perl.com/"><samp>http://www.perl.com/</samp></a>
+下载安装最新版 perl 。若你是用 MS-WINDOWS ，可以到
+<a href="http://www.activestate.com/"><samp>http://www.activestate.com/</samp></a>
+下载安装。</li>
+
+<li>本程式需要下列 perl 模组：
+<a href="http://search.cpan.org/dist/File-Spec/"><samp>File::Spec::Functions</samp></a> 、
+<a href="http://search.cpan.org/dist/File-Temp/"><samp>File::Temp</samp></a> 、
+<a href="http://search.cpan.org/dist/Compress-Zlib/"><samp>Compress::Zlib</samp></a> 。
+如果你没有，可以到 <abbr>CPAN</abbr> 程式库
+<a href="http://search.cpan.org/"><samp>http://search.cpan.org/</samp></a>
+下载安装。</li>
+
+</ol>
+
+
+<h2>下载</h2>
+
+<p>reslog 的官方网站在：</p>
+
+<ul>
+<li>SourceForge 下的首页：
+<a href="http://reslog.sourceforge.net/"><samp>http://reslog.sourceforge.net/</samp></a></li>
+<li>SourceForge 下的专案页：
+<a href="http://sourceforge.net/projects/reslog/"><samp>http://sourceforge.net/projects/reslog/</samp></a></li>
+<li>旅舍依玛下的首页：
+<a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>http://www.imacat.idv.tw/tech/reslog.html</samp></a></li>
+</ul>
+
+<p>最新版 reslog 可由下列位址下载：</p>
+
+<ul>
+<li>SourceForget ：
+<a href="https://sourceforge.net/project/showfiles.php?group_id=62500"><samp>https://sourceforge.net/project/showfiles.php?group_id=62500</samp></a></li>
+<li>旅舍依玛的 <abbr>FTP</abbr> ：
+<a href="ftp://ftp.imacat.idv.tw/pub/reslog/"><samp>ftp://ftp.imacat.idv.tw/pub/reslog/</samp></a></li>
+</ul>
+
+<p>依玛猫的 <abbr>PGP</abbr> Public Key 在：</p>
+
+<ul>
+<li>SourceForge ：
+<a href="http://reslog.sourceforge.net/pgpkey.asc"><samp>http://reslog.sourceforge.net/pgpkey.asc</samp></a></li>
+<li>旅舍依玛：
+<a href="http://www.imacat.idv.tw/me/pgpkey.asc"><samp>http://www.imacat.idv.tw/me/pgpkey.asc</samp></a></li>
+</ul>
+
+
+<h2>安装</h2>
+
+<ol>
+<li>
+<h3>解压缩：</h3>
+
+<blockquote>
+<pre>
+% tar xzf reslog-n.nn.tar.gz
+</pre>
+</blockquote>
+</li>
+
+
+<li>
+<h3>以自动安装程式安装（建议）</h3>
+
+<p>虽然本程式不需要设定，我还是希望你跑一遍自动安装程式。自动安装程式
+会检查所需的系统环境，事先告知你程式无法执行的问题。</p>
+
+<p>要跑自动安装程式，要先安装
+<a href="http://search.cpan.org/dist/File-Spec/"><samp>File::Spec::Functions</samp></a>
+模组。 perl 5.6.0 以后会随附这个模组，不用特地安装。如果你的 perl 比
+较旧，没有这个模组，可以到 <abbr>CPAN</abbr> 程式库
+<a href="http://search.cpan.org/"><samp>http://search.cpan.org/</samp></a>
+下载安装。</p>
+
+<p>到解压缩后的目录中，执行自动安装程式 <samp>Install.PL</samp> ：</p>
+<blockquote>
+<pre>
+% ./Install.PL
+</pre>
+</blockquote>
+<p>这时，安装程式会检查所需的系统环境，并问你所需的设定。请依序回答。
+然后，安装程式会按你的回答，把程式装起来。你也可以下：</p>
+<blockquote>
+<pre>
+% ./Install.PL --help
+</pre>
+</blockquote>
+<p>查看有哪些选项。</p>
+</li>
+
+
+<li>
+<h3>手动安装</h3>
+
+<p>到解压缩后的目录中，将 <samp>reslog</samp> 档复制到你要存的目录
+下，就可以了。</p>
+</li>
+
+
+<li>
+<h3>执行</h3>
+
+<p>跑跑看有没有问题。你可以下：</p>
+<blockquote>
+<pre>
+% ./reslog --help
+</pre>
+</blockquote>
+<p>查看有哪些选项，或下：</p>
+<blockquote>
+<pre>
+% perldoc reslog
+</pre>
+</blockquote>
+<p>查阅完整的程式说明。</p>
+
+</li>
+</ol>
+
+
+<h2>命令列参数</h2>
+
+<pre>
+./reslog [参数] [记录档...]
+./reslog [-h|-v]
+</pre>
+
+
+<dl>
+<dt>记录档</dt>
+
+<dd>要反查的记录档。若没有指定，会从标准输入读记录档，再写到标准输出
+。你也可以设定成「 <samp>-</samp> 」，来从标准输入读记录档。可同时指
+定好几个档案，若其中有标准输入，会通通写到标准输出。可以指定 GZIP 压
+缩档。</dd>
+
+
+<dt>-s, --suffix=附加档名</dt>
+
+<dd>反查结果档的附加档名。预设的附加档名是「 <samp>.resolved</samp>
+」。</dd>
+
+
+<dt>-o, --override=模式</dt>
+
+<dd>如果有同名的反查结果档，该怎么办。目前有下列模式：
+
+
+<dl>
+<dt>o, overwrite</dt>
+
+<dd>盖掉旧档。如果只有设定 <samp>--override</samp> ，没有设定模式，那
+会当你想要盖掉旧档。</dd>
+
+
+<dt>a, append</dt>
+
+<dd>和旧档加在一起。</dd>
+
+
+<dt>f, fail</dt>
+<dd>结束程式，以免不小心破坏旧档。预设是 <samp>fail</samp> 。</dd>
+</dl>
+</dd>
+
+
+<dt>-k, --keep=模式</dt>
+<dd>原记录档要怎么处理。目前有下列模式：
+
+
+<dl>
+<dt>a, all</dt>
+
+<dd>完全保留原档。如果只有设定 <samp>--keep</samp> ，没有设定模式，那
+会当你想要保留原档。</dd>
+
+
+<dt>r, restart</dt>
+
+<dd>反查后，原记录档归零。</dd>
+
+
+<dt>d, delete</dt>
+
+<dd>反查后，删除原记录档。预设是删除原档。</dd>
+</dl>
+</dd>
+
+
+<dt>-c, --stdout</dt>
+
+<dd>把结果输出到标准输出。</dd>
+
+
+<dt>-d, --debug</dt>
+
+<dd>显示详细的执行过程。</dd>
+
+
+<dt>-q, --quiet</dt>
+
+<dd>没事不要吵。 :p</dd>
+
+
+<dt>-h, --help</dt>
+
+<dd>显示程式说明。</dd>
+
+
+<dt>-v, --version</dt>
+<dd>显示程式版本。</dd>
+</dl>
+
+
+<h2>版权声明</h2>
+
+<p>版权所有 &copy; 2001-2005 依玛猫。依玛猫保有所有权利。</p>
+
+<p>本程式是自由软体，您可以遵照自由软体基金会 (Free Software
+Foundation) 出版的 <cite><abbr>GNU</abbr> 通用公共许可证</cite>条款
+(<cite><abbr>GNU</abbr> General Public License</cite>) 第二版来修改和
+重新发布这一程式，或者自由选择使用任何更新的版本。</p>
+
+<p>发布这一程式的目的是希望它有用，但没有任何担保。甚至没有适合特定目
+的而隐含的担保。更详细的情况请参阅 <cite><abbr>GNU</abbr> 通用公共许
+可证</cite>。</p>
+
+<p>您应该已经和程式一起收到一份 <cite><abbr>GNU</abbr> 通用公共许可
+证</cite>的副本。如果还没有，写信给： Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.</p>
+
+
+<h2>版本纪录</h2>
+
+<p>请阅读 <samp>RELEASE_NOTES</samp> 档，查看程式的演变、新增的功能和
+修补的错误。</p>
+
+
+<h2>错误回报</h2>
+
+<p>reslog 在 SourceForge 有申请一个邮件通讯群组 Mailing List
+<samp>reslog-users@lists.sourceforge.net</samp> ，供 reslog 的使用
+者讨论、回报问题。加入邮件通讯的网址在 <a
+href="http://lists.sourceforge.net/lists/listinfo/reslog-users"><samp>http://lists.sourceforge.net/lists/listinfo/reslog-users</samp></a>
+。若有任何 reslog 使用上的问题、建议或错误回报，请先上该网址，加入
+邮件通讯后，将问题提到通讯上讨论，谢谢。</p>
+
+
+</div>
+
+<address>依玛猫 &lt;<a
+href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;
+初稿 2001-07-04 ，上次更新日期 2005-04-24</address>
+
+
+<hr />
+<address>
+<a href="http://validator.w3.org/check/referer"><img
+    src="http://www.w3.org/Icons/valid-xhtml11"
+    alt="Valid XHTML 1.1!"
+    style="height: 31px; width: 88px;" /></a>
+本页符合 XHTML 1.1 规格
+</address>
+
+</body>
+</html>

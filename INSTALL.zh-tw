@@ -1,0 +1,78 @@
+目錄
+
+　◎安裝指南
+　◎其它 Perl 模組支援
+
+
+安裝指南
+
+　　其實， reslog 根本不用安裝。直接跑就是了。 ^_*'
+
+　　好吧，如果你不給它安裝個一下，就會輾轉難眠的話，那就請看以下的安裝指南吧。
+再次強調，妳可以不用看以下的安裝指南。直接跑就是了。
+
+　　從第三版起， reslog 改用 Perl 標準的 ExtUtils::MakeMaker 安裝，程序如下：
+
+  % perl Makefile.PL
+  % make
+  % make test
+  % make install
+
+　　在 make install 前，請先確認你有在安裝目錄存檔的權限。通常這時後都要切到
+root ，才能安裝存檔。
+
+　　如果你用的是 MSWin32 下的 ActivePerl ， make 請改用 nmake 。 nmake 可由微
+軟的 FTP 站下載：
+
+  ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
+
+　　若要安裝到其它地方，請設定好 PREFIX 。例如，一個一般使用者，要安裝在自己的
+目錄下時：
+
+  % perl Makefile.PL PREFIX=/home/jessica
+
+　　要知道更多安裝選項的細節，請參閱 ExtUtils::MakeMaker 的說明（請執行
+perldoc ExtUtils::MakeMaker ）。
+
+　　若你是由 reslog.pl 第二版昇級，請參閱 UPGRADE 檔的昇級說明。
+
+　　本版 reslog 至少需要 Perl 5.7.2 以上，以便支援 ithread 多線程功能。若要安
+裝／昇級到你的 Perl ，請上 Perl 的網站 http://www.perl.com/ 。若你是 MSWin32
+的使用者，你可以到 ActiveState 公司的網站，下載免費的 Perl 程式：
+http://www.activestate.com/ 。
+
+
+其它 Perl 模組支援
+
+　　你可以安裝下列 Perl 模組，以支援更多功能：
+
+   1. File::MMagic ：這是檢查檔案類型用的。若沒有安裝， reslog 會試著去找 file
+      程式代替。若還找不到， reslog 會改用檔尾（副檔名）判斷檔案類型。這時若從
+      標準輸入讀檔， reslog 會無法判斷。  MSWin32 使用者可以由 GnuWin32 網站下
+      載 file.exe 程式： http://gnuwin32.sourceforge.net/packages/file.htm 。
+      請確認下載後，存檔在系統的路徑下，檔名為 file.exe 。
+
+   2. Compress::Zlib ：這是支援讀寫 gzip 壓縮檔用的，只有在存取 gzip 壓縮檔才
+      會用到。若要用時沒有安裝， reslog 會試著去找 gzip 程式代替。若還找不到，
+      reslog 就無法執行。若你是 ActivePerl MSWin32 使用者，可以用
+      ppm install Compress::Zlib 安裝，或由 gzip 網站下載 gzip.exe ：
+      http://www.gzip.org/ 。請確認下載後，存檔在系統的路徑下，檔名為 gzip.exe
+      。
+
+   3. Compress::Bzip2 第二版以上： 這是支援讀寫 bzip2 壓縮檔用的，只有在存取
+      bzip2 壓縮檔才會用到。若要用時沒有安裝， reslog 會試著去找 bzip2 程式代
+      替。若還找不到， reslog 就無法執行。到我寫這一篇說明的時候為止，
+      ActivePerl MSWin32 的 ppm 模組庫裏都還沒有 Compress::Bzip2 。不過
+      MSWin32 的使用者還是可以由 bzip2 網站下載 bzip2.exe ：
+      http://sources.redhat.com/bzip2/ 。請確認下載後，存檔在系統的路徑下，檔
+      名為 bzip2.exe 。
+
+   4. Term::Size ：這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會
+      有任何問題。進度列可以讓你對 reslog 的工作進度一目瞭然。 Term::Size 只能
+      在 UNIX 下安裝，在 MSWin32 下， reslog 會改用 Win32::Console 。
+
+
+依瑪貓
+2005-04-26
+imacat@mail.imacat.idv.tw
+http://www.imacat.idv.tw/

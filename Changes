@@ -1,0 +1,231 @@
+reslog change log
+
+2005-04-26	version 2.9901
+	 1. INSTALL rewritten.
+	 2. UPGRADE added.
+
+2005-04-25
+	 1. Module::Signature SIGNATURE gpg signature file
+	    added.
+	 2. Test suite added.
+	 3. Many bugs fixed, thanks to the test suite.
+
+2005-04-24	version 2.99
+	This is a new object-oriented version.  I rewrote
+	the whole script from an empty file.
+	 1. Rewrite everything in object-oriented style.
+	 2. ithread threading support is added.  With
+	    threading it can check several IP at the same
+	    time, dramatically reducing the time cost.
+	    This requires Perl 5.7.2 ithread support.  New
+	    option --num-threads is added for this.  You
+	    can see the effect by running with -d -d.
+	 3. Supports for running gzip executable, running
+	    Compress::Bzip2, running bzip2 executable are
+	    added.  This is the benefit of object-oriented
+	    programming.  Log entry read/write is now done
+	    through an uniformed I/O handler API.  This
+	    eased the addition of new I/O handlers.
+	 4. New option --trim-suffix is added to remove
+	    certain file name suffix before appending our
+	    suffix, so that reslog can line-up with other
+	    log file post-processers.
+	 5. file utility can be used instead of
+	    File::MMagic if that is not available.
+	 6. Term::Size is used to display the progress bar
+	    under UNIX.  Under MSWin32 Win32::Console will
+	    be used instead.  reslog can run without them,
+	    but you won't see the progress bar.
+	 7. Instead of resolving line by line, reslog now
+	    collects all the IP found on all the source
+	    log files first, resolve those IP altogether,
+	    and replace the IP with the resolved domain
+	    name in the log entries at one time.
+	 8. The script and project name changed from
+	    "reslog.pl" to "reslog".  A dot "." in the
+	    project name is not valid everywhere, like
+	    SourceForge.  "reslog" is enough for a script
+	    name under UNIX.  Win32 users won't run it
+	    with explorer file association anyway, and
+	    there is a pl2bat to turn reslog to reslog.bat.
+	 9. Installation method is changed from my own
+	    Install.PL to Perl's standard
+	    ExtUtils::MakeMaker.  Utilizing standard is
+	    a good thing.  Perl's ExtUtils::MakeMaker is
+	    more portable than GNU's autoconf.  As a
+	    result, reslog is installed into /usr/bin
+	    instead of /usr/sbin under UNIX.  Of course,
+	    reslog don't need installation at all. :p
+	10. Version number is changed from 3 digits (2.1.0)
+	    to 2 digits (3.00), according to the Perl module
+	    convention.
+	11. ChangeLog is renamed as Changes, as what
+	    ExtUtils::MakeMaker expects.
+
+2003-01-04
+	 1. File handler EOF read checks were fixed with
+	    defined().
+
+2002-11-13
+         1. Long statistic lines are split for easy reading.
+         2. open_src() was rewritten according to open_src()
+            in arclog.pl, in order to use comression with
+            gzip and bzip2 binary executables.
+
+2002-11-12
+	 1. RELEASE_NOTES was renamed as ChangeLog.
+	 2. AUTHORS was added.
+	 3. THANKS was added.
+	 4. The option checking logic was rewritten.
+	 5. Fixed several places where $WORKING_SRC was not
+	    locked when created with tempfile.
+	 6. Fixed several places where spaces are between
+	    function name and its opening parenthesis,
+	    according to perlstyle(1).
+	 7. Unnecessary parenthesis after slice and catfile
+	    were removed.
+
+2002-10-28
+	 1. Fixed a bug that $WORKING_RES was not locked
+	    when opened.  But it is unlocked when closed.
+	    On some systems (like linux) you can request
+	    unlock on a filehandle that is not previous
+	    locked, but on some others (like win32)
+	    requesting unlock on a filehande that is not
+	    previous locked will cause error.
+	    $WORKING_RES doesn't really need locking at
+	    all.  It is an anonymous temporary file handle,
+	    that can be accessed by this same working
+	    process only.  It has no risk of simultaneously
+	    writing without threading, and I'm not doing
+	    threading here.  I just lock it for a
+	    consistent programming style.
+	    (Thanks to Chen-hsiu Huang
+	    <chenhsiu@gens.dhs.org> for reporting this.)
+
+2002-09-28
+	 1. File::MMagic and file are now used to check the
+	    file type, in addition to the file name suffix,
+	    with a more preferred order.
+	 2. check_file_type() was added to check the file
+	    types by either File::MMa
+	 3. check_gzip() was added to check the gzip method
+	    to use.
+	 4. check_bzip2() was added to check the bzip2
+	    method to use.
+
+2002-09-18	version 2.1.0dev2
+	SourceForge Memorial Release.  It's my first time
+	to apply a project from SourceForge.  Mostly are
+	corrections to the documentation.  SourceForge's
+	project page is added to the available download
+	source here.
+	 1. reslog.pl's official home page at Tavern
+	    IMACAT's was restored.
+	 2. The previous version was renamed from
+	    2.1.0-dev1 to 2.1.0dev1, in order to unify
+	    the version number theme.
+	 3. The project space at SourceForge was applied.
+	    Package files are uploaded to SourceForge now.
+	 4. Project virtual host at SourceForge was set up.
+	 5. SourceForge was added into the documentation
+	    as an official website and download source.
+	 6. Documentation were corrected.  Too many places
+	    were corrected.  Ignored.
+	 7. HTML document was rewritten to accommodate
+	    XHTML 1.1 recommendation.
+
+2002-08-31	version 2.1.0dev1
+	Rewrite after almost 1 year, to be run on the
+	newly-released perl 5.8.0.
+	 1. Filehandles are now saved and passed in global
+	    named variables.  This is the way it should be.
+	    The old way (initialize the file handles by
+	    duplicate the STDIN and assign them) was just
+	    not natural.  It works in perl 5.6.1, but not in
+	    perl 5.8.0.  The duplicated filehandles are
+	    constants, which cannot be assigned new values.
+	 2. Indents are changed from 1 tab to 4 columns, to
+	    accommodate the perl style guide documented in
+	    perlstyle(1).  This increases the code
+	    readability.
+	 3. File operation error handlers are now using the
+	    low-precedence logical "or", instead of "||",
+	    which is recommended in perlop(1).  Excessive
+	    parentheses in file operation functions are
+	    removed for this.
+	 4. Traditional Chinese files are now named with
+	    suffix ".zh-tw" instead of ".b5".  Simplified
+	    Chinese files are now named with suffix ".zh-cn"
+	    instead of ".gb".  This is to accommodate
+	    RFC-3066, ISO 639:1988, ISO 3166-1 for language
+	    names.
+	 5. PGP signatures of distribution files are added.
+	 6. bzip2 distribution files are added.
+
+2001-09-03	version 2.0.2
+	 1. The bug that taking file handles as private
+	    variables and modified them, was fixed.
+
+2001-09-01	version 2.0.1
+	 1. The bug that resolved cache %NAMES was not
+	    global, was fixed. The resolved result can be
+	    pass between multiple files now.
+	 2. A bug that a hyper reference in the English
+	    document was not specified as an absolute URL,
+	    was fixed.
+
+2001-06-29	version 2.0.0
+	First public release.
+	 1. Chinese and English standard header were added.
+	 2. Getopt::Long was introduced to parse the
+	    arguments, in replace of my own argument-parsing
+	    routine.
+	 3. File::Spec::Functions was introduced to handle
+	    the pathnames.
+	 4. Cwd was introduced to obtain the current working
+	    directory.
+	 5. autoflush from IO::Handle was introduced, to
+	    autoflush STDOUT solely under debugging mode.
+	 6. File::Temp was introduced to handle the
+	    temporary working file. Processing is done on
+	    temporary working files to reduce the time
+	    occupying the source and result files.
+	 7. Compress::Zlib was used to read the compressed
+	    files.
+	 8. rel2abs() was added to convert relative paths
+	    to absolute paths.
+	 9. progress_bar() was added to display current
+	    status graphically.
+	10. res_log() was added to loop multiple files.
+	11. open_src() and save_res() to open source and
+	    save result.
+	12. POD documents was added.
+	13. Release notes was added.
+	14. Readme file was added.
+	15. GNU General Public License was added.
+	16. Installation guide was added.
+	17. Install.PL was added in the distribution.
+
+2001-01-21	version 1.3.1
+	 1. autoflush was modified to do only under
+	    debugging mode.
+	 2. Simple header was changed standard header.
+
+2001-01-07	version 1.3.0
+	 1. [current/total] was added in the detailed
+	    processing messages.
+
+2000-??-??	version 1.2.0
+	 1. Custom parse_args() was added to parse the
+	    command line arguments.
+
+2000-??-??	version 1.1.0
+	 1. "--usetmp" was added to process temporary
+	    working files.
+	 2. "--suffix" was added to alter the output suffix.
+	 3. "--debug" was added to show detailed processing
+	    messages.
+
+2000-12-22	version 1.0.0
+	First version.

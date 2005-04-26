@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="US-ASCII" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta name="author" content="imacat" />
+<meta name="copyright" content="&copy; 2001-2005 imacat.  All rights reserved." />
+<meta name="keywords" content="DNS look up, HostNameLookups, Apache, Analog, log files" />
+<title>reslog v3.00</title>
+</head>
+<body>
+
+<address>
+<a href="reslog.zh-tw.html">&#32321;&#39636;&#20013;&#25991;</a> |
+<a href="reslog.zh-cn.html">&#31616;&#20307;&#20013;&#25991;</a> |
+<a href="reslog.en.html">English</a>
+</address>
+<hr />
+
+
+<h1><samp>reslog</samp> v3.00</h1>
+
+
+<div class="body">
+
+<h2>What's New?</h2>
+
+<dl>
+
+<dt>2005-04-24</dt>
+
+<dd><samp>reslog</samp> v3.00 is released.  I rewrite everything.  The code is now object-oriented.  ithreads Threading support is added so that it is really fast now.  Resolving is now by collecting all the <abbr title="Internet Protocol">IP</abbr> appeared in all log files, resolving them altogether, and replacing <abbr title="Internet Protocol">IP</abbr> with the resolved host names in the log records, instead of resolving line by line.  bzip2 compression is supported.  Compressing and decompressing using gzip and bzip2 executables without installing Compress::Zlib and Compress::Bzip2 is now possible, although discouraged.  Certain file name suffix can be removed before outputing the result file, so that it can be line-up with other log file filters.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.00.tar.gz">Download <samp>reslog</samp> v3.00</a>.</dd>
+
+
+<dt>2002-09-18</dt>
+
+<dd><samp>reslog.pl</samp> v2.1.0dev2 is released.  This release corrects several documentation errors.  It also adds <a href="http://sourceforge.net/">SourceForge</a> in the documentations as one of the sources of <samp>reslog.pl</samp>.  You can think of it as a <q>Source Forge Memorial Release</q>. :p  You don't have to upgrade to this version in a rush.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz">Download <samp>reslog.pl</samp> v2.1.0dev2</a>.</dd>
+
+
+<dt>2002-09-17</dt>
+
+<dd><samp>reslog.pl</samp> is hosted at <a href="http://sourceforge.net/projects/reslog/">SourceForge</a> now!  Congratulations!  (Although I'm still trying hard to get it working at this time... ^^; )</dd>
+
+
+<dt>2002-08-31</dt>
+
+<dd><samp>reslog.pl</samp> v2.1.0dev1 is released.  This release fixes the problem that it wouldn't run with <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0.  I marked it as <q>dev</q> because I wish I can implement <a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a> and <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a> in the 2.1.0 stable release.  But it is is in fact very stable.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz">Download <samp>reslog.pl</samp> v2.1.0dev1</a>.</dd>
+
+</dl>
+
+
+<h2>Description</h2>
+
+<p><samp>reslog</samp> reverse-resolves <abbr title="Internet Protocol">IP</abbr> in the Apache log files.  These log files can then be analyzed by another program, like Analog.  You can think of it as a replacement of Apache <samp>HostNameLookups</samp> directive, in the sense that it resolves the client <abbr title="Internet Protocol">IP</abbr> altogether once a day.</p>
+
+
+<h2>Caution</h2>
+
+<ul>
+
+<li><em>Resolving takes long time</em>.  This is mainly caused by resolving:  Network packets may be filtered by firewalls; <abbr title="Domain Name Service">DNS</abbr> servers may not be correctly configured; may not be up working; may sit in slow network sections; may be old slow machines; may have traffic jam... <abbr title="et cetera">etc</abbr>.  All these reasons are out of our control.  In order to avoid simultaneously writing to the log file while resolving, that may ruin the log file, it uses <samp>flock()</samp> to prevent writing from other programs (or another instance of itself) that utilize <samp>flock()</samp>, too.  In order to prevent from those that do not utilize <samp>flock()</samp>, like <samp>httpd</samp>, it copies the records to a temporary working file first, to minimize the time occupying the log file.</li>
+
+<li>If it stops in the middle of its execution, as when the user hits a <samp>Ctrl-Break</samp>, it may leave a temporary working file. The next time it runs, it will stop when it sees that temporary working file at the first sight.  Please process that file first.  You can resolve it again, just like an ordinary log file.</li>
+
+<li>This prorgam needs temporary working space.  Between memory and disk space, I choose disk space, since it is cheaper and may be available in more environments.  However, this means that it needs free temporary disk space about 2 times of the size of the source log log file (10 times if using memory).  Please make sure you have that much free space.</li>
+
+</ul>
+
+
+<h2>System Requirement</h2>
+
+<ol>
+
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.7.2 or above.  This program requires the new ithreads <abbr title="Application Programming Interface">API</abbr> that is only available from <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version 5.7.2.  <acronym title="Practical Extraction and Reporting Language">Perl</acronym> is distributed with most Unix now.  If not, or if you have an older version of <acronym title="Practical Extraction and Reporting Language">Perl</acronym>, you can download and install/upgrade it from <a href="http://www.perl.com/">the <acronym title="Practical Extraction and Reporting Language">Perl</acronym> website</a>.  If you are using MSWin32, you can download and install ActivePerl from <a href="http://www.activestate.com/">ActiveState Corporation</a>.</li>
+
+<li>Required <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules: none</a>.
+
+<li>Optional <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules:
+<ol>
+<li><a href="http://search.cpan.org/dist/File-MMagic/"><samp>File::MMagic</samp></a>:  If it is missing, <samp>reslog</samp> will try to use <samp>file</samp> or check the file name suffix instead.</li>
+
+<li><a href="http://search.cpan.org/dist/Compress-Zlib/"><samp>Compress::Zlib</samp></a>:  It is only needed to process gzip compressed files.  If it is missing when needed, <samp>reslog</samp> will try to use <samp>gzip</samp> executable instead, and if that is not found, too, <samp>reslog</samp> stops.  Non-UNIX users that don't have <samp>gzip</samp> need to install <samp>Compress::Zlib</samp> to process gzip compressed files.</li>
+
+<li><a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a>:  It is only needed to process bzip2 compressed files.  If it is missing when needed, <samp>reslog</samp> will try to use <samp>bzip2</samp> executable instead, and if that is not found, too, <samp>reslog</samp> stops.  Non-UNIX users that don't have <samp>bzip2</samp> need to install <samp>Compress::Bzip2</samp> to process bzip2 compressed files.</li>
+
+<li><a href="http://search.cpan.org/dist/Term-Size/"><samp>Term-Size</samp></a>:  It is needed under UNIX to display the progress bar.  If it is missing, no progress bar is displayed.  For MSWin32, it will use <samp>Win32::Console</samp> instead.</li>
+</ol>
+
+You can always search, download and install the missing <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules from the the <a href="http://search.cpan.org/"><abbr title="Comprehensive Perl Archive Network">CPAN</abbr> archieve</a>.</li>
+</ol>
+
+
+<h2>Download</h2>
+
+<p><samp>reslog</samp>'s official websites is at...</p>
+
+<ul>
+<li><a href="http://reslog.sourceforge.net/"><samp>reslog</samp>'s Home Page at SourceForge</a></li>
+<li><a href="http://sourceforge.net/projects/reslog/"><samp>reslog</samp>'s Project Page at SourceForge</a></li>
+<li><a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>reslog</samp>'s Page at Tavern IMACAT's</a></li>
+</ul>
+
+<p>You can always download the newest version of <samp>reslog</samp> from...</p>
+
+<ul>
+<li><a href="https://sourceforge.net/project/showfiles.php?group_id=62500">SourceForge download page</a></li>
+<li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">Tavern IMACAT's <abbr title="File Transfer Protocol">FTP</abbr> directory</a></li>
+</ul>
+
+<p>imacat's <abbr title="Pretty Good Privacy">PGP</abbr> public key is at...</p>
+
+<ul>
+<li><a href="http://reslog.sourceforge.net/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at <samp>reslog</samp>'s Home Page at SourceForge</a></li>
+<li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at Tavern IMACAT's</a></li>
+</ul>
+
+
+<h2>Install</h2>
+
+
+<p>Well, <samp>reslog</samp> doesn't need installation. :p  Just run it.</p>
+
+<p>Okay, okay.  In case that you can't get a good sleep without proper installation, here is the instruction.  Notice that you can completely ignore this.  Just run it.</p>
+
+<p>Starting from version 3, <samp>reslog</samp> uses standard <acronym title="Practical Extraction and Reporting Language">Perl</acronym> installation with <samp>ExtUtils::MakeMaker</samp>.  Follow these steps:</p>
+
+<blockquote><pre>
+% perl Makefile.PL
+% make
+% make test
+% make install
+</pre></blockquote>
+
+<p>When running <q><samp>make install</samp></q>, make sure you have the priviledge to write to the instalation location.  This usually requires the root priviledge.</p>
+
+<p>If you are using ActivePerl under MSWin32, you should use <samp>nmake</samp> instead of <samp>make</samp>.  <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe"><samp>nmake</samp> can be obtained from the Microsoft <abbr title="File Transfer Protocol">FTP</abbr> site.</a></p>
+
+<p>If you want to install into another location, you can set the <samp>PREFIX</samp>.  For example, to install into your home when you are not <samp>root</samp>:</p>
+
+<blockquote><pre>
+% perl Makefile.PL PREFIX=/home/jessica
+</pre></blockquote>
+
+<p>Refer to the docuemntation of <samp>ExtUtils::MakeMaker</samp> for more installation options (by running <q><samp>perldoc ExtUtils::MakeMaker</samp></q>).</p>
+
+<p>If you are upgrading from <samp>reslog.pl</samp> version 2, please read <samp>UPGRADE</samp> for some upgrade instruction.</p>
+
+
+<h2>Options</h2>
+
+<pre>
+./reslog [options] [logfile...]
+./reslog [-h|-v]
+</pre>
+
+
+<dl>
+<dt><var>logfile</var></dt>
+
+<dd>The log file to be resolved.  Multiple log files are supported.  If not specified, it will read from <samp>STDIN</samp> and output to <samp>STDOUT</samp>.  You can also specify <q><samp>-</samp></q> to read from <samp>STDIN</samp>.  Result of <samp>STDIN</samp> will go to <samp>STDOUT</samp>.  Gzip and bzip2 compressed files are supported, too.</dd>
+
+
+<dt>-k, --keep=<var>mode</var></dt>
+
+<dd>What to keep in the source file.  Currently the following modes are supported:
+
+
+<dl>
+<dt>a, all</dt>
+
+<dd>Keep the source file after records are archived.</dd>
+
+
+<dt>r, restart</dt>
+
+<dd>Restart the source file after records are resolved.  This is the default.</dd>
+
+
+<dt>d, delete</dt>
+
+<dd>Delete the source file after records are resolved.</dd>
+</dl>
+</dd>
+
+
+<dt>-o, --override=<var>mode</var></dt>
+
+<dd>Whether we should overwrite the existing resolved files.  Currently the following modes are supported:
+
+
+<dl>
+<dt>o, overwrite</dt>
+
+<dd>Overwrite existing target files.</dd>
+
+
+<dt>a, append</dt>
+
+<dd>Append the records to existing target files.</dd>
+
+
+<dt>f, fail</dt>
+
+<dd>Stop processing whenever a target file exists, to prevent destroying existing files by accident.  This is the default.</dd>
+</dl>
+</dd>
+
+
+<dt>-s, --suffix=<var>suf</var></dt>
+
+<dd>The suffix to be appended to the output file. If not specified, the default is <q><samp>.resolved</samp></q>.</dd>
+
+
+<dt>-t, --trim-suffix=<var>suf</var></dt>
+
+<dd>The suffix to be trimmed from the input file name before appending the above suffix.  Default is none.  If you are running several log file filters, this can help you trim the suffix of the previous one.</dd>
+
+
+<dt>-n, --num-threads=<var>num</var></dt>
+
+<dd>Number of threads to run simultaneously.  The default is 10.  Use 0 to disable threading.  This option has no effect on systems that does not support threading.</dd>
+
+
+<dt>-c, --stdout</dt>
+
+<dd>Output the result to <samp>STDOUT</samp>.</dd>
+
+
+<dt>-d, --debug</dt>
+
+<dd>Show the detailed debugging messages.  More <samp>-d</samp> to be more detailed.</dd>
+
+
+<dt>-q, --quiet</dt>
+
+<dd>Shihhhhhh.  Only yell when errors.</dd>
+
+
+<dt>-h, --help</dt>
+
+<dd>Display the help message and exit.</dd>
+
+
+<dt>-v, --version</dt>
+
+<dd>Output version information and exit.</dd>
+</dl>
+
+
+<h2>Copyright</h2>
+
+<p>Copyright &copy; 2001-2005 imacat.  All rights reserved.</p>
+
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful, but <em>WITHOUT ANY WARRANTY</em>; without even the implied warranty of <em>MERCHANTABILITY</em> or <em>FITNESS FOR A PARTICULAR PURPOSE</em>.  See the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> for more details.</p>
+
+<p>You should have received a copy of the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> along with this program; if not, write to the Free Software Foundation, <abbr title="Incorporated">Inc.</abbr>, 675 Mass Ave, Cambridge, <abbr title="Massachusetts">MA</abbr> 02139, <abbr title="United States of America">USA</abbr>.</p>
+
+
+<h2>Release Notes</h2>
+
+<p>Please read the <samp>Changes</samp> for the new functions and bug fixes.</p>
+
+
+<h2>Bugs</h2>
+
+<p>reslog has a <a href="https://lists.sourceforge.net/lists/listinfo/reslog-users">mailing list <samp>reslog-users@lists.sourceforge.net</samp></a>.  If you have any question, comment, bug report, patch, please send it to the mailing list.  Do not send mails directly to me unless you have private business with me.  The mailing list has an archive.  People having the same trouble as you may search the archive, find the answer and save a lot of time.</p>
+
+
+</div>
+
+<address>By imacat &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;, first version 2001-07-04, last updated 2005-04-26</address>
+
+
+<hr />
+<address>
+<a href="http://validator.w3.org/check/referer"><img
+    src="http://www.w3.org/Icons/valid-xhtml11"
+    alt="Valid XHTML 1.1!"
+    style="height: 31px; width: 88px;" /></a>
+This page conforms with <abbr title="Extensible Hypertext Markup Language">XHTML</abbr> 1.1 / <abbr title="Cascading Style Sheets, level 2 revision 1">CSS2.1</abbr> recommendations
+</address>
+
+</body>
+</html>
