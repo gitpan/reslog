@@ -1,15 +1,31 @@
 reslog 更新记录
 
+2005-04-26	3.01 版
+	错误修正。
+	 1. --suffix 与 --trim-suffix 无法正常运作。我在
+	    GetOptions() 里误把 $_[0] 当 $_[1] 使用，而且完
+	    全没有发现！ ^^; 现已修正。
+	 2. 修正说明文件的错别字（ rewrite 应为 rewrote ）。
+	 3. 修正 Changes.zh-cn 未随 Changes.zh-tw 更新之误。
+
 2005-04-26	3.00 版
+	 1. README 说明更新。
+	 2. HTML 说明文件更新。
+	 3. 上传到 CPAN 。
+	 4. HTML 文件更新，以符合 W3C WCAG 无障碍网页规范
+	    1.0 三 A 级规定。
+
+2005-04-26	2.9901 版
 	 1. 重写 INSTALL 安装说明。
 	 2. 加上 UPGRADE 升级说明。
 
 2005-04-25
-	 1. 加上 Module::Signature SIGNATURE gpg 签名档。
+	 1. 加上 Module::Signature SIGNATURE gpg 签章档，停
+	    用外附签章档。
 	 2. 加上测试程式。
 	 3. 因为有测试程式，修正了很多错误。
 
-2005-04-24	2.99 
+2005-04-24	2.99 版
 	这是物件导向新版。我从头开始重写整个程式。
 	 1. 以物件导向模式，从头重写。
 	 2. 加上 ithread 多线程支援，可同时反查多个 IP ，大

@@ -1,5 +1,13 @@
 reslog 更新記錄
 
+2005-04-26	3.01 版
+	錯誤修正。
+	 1. --suffix 與 --trim-suffix 無法正常運作。我在
+	    GetOptions() 裏誤把 $_[0] 當 $_[1] 使用，而且完
+	    全沒有發現！ ^^; 現已修正。
+	 2. 修正說明文件的錯別字（ rewrite 應為 rewrote ）。
+	 3. 修正 Changes.zh-cn 未隨 Changes.zh-tw 更新之誤。
+
 2005-04-26	3.00 版
 	 1. README 說明更新。
 	 2. HTML 說明文件更新。

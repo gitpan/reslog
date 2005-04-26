@@ -1,5 +1,16 @@
 reslog change log
 
+2005-04-26	version 3.01
+	Bug fix.
+	 1. --suffix and --trim-suffix was not working.
+	    I mistakenly put $_[0] instead of $_[1] in
+	    the GetOptions() and this wasn't tested! ^^;
+	    This is fixed.
+	 2. Correct a typo in the documentation ("rewrite"
+	    should be "rewrote").
+	 3. Fixed a mistake that Changes.zh-tw was not
+	    updated with Changes.zh-cn.
+
 2005-04-26	version 3.00
 	 1. README updated
 	 2. HTML documentation updated.

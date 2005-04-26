@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# relog: Reverse-resolve IP in Apache log files
+# reslog: Reverse-resolve IP in Apache log files
 
 # Copyright (c) 2000-2005 imacat
 # 
@@ -40,7 +40,7 @@ use threads;
 use threads::shared;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.00";
+$VERSION = "3.01";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw($THIS_FILE $SHORTHELP $VERBOSE TMP_SUFFIX);
@@ -211,13 +211,13 @@ sub parse_args() {
                         } else {
                             die "$THIS_FILE: unknown override mode: $_[1]\n";
                         } },
-                    "suffix|s=s"=>sub { $_{"SUFFIX"} = $_[0]; },
-                    "trim-suffix|t=s"=>sub { $_{"TRIM_SUFFIX"} = $_[0]; },
+                    "suffix|s=s"=>sub { $_{"SUFFIX"} = $_[1]; },
+                    "trim-suffix|t=s"=>sub { $_{"TRIM_SUFFIX"} = $_[1]; },
                     "num-threads|n=i"=>sub {
                         die "$THIS_FILE: invalid number of threads: $_[1]\n"
                             if $_[1] < 0;
                         $THREADS = $_[1]; },
-                    "stdout|c!"=>sub { $_{"STDOUT"} = $_[0]; },
+                    "stdout|c!"=>sub { $_{"STDOUT"} = $_[1]; },
                     "debug|d"=>sub { $VERBOSE++; },
                     "quiet|q"=>sub { $VERBOSE = 0; },
                     "help|h"=>sub { print $HELPSTR; exit 0; },
@@ -2253,7 +2253,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.00
+3.01
 
 =head1 COPYRIGHT
 
