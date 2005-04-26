@@ -3,25 +3,33 @@
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-tw">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=Big5" />
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=Big5" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 <meta name="author" content="依瑪貓" />
 <meta name="copyright" content="&copy; 2001-2005 依瑪貓。依瑪貓保有所有權利。" />
 <meta name="keywords" content="DNS 反查, HostNameLookups, Apache, Analog, 記錄檔" />
-<title>reslog v3.00</title>
+<link rel="alternate" type="text/html" href="reslog.zh-cn.html"
+     hreflang="zh-cn" title="&#31616;体中文" />
+<link rel="alternate" type="text/html" href="reslog.en.html"
+     hreflang="en-us" title="English" />
+<title>reslog 3.00 版</title>
 </head>
 <body>
 
 <address>
-<a href="reslog.zh-tw.html">&#32321;&#39636;&#20013;&#25991;</a> |
-<a href="reslog.zh-cn.html">&#31616;&#20307;&#20013;&#25991;</a> |
-<a href="reslog.en.html">English</a>
+    <span>正體中文</span> |
+    <span xml:lang="zh-cn"><a href="reslog.zh-cn.html"
+        title="切&#25442;到本&#39029;的&#31616;体中文版。"
+        hreflang="zh-cn">&#31616;体中文</a></span> |
+    <span xml:lang="en-us"><a href="reslog.en.html"
+        title="Switch to the English version of this page."
+        hreflang="en-us">English</a></span>
 </address>
 <hr />
 
 
-<h1>reslog v3.00</h1>
+<h1><samp>reslog</samp> 3.00 版</h1>
 
 
 <div class="body">
@@ -30,33 +38,38 @@
 
 <dl>
 
+<dt>2005-04-26</dt>
+
+<dd><samp>reslog</samp> 最新版本 3.00 。我用物件導向模式，從頭重寫。新加上 ithreads 多線程功能，大幅加快執行速度。支援 bzip2 壓縮檔。支援用 <samp>gzip</samp> 或 <samp>bzip2</samp> 程式解壓縮，不需安裝 <samp>Compress::Zlib</samp> 和 <samp>Compress::Bzip2</samp> 模組（不建議使用）。可先裁掉某些檔尾，再加上我們的檔尾，以便和其他記錄檔處理程式一起作業。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.00.tar.gz" type="application/x-gzip">下載 <samp>reslog</samp> 3.00 版</a>。</dd>
+
+
 <dt>2002-09-18</dt>
 
-<dd>reslog.pl 最新版本 v2.1.0dev2 。本版修正了幾個說明文件的錯誤，並把 <a href="http://sourceforge.net/">SourceForge</a> 加進 reslog.pl 的下載網址中。妳可以把它當做<q>申請 SourceForge 紀念版</q>。原則上，不需要急著昇級。若要下載，請按<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz">這裏</a>。</dd>
+<dd><samp>reslog.pl</samp> 最新版本 2.1.0dev2 。本版修正了幾個說明文件的錯誤，並把 <a href="http://sourceforge.net/" hreflang="en">SourceForge</a> 加進 <samp>reslog.pl</samp> 的下載網址中。妳可以把它當做<q>SourceForge 紀念版</q>。原則上，不需要急著昇級。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz" type="application/x-gzip">下載 <samp>reslog.pl</samp> 2.1.0dev2 版</a>。</dd>
 
 
 <dt>2002-09-17</dt>
 
-<dd>好消息！ reslog.pl 已開始架設於 <a href="http://sourceforge.net/projects/reslog/">SourceForge</a> 囉！（雖然我幾乎還完全搞不清楚要怎麼架……摸索中…… ^^; ）</dd>
+<dd>好消息！ <samp>reslog.pl</samp> 已開始架設於 <a href="http://sourceforge.net/projects/reslog/" hreflang="en">SourceForge</a> 囉！（雖然我幾乎還完全搞不清楚要怎麼架……摸索中…… ^^; ）</dd>
 
 
 <dt>2002-08-31</dt>
 
-<dd>reslog.pl 最新版本 v2.1.0dev1 。本版修正了無法在 Perl 5.8.0 執行的錯誤。我暫時還把她當成是<q>dev</q>研發版，因為我想在 2.1.0 正式版的時候，支援 <a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a> 與 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a> 。不過她其實很穩定。若要下載，請按<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz">這裏</a>。</dd>
+<dd><samp>reslog.pl</samp> 最新版本 2.1.0dev1 。本版修正了無法在 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 執行的錯誤。我暫時還把她當成是<q>dev</q>研發版，因為我想在 2.1.0 正式版的時候，支援 <a href="http://search.cpan.org/dist/Compress-Bzip2/" hreflang="en"><samp>Compress::Bzip2</samp></a> 與 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en"><samp>ExtUtils::MakeMaker</samp></a> 。不過她其實很穩定。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz" type="application/x-gzip">下載 <samp>reslog.pl</samp> 2.1.0dev2 版</a>。</dd>
 
 </dl>
 
 
 <h2>說明</h2>
 
-<p>reslog 是記錄檔的反查程式，用來反查 Apache 記錄檔裏<abbr>IP</abbr> 的主機名稱。查過後，可以套用像 Analog 之類的記錄檔統計程式。妳可以把它當做 Apache <samp>HostNameLookups</samp> 指令的替代品，每天一次反查當天所有的 <abbr>IP</abbr> 。</p>
+<p><samp>reslog</samp> 是記錄檔的反查程式，用來反查 <a href="http://httpd.apache.org/" hreflang="en">Apache</a> 記錄檔裏 <abbr>IP</abbr> 的主機名稱。查過後，可以套用像 <a href="http://analog.cx/" hreflang="en">Analog</a> 之類的記錄檔統計程式。妳可以把它當做 Apache <samp>HostNameLookups</samp> 指令的替代品，每天一次反查當天所有的 <abbr>IP</abbr> 。</p>
 
 
 <h2>注意事項</h2>
 
 <ul>
 
-<li>反查網域名稱<em>很耗時間</em>。時間主要耗在查詢上：防火牆過濾網路封包，網域名稱伺服器設錯、沒有開機、位在慢速網路上、等級太低反應慢、網路塞車……等。這些外部因素，都不是程式本身能控制的。為了避免查詢途中，其她程式同時寫入記錄檔，導致檔案錯亂，本程式用 <samp>flock()</samp> 鎖定檔案，以防護同樣使用 <samp>flock()</samp> 的程式，例如別人跑的 <samp>reslog</samp> 。為防護不用 <samp>flock()</samp> 的程式，如 <samp>httpd</samp> ，本程式會先把原始檔複製到暫時工作檔去工作，以儘可能縮短佔用原始檔的時間。</li>
+<li>反查網域名稱<em>很耗時間</em>。時間主要耗在查詢上：防火牆過濾網路封包，網域名稱伺服器設錯、沒有開機、位在慢速網路上、等級太低反應慢、網路塞車……等。這些外部因素，都不是程式本身能控制的。</li>
 
 <li>若程式半途中斷，如按了 <samp>Ctrl-Break</samp> ，可能會殘餘一個暫時工作檔。下次執行時碰到殘存的暫時工作檔，程式會拒絕執行跳出。請先處理殘存的暫時工作檔。妳可以把暫時工作檔當成原來的記錄檔來用，重新反查。</li>
 
@@ -69,109 +82,90 @@
 
 <ol>
 
-<li>Perl 5.005 或以上。本程式使用 File::Temp 模組，需要 Perl 5.005 以後才支援的一些新功能。目前大多數的 UNIX 系統都有 Perl 。如果你沒有 Perl 或需要昇級，可以到 <a href="http://www.perl.com/"><samp>http://www.perl.com/</samp></a> 下載安裝最新版 perl 。若妳是用 MS-WINDOWS ，可以到 <a href="http://www.activestate.com/"><samp>http://www.activestate.com/</samp></a> 下載安裝。</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.7.2 以上。新版的 <samp>reslog</samp> 用多線程加速反查，要用到 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.7.2 之後的新 ithread 多線程模式。你若不想用多線程功能，可以不用，不過程式碼本身，還是要用到 ithread 。若你用的是 5.7.2 以前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本，請昇級你的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。你可以輸入 <samp>perl -v</samp> 查詢你目前的 Perl 版本。如果你沒有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要昇級，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 網站</a>下載安裝最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若妳是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下載 ActivePerl 安裝。</li>
 
-<li>本程式需要下列 Perl 模組： <a href="http://search.cpan.org/dist/File-Spec/"><samp>File::Spec::Functions</samp></a> 、 <a href="http://search.cpan.org/dist/File-Temp/"><samp>File::Temp</samp></a> 、 <a href="http://search.cpan.org/dist/Compress-Zlib/"><samp>Compress::Zlib</samp></a> 。如果你沒有，可以到 <abbr>CPAN</abbr> 程式庫 <a href="http://search.cpan.org/"><samp>http://search.cpan.org/</samp></a> 下載安裝。</li>
+<li>需搭配的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模組：無。</li>
 
+<li>選配的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模組：
+
+<dl>
+<dt><a href="http://search.cpan.org/dist/File-MMagic/" hreflang="en"><samp>File::MMagic</samp></a></dt>
+
+<dd>這是檢查檔案類型用的。若沒有安裝， <samp>reslog</samp> 會試著去找 <samp>file</samp> 程式代替。若還找不到， <samp>reslog</samp> 會改用檔尾（副檔名）判斷檔案類型。這時若從標準輸入讀檔， <samp>reslog</samp> 會無法判斷。  MSWin32 使用者可以由 <a href="http://gnuwin32.sourceforge.net/" hreflang="en-us">GnuWin32 網站</a>下載 <samp>file.exe</samp> 程式。請確認下載後，存檔在系統的路徑下，檔名為 <samp>file.exe</samp> 。</dd>
+
+<dt><a href="http://search.cpan.org/dist/Compress-Zlib/" hreflang="en"><samp>Compress::Zlib</samp></a></dt>
+
+<dd>這是處理 gzip 壓縮檔用的，只有在處理 gzip 壓縮檔才會用到。若要用時沒有安裝， <samp>reslog</samp> 會試著改用 <samp>gzip</samp> 程式代替。若還找不到， <samp>reslog</samp> 就無法執行。若你是 ActivePerl MSWin32 使用者，可以用 <samp>ppm install Compress::Zlib</samp> 安裝，或由 <a href="http://www.gzip.org/" hreflang="en">gzip 網站</a>下載 <samp>gzip.exe</samp>。請確認下載後，存檔在系統的路徑下，檔名為 <samp>gzip.exe</samp> 。</dd>
+
+<dt><a href="http://search.cpan.org/dist/Compress-Bzip2/" hreflang="en"><samp>Compress::Bzip2</samp></a> 第二版以上</dt>
+
+<dd>這是處理 bzip2 壓縮檔用的，只有在處理 bzip2 壓縮檔才會用到。若要 用時沒有安裝， <samp>reslog</samp> 會試著改用 <samp>bzip2</samp> 程式代替。若還找不到， <samp>reslog</samp> 就無法執行。到我寫這一篇說明的時候為止， ActivePerl MSWin32 的 <abbr title="Programmer's Package Manager">PPM</abbr> 模組庫裏都還沒有 <samp>Compress::Bzip2</samp> 。不過 MSWin32 的使用者還是可以由 <a href="http://sources.redhat.com/bzip2/" hreflang="en">bzip2 網站</a> 下載 <samp>bzip2.exe</samp> 。請確認下載後，存檔在系統的路徑下，檔名為 <samp>bzip2.exe</samp> 。</dd>
+
+<dt><a href="http://search.cpan.org/dist/Term-Size/" hreflang="en"><samp>Term::Size</samp></a></dt>
+
+<dd>這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會有任何問題。進度列可以讓你對 <samp>reslog</samp> 的工作進度一目瞭然。 <samp>Term::Size</samp> 只能在 UNIX 下安裝，在 MSWin32 下， reslog 會改用 <a href="http://search.cpan.org/dist/libwin32/" hreflang="en"><samp>Win32::Console</samp></a> 。</dd>
+</dl>
+
+若沒有上列 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模組，請到 <a href="http://search.cpan.org/" hreflang="en"><abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 程式庫</a> 下載安裝。</li>
 </ol>
 
 
 <h2>下載</h2>
 
-<p>reslog 的官方網站在：</p>
+<p><samp>reslog</samp> 的官方網站在：</p>
 
 <ul>
-<li>SourceForge 下的首頁： <a href="http://reslog.sourceforge.net/"><samp>http://reslog.sourceforge.net/</samp></a></li>
-<li>SourceForge 下的專案頁： <a href="http://sourceforge.net/projects/reslog/"><samp>http://sourceforge.net/projects/reslog/</samp></a></li>
-<li>旅舍依瑪下的首頁： <a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>http://www.imacat.idv.tw/tech/reslog.html</samp></a></li>
+<li><a href="http://reslog.sourceforge.net/">SourceForge 上的 <samp>reslog</samp> 網站。</a></li>
+<li><a href="http://sourceforge.net/projects/reslog/" hreflang="en"><samp>reslog</samp> SourceForge 專案頁。</a></li>
+<li><a href="http://search.cpan.org/~imacat/reslog/" hreflang="en"><samp>reslog</samp> <abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 專案頁。</a></li>
+<li><a href="http://www.imacat.idv.tw/tech/reslog.html">旅舍依瑪 <samp>reslog</samp> 網頁</a></li>
 </ul>
 
-<p>最新版 reslog 可由下列位址下載：</p>
+<p>最新版 <samp>reslog</samp> 可由下列位址下載：</p>
 
 <ul>
-<li>SourceForget ： <a href="https://sourceforge.net/project/showfiles.php?group_id=62500"><samp>https://sourceforge.net/project/showfiles.php?group_id=62500</samp></a></li>
-<li>旅舍依瑪的 <abbr>FTP</abbr> ： <a href="ftp://ftp.imacat.idv.tw/pub/reslog/"><samp>ftp://ftp.imacat.idv.tw/pub/reslog/</samp></a></li>
+<li><a href="https://sourceforge.net/project/showfiles.php?group_id=62500" hreflang="en"><samp>reslog</samp> SourceForge 下載頁。</a></li>
+<li><a href="http://search.cpan.org/~imacat/reslog/" hreflang="en"><samp>reslog</samp> <abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 專案頁。</a></li>
+<li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">旅舍依瑪 <abbr title="File Transfer Protocol">FTP</abbr> 站。</a></li>
 </ul>
 
-<p>依瑪貓的 <abbr>PGP</abbr> Public Key 在：</p>
+<p>依瑪貓的 <abbr title="Pretty Good Privacy">PGP</abbr> 公鑰在：</p>
 
 <ul>
-<li>SourceForge ： <a href="http://reslog.sourceforge.net/pgpkey.asc"><samp>http://reslog.sourceforge.net/pgpkey.asc</samp></a></li>
-<li>旅舍依瑪： <a href="http://www.imacat.idv.tw/me/pgpkey.asc"><samp>http://www.imacat.idv.tw/me/pgpkey.asc</samp></a></li>
+<li><a href="http://reslog.sourceforge.net/pgpkey.asc"><samp>reslog</samp> SourceForge 網站上的依瑪貓 <abbr title="Pretty Good Privacy">PGP</abbr> 公鑰。</a></li>
+<li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">旅舍依瑪上的依瑪貓 <abbr title="Pretty Good Privacy">PGP</abbr> 公鑰。</a></li>
 </ul>
 
 
 <h2>安裝</h2>
 
-<ol>
-<li>
-<h3>解壓縮：</h3>
 
-<blockquote>
-<pre>
-% tar xzf reslog-n.nn.tar.gz
-</pre>
-</blockquote>
-</li>
+<p>其實， <samp>reslog</samp> 根本不用安裝。直接跑就是了。 ^_*'</p>
 
+<p>好吧，如果你不給它安裝個一下，就會輾轉難眠的話，那就請看以下的安裝指南吧。再次強調，妳可以不用看以下的安裝指南。直接跑就是了。</p>
 
-<li>
-<h3>以自動安裝程式安裝（建議）</h3>
+<p>從第三版起， <samp>reslog</samp> 改用 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 標準的 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en"><samp>ExtUtils::MakeMaker</samp></a> 安裝，程序如下：</p>
 
-<p>雖然本程式不需要設定，我還是希望你跑一遍自動安裝程式。自動安裝程式
-會檢查所需的系統環境，事先告知你程式無法執行的問題。</p>
+<blockquote><pre>
+% perl Makefile.PL
+% make
+% make test
+% make install
+</pre></blockquote>
 
-<p>要跑自動安裝程式，要先安裝
-<a href="http://search.cpan.org/dist/File-Spec/"><samp>File::Spec::Functions</samp></a>
-模組。 Perl 5.6.0 以後會隨附這個模組，不用特地安裝。如果你的 perl 比
-較舊，沒有這個模組，可以到 <abbr>CPAN</abbr> 程式庫
-<a href="http://search.cpan.org/"><samp>http://search.cpan.org/</samp></a>
-下載安裝。</p>
+<p>在 <samp>make install</samp> 前，請先確認你有在安裝目錄存檔的權限。通常這時後都要切到 <samp>root</samp> ，才能安裝存檔。</p>
 
-<p>到解壓縮後的目錄中，執行自動安裝程式 <samp>Install.PL</samp> ：</p>
-<blockquote>
-<pre>
-% ./Install.PL
-</pre>
-</blockquote>
-<p>這時，安裝程式會檢查所需的系統環境，並問妳所需的設定。請依序回答。
-然後，安裝程式會按妳的回答，把程式裝起來。妳也可以下：</p>
-<blockquote>
-<pre>
-% ./Install.PL --help
-</pre>
-</blockquote>
-<p>查看有哪些選項。</p>
-</li>
+<p>如果你是用 MSWin32 下的 ActivePerl ， <samp>make</samp> 請改用 <samp>nmake</samp> 。 <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> 可由微軟的 <abbr title="File Transfer Protocol">FTP</abbr> 站下載。</a></p>
 
+<p>若要安裝到其它地方，請設定好 <samp>PREFIX</samp> 。例如，一個一般使用者，要安裝在自己的目錄下時：</p>
 
-<li>
-<h3>手動安裝</h3>
+<blockquote><pre>
+% perl Makefile.PL PREFIX=/home/jessica
+</pre></blockquote>
 
-<p>到解壓縮後的目錄中，將 <samp>reslog</samp> 檔複製到妳要存的目錄
-下，就可以了。</p>
-</li>
+<p>要知道更多安裝選項的細節，請參閱 <samp>ExtUtils::MakeMaker</samp> 的說明（請執行 <samp>perldoc ExtUtils::MakeMaker</samp> ）。</p>
 
-
-<li>
-<h3>執行</h3>
-
-<p>跑跑看有沒有問題。妳可以下：</p>
-<blockquote>
-<pre>
-% ./reslog --help
-</pre>
-</blockquote>
-<p>查看有哪些選項，或下：</p>
-<blockquote>
-<pre>
-% perldoc reslog
-</pre>
-</blockquote>
-<p>查閱完整的程式說明。</p>
-
-</li>
-</ol>
+<p>若你是由 <samp>reslog.pl</samp> 第二版昇級，請參閱 <samp>UPGRADE</samp> 檔的昇級說明。</p>
 
 
 <h2>命令列參數</h2>
@@ -183,12 +177,12 @@
 
 
 <dl>
-<dt>記錄檔</dt>
+<dt><var>記錄檔</var></dt>
 
-<dd>要反查的記錄檔。若沒有指定，會從標準輸入讀記錄檔，再寫到標準輸出。妳也可以設定成<q><samp>-</samp></q>，來從標準輸入讀記錄檔。可同時指定好幾個檔案，若其中有標準輸入，會通通寫到標準輸出。可以指定 GZIP 壓縮檔。</dd>
+<dd>要反查的記錄檔。若沒有指定，會從標準輸入讀記錄檔，再寫到標準輸出。妳也可以設定成<q><samp>-</samp></q>，來從標準輸入讀記錄檔。可同時指定好幾個檔案，若其中有標準輸入，會通通寫到標準輸出。支援 gzip 或 bzip2 壓縮檔。</dd>
 
 
-<dt>-o, --override=模式</dt>
+<dt>-o, --override=<var>模式</var></dt>
 
 <dd>如果有同名的反查結果檔，該怎麼辦。目前有下列模式：
 
@@ -210,7 +204,7 @@
 </dd>
 
 
-<dt>-k, --keep=模式</dt>
+<dt>-k, --keep=<var>模式</var></dt>
 <dd>原記錄檔要怎麼處理。目前有下列模式：
 
 
@@ -232,9 +226,19 @@
 </dd>
 
 
-<dt>-s, --suffix=附加檔名</dt>
+<dt>-s, --suffix=<var>檔尾</var></dt>
 
-<dd>反查結果檔的附加檔名。預設的附加檔名是<q><samp>.resolved</samp></q>。</dd>
+<dd>反查結果檔要加上的檔尾。預設的檔尾是<q><samp>.resolved</samp></q>。</dd>
+
+
+<dt>-t, --trim-suffix=<var>檔尾</var></dt>
+
+<dd>加上我們的檔尾前，先去掉的原檔檔尾。預設是不去檔尾。若你用好幾個記錄檔處理程式處理記錄檔，可以用這個選項，去掉之前程式加的檔尾。</dd>
+
+
+<dt>-n, --num-threads=<var>線程數</var></dt>
+
+<dd>反查時，同時執行的線程數。預設值是 10 。若不要用多線程反查，請設為 0 。系統本身要支援多線程。若系統本身不支援多線程，本選項沒有作用。</dd>
 
 
 <dt>-c, --stdout</dt>
@@ -270,7 +274,7 @@
 
 <p>發佈這一程式的目的是希望它有用，但沒有任何擔保。甚至沒有適合特定目的而隱含的擔保。更詳細的情況請參閱 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>。</p>
 
-<p>您應該已經和程式一起收到一份 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>的副本。如果還沒有，寫信給： Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.</p>
+<p>您應該已經和程式一起收到一份 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>的副本。如果還沒有，寫信給： Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, <abbr title="Massachusetts">MA</abbr> 02111-1307, <abbr title="United States of America">USA</abbr>.</p>
 
 
 <h2>版本紀錄</h2>
@@ -280,7 +284,7 @@
 
 <h2>錯誤回報</h2>
 
-<p><samp>reslog</samp> 有一個<a href="https://lists.sourceforge.net/lists/listinfo/reslog-users">郵件通訊 <samp>reslog-users@lists.sourceforge.net</samp></a> ，若有任何問題、建議、問題回報、修補程式，請寄到郵件通訊上。除非有私人事務，否則請不要直接寫信給我。郵件通訊會自動歸檔，日後若其他人有相同問題，可以直接在通訊舊檔中找到答案，節省大家寶貴的時間。</p>
+<p><samp>reslog</samp> 有一個<a href="https://lists.sourceforge.net/lists/listinfo/reslog-users" hreflang="en">郵件通訊 <samp>reslog-users@lists.sourceforge.net</samp></a> ，若有任何問題、建議、問題回報、修補程式，請寄到郵件通訊上。除非有私人事務，否則請不要直接寫信給我。郵件通訊會自動歸檔，日後若其他人有相同問題，可以直接在通訊舊檔中找到答案，節省大家寶貴的時間。</p>
 
 
 </div>
@@ -289,13 +293,24 @@
 
 
 <hr />
-<address>
-<a href="http://validator.w3.org/check/referer"><img
-    src="http://www.w3.org/Icons/valid-xhtml11"
-    alt="Valid XHTML 1.1!"
-    style="height: 31px; width: 88px;" /></a>
-本頁符合 XHTML 1.1 規格
-</address>
+<div>
+<a href="http://validator.w3.org/check/referer"
+    title="本頁的 HTML 驗證結果" hreflang="en"><img
+    src="http://www.w3.org/Icons/valid-xhtml11" alt="XHTML 1.1 正確！" /></a>|<a
+    href="http://jigsaw.w3.org/css-validator/check/referer"
+    title="本頁的 CSS 驗證結果" hreflang="en"><img
+    src="http://jigsaw.w3.org/css-validator/images/vcss" alt="CSS 正確！" /></a>|<a
+    href="http://www.w3.org/WAI/wcag1AAA-Conformance"
+    title="無障礙三 A 級標準說明" hreflang="en"><img
+    src="http://www.w3.org/WAI/wcag1AAA"
+    alt="W3C 無障礙網頁規範 1.0 三 A 級標準標章" /></a>
+<p>本頁符合 <a href="http://www.w3.org/TR/xhtml11/" hreflang="en"><abbr
+    title="Extensible HyperText Markup Language">XHTML</abbr> 1.1</a> /
+    <a href="http://www.w3.org/TR/CSS21/" hreflang="en"><abbr
+    title="Cascading Style Sheets">CSS</abbr> 2.1</a> /
+    <a href="http://www.w3.org/TR/WAI-WEBCONTENT/"
+    hreflang="en">無障礙網頁規範 1.0</a> 三 A 級標準</p>
+</div>
 
 </body>
 </html>

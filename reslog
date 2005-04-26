@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# relog: A script to reverse-resolve IP in Apache log files
+# relog: Reverse-resolve IP in Apache log files
 
 # Copyright (c) 2000-2005 imacat
 # 
@@ -40,7 +40,7 @@ use threads;
 use threads::shared;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "2.9901";
+$VERSION = "3.00";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw($THIS_FILE $SHORTHELP $VERBOSE TMP_SUFFIX);
@@ -2122,7 +2122,7 @@ __END__
 
 =head1 NAME
 
-reslog - Resolve the Apache log files
+reslog - Reverse-resolve IP in Apache log files
 
 =head1 SYNOPSIS
 
@@ -2141,14 +2141,7 @@ I<Resolving takes long time>.  This is mainly caused by resolving:
 Network packets may be filtered by firewalls; DNS servers may not be
 correctly configured; may not be up working; may sit in slow network
 sections; may be old slow machines; may have traffic jam... etc.  All
-these reasons are out of our control.  In order to avoid
-simultaneously writing to the log file while resolving, which may ruin
-the log file, it uses L<flock(2)|flock/2> to prevent writing from
-other programs (or another instance of itself) that utilize
-L<flock(2)|flock/2>, too.  In order to prevent from those that do not
-utilize L<flock(2)|flock/2>, like L<httpd(8)|httpd/8>, it copies the
-records to a temporary working file first, to minimize the time
-occupying the log file.
+these reasons are out of our control.
 
 If it stops in the middle of its execution, as when the user hits a
 C<Ctrl-Break>, it may leave a temporary working file.  The next time

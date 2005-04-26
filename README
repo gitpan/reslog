@@ -1,4 +1,9 @@
-reslog -- A script to reverse-resolve IP in Apache log files
+reslog -- Reverse-resolve IP in Apache log files
+
+    reslog reverse-resolves IP in the Apache log files. These log files can
+then be analyzed by another program, like Analog.  You can think of it as a
+replacement of Apache HostNameLookups directive, in the sense that it resolves
+the client IP altogether once a day.
 
 
 * Documentation

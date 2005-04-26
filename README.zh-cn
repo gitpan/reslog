@@ -1,4 +1,8 @@
-reslog -- Apache 记录档 IP 反解程式
+reslog -- Apache 记录档 IP 反查程式
+
+　　reslog 是记录档反查程式，用来反查 Apache 记录档里 IP 的主机名称。查过后，
+可以套用像 Analog 之类的记录档统计程式。你可以把它当做 Apache HostNameLookups
+指令的替代品，每天一次反查当天所有的 IP 。
 
 
 ◎说明文件
@@ -8,12 +12,12 @@ reslog -- Apache 记录档 IP 反解程式
 
 ◎安装指南
 
-　　请详阅 INSTALL.zh-cn 档案的安装指南。
+　　请详阅 INSTALL.zh-tw 档案的安装指南。
 
 
 ◎更新、修正说明
 
-　　请详阅 Changes.zh-cn 档案的更新说明，以了解新增功能、问题修正、更新等。
+　　请详阅 Changes.zh-tw 档案的更新说明，以了解新增功能、问题修正、更新等。
 
 
 ◎技术支援
@@ -23,14 +27,14 @@ reslog -- Apache 记录档 IP 反解程式
 　　reslog 有一个邮件通讯 reslog-users@lists.sourceforge.net ，若有任何问题、
 建议、问题回报、修补程式，请寄到邮件通讯上。请连上
 https://lists.sourceforge.net/lists/listinfo/reslog-users 加入我们的邮件通讯
-。除非有私人事务，否则请不要直接写信给我。邮件通讯会自动归档，日后若其他人有
+。除非是私人事务，否则请不要直接写信给我。邮件通讯会自动归档，日后若其他人有
 相同问题，可以直接在通讯旧档中找到答案，节省大家宝贵的时间。
 
 
 ◎版权声明
 
 　　本程式依 GNU 通用公共许可证（ GPL ）版权发布，请参考 COPYING 档案的说明，
-或是 COPYING.zh-cn 档案的中文译文，了解本程式的版权授权内容。
+或是 COPYING.zh-tw 档案的中文译文，了解本程式的版权授权内容。
 
 
 依玛猫 imacat ^_*'

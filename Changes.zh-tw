@@ -1,11 +1,19 @@
 reslog 更新記錄
 
+2005-04-26	3.00 版
+	 1. README 說明更新。
+	 2. HTML 說明文件更新。
+	 3. 上傳到 CPAN 。
+	 4. HTML 文件更新，以符合 W3C WCAG 無障礙網頁規範
+	    1.0 三 A 級規定。
+
 2005-04-26	2.9901 版
 	 1. 重寫 INSTALL 安裝說明。
 	 2. 加上 UPGRADE 昇級說明。
 
 2005-04-25
-	 1. 加上 Module::Signature SIGNATURE gpg 簽名檔。
+	 1. 加上 Module::Signature SIGNATURE gpg 簽章檔，停
+	    用外附簽章檔。
 	 2. 加上測試程式。
 	 3. 因為有測試程式，修正了很多錯誤。
 

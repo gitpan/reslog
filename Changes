@@ -1,12 +1,20 @@
 reslog change log
 
+2005-04-26	version 3.00
+	 1. README updated
+	 2. HTML documentation updated.
+	 3. Uploaded to CPAN.
+	 4. HTML documents updated to conform to W3C Web
+	    Content Accessibility Guide 1.0 Triple-A now.
+
 2005-04-26	version 2.9901
 	 1. INSTALL rewritten.
 	 2. UPGRADE added.
 
 2005-04-25
 	 1. Module::Signature SIGNATURE gpg signature file
-	    added.
+	    added.  The external gpg signature file is no
+	    longer used.
 	 2. Test suite added.
 	 3. Many bugs fixed, thanks to the test suite.
 

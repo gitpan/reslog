@@ -14,7 +14,7 @@ foreach (qw(/usr/sbin/reslog.pl
             /usr/local/share/man/man8/reslog.pl.8)) {
     push @old_version, $_ if -e $_;
 }
-if (@old_version > 1) {
+if (@old_version > 0) {
     $_ = join " ", @old_version;
     warn << "EOT";
 ================
@@ -30,7 +30,7 @@ EOT
 
 WriteMakefile(
     AUTHOR		=> 'imacat <imacat@mail.imacat.idv.tw>',
-    ABSTRACT		=> 'Resolve Apache log files',
+    ABSTRACT		=> 'Reverse-resolve IP in Apache log files',
     NAME                => 'reslog',
     VERSION_FROM        => 'reslog',
     PREREQ_PM		=> { },

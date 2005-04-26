@@ -50,40 +50,45 @@ Optional Perl Modules
 
     You may install the following optional modules:
 
-   1. File::MMagic: This is used to check the file type.  If this is not
-      available, reslog will try to find the file executable instead.  If that
-      is not available, too, reslog will try to judge the file type by its
-      name suffix (extension).  In that case reslog will not be able to check
-      the file type when reading from STDIN.  MSWin32 users can get file.exe
-      from the GnuWin32 home page instead:
-      http://gnuwin32.sourceforge.net/packages/file.htm.  Be sure that it is
-      saved as file.exe somewhere in your PATH.
+   1. File::MMagic
 
-   2. Compress::Zlib: This is used to support read/write of gzip compressed
-      files.  It is only needed when gzip compressed files are encountered.
-      If it is not available when encountering gzip compressed files, reslog
-      will try to use the gzip executable instead.  If that is not available,
-      too, reslog will fail.  ActivePerl MSWin32 users can install
-      this using "ppm install Compress::Zlib", or get gzip.exe from the gzip
-      home page: http://www.gzip.org/.  Be sure that it is saved as gzip.exe
-      somewhere in your PATH.
+        This is used to check the file type.  If this is not available, reslog
+    will try to find the file executable instead.  If that is not available,
+    too, reslog will try to judge the file type by its name suffix
+    (extension).  In that case reslog will not be able to check the file type
+    when reading from STDIN.  MSWin32 users can get file.exe from the GnuWin32
+    home page instead: http://gnuwin32.sourceforge.net/.  Be sure to save it
+    as file.exe somewhere in your PATH.
 
-   3. Compress::Bzip2, version 2 or above: This is used to support read/write
-      of bzip2 compressed files.  It is only needed when bzip2 compressed
-      files are encountered.  If it is not available when encountering bzip2
-      compressed files, reslog will try to use the bzip2 executable instead.
-      If that is not available, too, reslog will fail.  Notice that older
-      versions before 2 does not work, since file I/O compression were not
-      implemented yet.  ActivePerl MSWin32 does not have Compress::Bzip2 in
-      their ppm deposit, as the time I'm writing this.  You can get bzip.exe
-      from the bzip home page instead: http://sources.redhat.com/bzip2/.  Be
-      sure that it is saved as bzip2.exe somewhere in your PATH.
+   2. Compress::Zlib
 
-   4. Term::Size: This is used to display the progress bar.  Without this
-      reslog won't display the progress bar, but nothing else is different.
-      The progress bar is a good visual representation of what reslog is
-      currently doing.  Term::Size is only available for UNIX.  For MSWin32,
-      reslog will try to use Win32::Console instead.
+        This is used to support read/write of gzip compressed files.  It is
+    only needed when gzip compressed files are encountered.  If it is not
+    available when needed, reslog will try to use the gzip executable instead.
+    If that is not available, too, reslog will fail.  ActivePerl MSWin32 users
+    can install this using "ppm install Compress::Zlib", or get gzip.exe from
+    the gzip home page: http://www.gzip.org/.  Be sure to save it as gzip.exe
+    somewhere in your PATH.
+
+   3. Compress::Bzip2, version 2 or above
+
+        This is used to support read/write of bzip2 compressed files.  It is
+    only needed when bzip2 compressed files are encountered.  If it is not
+    available when needed, reslog will try to use the bzip2 executable
+    instead.  If that is not available, too, reslog will fail.  Notice that
+    older versions before 2 does not work, since file I/O compression were not
+    implemented yet.  ActivePerl MSWin32 does not have Compress::Bzip2 in
+    their PPM deposit yet, as the time I'm writing this.  You can get bzip.exe
+    from the bzip home page instead: http://sources.redhat.com/bzip2/.  Be
+    sure to save it as bzip2.exe somewhere in your PATH.
+
+   4. Term::Size
+   
+        This is used to display the progress bar.  Without this reslog won't
+    display the progress bar, but nothing else is different.  The progress bar
+    is a good visual representation of what reslog is currently doing.
+    Term::Size is only available for UNIX.  For MSWin32, reslog will try to
+    use Win32::Console instead.
 
 
 imacat

@@ -21,8 +21,8 @@
 　　在 make install 前，請先確認你有在安裝目錄存檔的權限。通常這時後都要切到
 root ，才能安裝存檔。
 
-　　如果你用的是 MSWin32 下的 ActivePerl ， make 請改用 nmake 。 nmake 可由微
-軟的 FTP 站下載：
+　　若你是用 MSWin32 下的 ActivePerl ， make 請改用 nmake 。 nmake 可由微軟的
+FTP 站下載：
 
   ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
 
@@ -46,30 +46,36 @@ http://www.activestate.com/ 。
 
 　　你可以安裝下列 Perl 模組，以支援更多功能：
 
-   1. File::MMagic ：這是檢查檔案類型用的。若沒有安裝， reslog 會試著去找 file
-      程式代替。若還找不到， reslog 會改用檔尾（副檔名）判斷檔案類型。這時若從
-      標準輸入讀檔， reslog 會無法判斷。  MSWin32 使用者可以由 GnuWin32 網站下
-      載 file.exe 程式： http://gnuwin32.sourceforge.net/packages/file.htm 。
-      請確認下載後，存檔在系統的路徑下，檔名為 file.exe 。
+   1. File::MMagic
 
-   2. Compress::Zlib ：這是支援讀寫 gzip 壓縮檔用的，只有在存取 gzip 壓縮檔才
-      會用到。若要用時沒有安裝， reslog 會試著去找 gzip 程式代替。若還找不到，
-      reslog 就無法執行。若你是 ActivePerl MSWin32 使用者，可以用
-      ppm install Compress::Zlib 安裝，或由 gzip 網站下載 gzip.exe ：
-      http://www.gzip.org/ 。請確認下載後，存檔在系統的路徑下，檔名為 gzip.exe
-      。
+    　　這是檢查檔案類型用的。若沒有安裝， reslog 會試著去找 file 程式代替。若
+    還找不到， reslog 會改用檔尾（副檔名）判斷檔案類型。這時若從標準輸入讀檔，
+    reslog 會無法判斷。 MSWin32 使用者可以由 GnuWin32 網站下載 file.exe 程式：
+    http://gnuwin32.sourceforge.net/ 。請確認下載後，存檔在系統的路徑下，檔名
+    為 file.exe 。
 
-   3. Compress::Bzip2 第二版以上： 這是支援讀寫 bzip2 壓縮檔用的，只有在存取
-      bzip2 壓縮檔才會用到。若要用時沒有安裝， reslog 會試著去找 bzip2 程式代
-      替。若還找不到， reslog 就無法執行。到我寫這一篇說明的時候為止，
-      ActivePerl MSWin32 的 ppm 模組庫裏都還沒有 Compress::Bzip2 。不過
-      MSWin32 的使用者還是可以由 bzip2 網站下載 bzip2.exe ：
-      http://sources.redhat.com/bzip2/ 。請確認下載後，存檔在系統的路徑下，檔
-      名為 bzip2.exe 。
+   2. Compress::Zlib
 
-   4. Term::Size ：這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會
-      有任何問題。進度列可以讓你對 reslog 的工作進度一目瞭然。 Term::Size 只能
-      在 UNIX 下安裝，在 MSWin32 下， reslog 會改用 Win32::Console 。
+    　　這是處理 gzip 壓縮檔用的，只有處理 gzip 壓縮檔時才會用到。若要用時沒有
+    安裝， reslog 會試著改用 gzip 程式代替。若還找不到， reslog 就無法執行。若
+    你是 ActivePerl MSWin32 使用者，可以用 ppm install Compress::Zlib 安裝，或
+    由 gzip 網站下載 gzip.exe ： http://www.gzip.org/ 。請確認下載後，存檔在系
+    統的路徑下，檔名為 gzip.exe 。
+
+   3. Compress::Bzip2 第二版以上
+
+    　　這是支援讀寫 bzip2 壓縮檔用的，只有處理 bzip2 壓縮檔時才會用到。若要用
+    時沒有安裝， reslog 會試著改用 bzip2 程式代替。若還找不到， reslog 就無法
+    執行。到我寫這一篇說明的時候為止， ActivePerl MSWin32 的 PPM 模組庫裏都還
+    沒有 Compress::Bzip2 。不過 MSWin32 的使用者還是可以由 bzip2 網站下載
+    bzip2.exe ： http://sources.redhat.com/bzip2/ 。請確認下載後，存檔在系統的
+    路徑下，檔名為 bzip2.exe 。
+
+   4. Term::Size
+
+    　　這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會有任何問題。
+    進度列可以讓你對 reslog 的工作進度一目瞭然。 Term::Size 只能在 UNIX 下安裝
+    ，在 MSWin32 下， reslog 會改用 Win32::Console 。
 
 
 依瑪貓

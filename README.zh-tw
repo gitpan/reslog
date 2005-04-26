@@ -1,4 +1,8 @@
-reslog -- Apache 記錄檔 IP 反解程式
+reslog -- Apache 記錄檔 IP 反查程式
+
+　　reslog 是記錄檔反查程式，用來反查 Apache 記錄檔裏 IP 的主機名稱。查過後，
+可以套用像 Analog 之類的記錄檔統計程式。妳可以把它當做 Apache HostNameLookups
+指令的替代品，每天一次反查當天所有的 IP 。
 
 
 ◎說明文件
@@ -23,7 +27,7 @@ reslog -- Apache 記錄檔 IP 反解程式
 　　reslog 有一個郵件通訊 reslog-users@lists.sourceforge.net ，若有任何問題、
 建議、問題回報、修補程式，請寄到郵件通訊上。請連上
 https://lists.sourceforge.net/lists/listinfo/reslog-users 加入我們的郵件通訊
-。除非有私人事務，否則請不要直接寫信給我。郵件通訊會自動歸檔，日後若其他人有
+。除非是私人事務，否則請不要直接寫信給我。郵件通訊會自動歸檔，日後若其他人有
 相同問題，可以直接在通訊舊檔中找到答案，節省大家寶貴的時間。
 
 
