@@ -84,7 +84,7 @@ $r = eval {
     rm $fs1, $ft1, $fr1, $fs2, $ft2, $fr2, $fs3, $ft3, $fr3;
     cp  [$fsp, $fs1], [$feg, $fr2], [$feb, $fr3],
         [$fep, $fr1], [$fsg, $fs2], [$fsb, $fs3];
-    runcmd "$reslog -t 1 -k=r -o=a $fs1 - $fs3 < $fs2 > $fr2", \$retno, undef, \$err;
+    runcmd "\"$reslog\" -t 1 -k=r -o=a \"$fs1\" - \"$fs3\" < \"$fs2\" > \"$fr2\"", \$retno, undef, \$err;
     ($cs1, $cs2, $cs3) = (readfile $fs1, readfile $fs2, readfile $fs3);
     ($cr1, $cr2, $cr3) = (readfile $fr1, readfile $fr2, readfile $fr3);
     rm $fs1, $ft1, $fr1, $fs2, $ft2, $fr2, $fs3, $ft3, $fr3;

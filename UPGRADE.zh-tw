@@ -28,11 +28,11 @@ reslog 是設計給系統管理員用的，不是給一般使用者用的。不過 ExtUtils::MakeMaker
 不支援安裝到 sbin 目錄。這種作法，其實是違反 FHS 2.2 規定的。
 
 
-◎ Perl 5.7.2 版以上
+◎ Perl 5.8.0 版以上
 
-　　新版的 reslog 用多線程加速反查，要用到 Perl 5.7.2 之後的新 ithread 多線程
+　　新版的 reslog 用多線程加速反查，要用到 Perl 5.8.0 之後的新 ithread 多線程
 模式。你若不想用多線程功能，可以不用，不過程式碼本身，還是要用到 ithread 。若
-你用的是 5.7.2 以前的 Perl 版本，請昇級你的 Perl 。你可以輸入 perl -v 查詢你目
+你用的是 5.8.0 以前的 Perl 版本，請昇級你的 Perl 。你可以輸入 perl -v 查詢你目
 前的 Perl 版本。
 
 

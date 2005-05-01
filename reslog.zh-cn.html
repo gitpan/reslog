@@ -9,11 +9,11 @@
 <meta name="author" content="依玛猫" />
 <meta name="copyright" content="&copy; 2001-2005 依玛猫。依玛猫保有所有权利。" />
 <meta name="keywords" content="DNS 反查, HostNameLookups, Apache, Analog, 记录档" />
-<link rel="alternate" type="text/html" href="reslog.zh-tw.html"
+<link rel="alternate" type="application/xhtml+xml" href="reslog.zh-tw.html"
      hreflang="zh-tw" title="正&#39636;中文" />
-<link rel="alternate" type="text/html" href="reslog.en.html"
+<link rel="alternate" type="application/xhtml+xml" href="reslog.en.html"
      hreflang="en-us" title="English" />
-<title>reslog 3.01 版</title>
+<title>reslog 3.02 版</title>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> 3.01 版</h1>
+<h1><samp>reslog</samp> 3.02 版</h1>
 
 
 <div class="body">
@@ -38,9 +38,9 @@
 
 <dl>
 
-<dt>2005-04-26</dt>
+<dt>2005-05-02</dt>
 
-<dd><samp>reslog</samp> 最新版本 3.01 。修正了一个严重的错误，错使 --suffix 与 --trim-suffix 处理了错误的档尾。若你下载安装了 3.01 版，请立即升级更新。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.01.tar.gz" type="application/x-gzip">下载 <samp>reslog</samp> 3.01 版</a>。</dd>
+<dd><samp>reslog</samp> 最新版本 3.02 。反查程式现在与主程式互相独立，在 <samp>MSWin32</samp> 与 <samp>cygwin</samp> 上测试执行无误，并解决了好几个小问题。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.02.tar.gz" type="application/x-gzip">下载 <samp>reslog</samp> 3.02 版</a>。</dd>
 
 
 <dt>2005-04-26</dt>
@@ -87,7 +87,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.7.2 以上。新版的 <samp>reslog</samp> 用多线程加速反查，要用到 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.7.2 之后的新 ithread 多线程模式。你若不想用多线程功能，可以不用，不过程式码本身，还是要用到 ithread 。若你用的是 5.7.2 以前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本，请升级你的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。你可以输入 <samp>perl -v</samp> 查询你目前的 Perl 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若你是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下载 ActivePerl 安装。</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 以上。新版的 <samp>reslog</samp> 用多线程加速反查，要用到 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 之后的新 ithread 多线程模式。你若不想用多线程功能，可以不用，不过程式码本身，还是要用到 ithread 。若你用的是 5.8.0 以前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本，请升级你的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。你可以输入 <samp>perl -v</samp> 查询你目前的 Perl 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若你是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下载 ActivePerl 安装。</li>
 
 <li>需搭配的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模组：无。</li>
 
@@ -121,8 +121,11 @@
 
 <ul>
 <li><a href="http://reslog.sourceforge.net/">SourceForge 上的 <samp>reslog</samp> 网站。</a></li>
-<li><a href="http://sourceforge.net/projects/reslog/" hreflang="en"><samp>reslog</samp> SourceForge 专案页。</a></li>
+
+<li><a href="https://sourceforge.net/projects/reslog/" hreflang="en"><samp>reslog</samp> SourceForge 专案页。</a></li>
+
 <li><a href="http://search.cpan.org/~imacat/reslog/" hreflang="en"><samp>reslog</samp> <abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 专案页。</a></li>
+
 <li><a href="http://www.imacat.idv.tw/tech/reslog.html">旅舍依玛 <samp>reslog</samp> 网页</a></li>
 </ul>
 
@@ -130,7 +133,9 @@
 
 <ul>
 <li><a href="https://sourceforge.net/project/showfiles.php?group_id=62500" hreflang="en"><samp>reslog</samp> SourceForge 下载页。</a></li>
+
 <li><a href="http://search.cpan.org/~imacat/reslog/" hreflang="en"><samp>reslog</samp> <abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 专案页。</a></li>
+
 <li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">旅舍依玛 <abbr title="File Transfer Protocol">FTP</abbr> 站。</a></li>
 </ul>
 
@@ -138,6 +143,7 @@
 
 <ul>
 <li><a href="http://reslog.sourceforge.net/pgpkey.asc"><samp>reslog</samp> SourceForge 网站上的依玛猫 <abbr title="Pretty Good Privacy">PGP</abbr> 公钥。</a></li>
+
 <li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">旅舍依玛上的依玛猫 <abbr title="Pretty Good Privacy">PGP</abbr> 公钥。</a></li>
 </ul>
 
@@ -204,12 +210,14 @@
 
 
 <dt>f, fail</dt>
+
 <dd>结束程式，以免不小心破坏旧档。预设是结束程式。</dd>
 </dl>
 </dd>
 
 
 <dt>-k, --keep=<var>模式</var></dt>
+
 <dd>原记录档要怎么处理。目前有下列模式：
 
 
@@ -267,6 +275,7 @@
 
 
 <dt>-v, --version</dt>
+
 <dd>显示程式版本。</dd>
 </dl>
 

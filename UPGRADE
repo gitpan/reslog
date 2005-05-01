@@ -42,12 +42,12 @@ users, ExtUtils::MakeMaker won't recognize sbin directory at all.  This is a
 violation to Filesystem Hierarchy Standard 2.2, though.
 
 
-* You Need Perl 5.7.2 or Above
+* You Need Perl 5.8.0 or Above
 
     reslog now has threading to speed up resolving, which requires Perl's
-ithreads threading module support that's only available since 5.7.2.  You can
+ithreads threading module support that's only available since 5.8.0.  You can
 still disable threading if it causes troubles to you, but the code itself need
-it.  If you are using a Perl before 5.7.2, please upgrade it.  You can run
+it.  If you are using a Perl before 5.8.0, please upgrade it.  You can run
 "perl -v" to see your current Perl version.
 
 

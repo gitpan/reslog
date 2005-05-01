@@ -36,7 +36,7 @@ perldoc ExtUtils::MakeMaker ）。
 
 　　若你是由 reslog.pl 第二版升级，请参阅 UPGRADE 档的升级说明。
 
-　　本版 reslog 至少需要 Perl 5.7.2 以上，以便支援 ithread 多线程功能。若要安
+　　本版 reslog 至少需要 Perl 5.8.0 以上，以便支援 ithread 多线程功能。若要安
 装／升级到你的 Perl ，请上 Perl 的网站 http://www.perl.com/ 。若你是 MSWin32
 的使用者，你可以到 ActiveState 公司的网站，下载免费的 Perl 程式：
 http://www.activestate.com/ 。

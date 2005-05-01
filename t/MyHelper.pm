@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT);
-$VERSION = "0.01";
+$VERSION = "0.02";
 @EXPORT = qw(cp rm readfile runcmd);
 # Prototype declaration
 sub cplist(@);
@@ -70,7 +70,7 @@ sub readfile($) {
         # gzip executable
         } else {
             my ($PIPE, $CMD);
-            $CMD = "gzip -cd $file";
+            $CMD = "gzip -cd \"$file\"";
             open $PIPE, "$CMD |"        or die "$THIS_FILE: $CMD: $!";
             $content = join "", <$PIPE>;
             close $PIPE                 or die "$THIS_FILE: $CMD: $!";
@@ -99,7 +99,7 @@ sub readfile($) {
         # bzip2 executable
         } else {
             my ($PIPE, $CMD);
-            $CMD = "bzip2 -cd $file";
+            $CMD = "bzip2 -cd \"$file\"";
             open $PIPE, "$CMD |"        or die "$THIS_FILE: $CMD: $!";
             $content = join "", <$PIPE>;
             close $PIPE                 or die "$THIS_FILE: $CMD: $!";

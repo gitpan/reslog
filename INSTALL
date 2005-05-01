@@ -39,9 +39,9 @@ options (by running "perldoc ExtUtils::MakeMaker").
     If you are upgrading from reslog.pl version 2, please read UPGRADE for
 some upgrade instruction.
 
-    You need to have at least Perl 5.7.2 for this version of reslog.  This
+    You need to have at least Perl 5.8.0 for this version of reslog.  This
 is due to the ithread threading support that's only available from Perl
-5.7.2.  You can always install/upgrade your perl to the newest version from
+5.8.0.  You can always install/upgrade your perl to the newest version from
 then Perl website http://www.perl.com/.  If you are using MSWin32, you can
 download and install a free copy of binary Perl from the ActiveState
 Corportation: http://www.activestate.com/.
@@ -83,7 +83,7 @@ Optional Perl Modules
     sure to save it as bzip2.exe somewhere in your PATH.
 
    4. Term::Size
-   
+
         This is used to display the progress bar.  Without this reslog won't
     display the progress bar, but nothing else is different.  The progress bar
     is a good visual representation of what reslog is currently doing.

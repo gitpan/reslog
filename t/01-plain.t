@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use Test;
 
-BEGIN { plan tests => 30 }
+BEGIN { plan tests => 39 }
 
 use File::Spec::Functions qw(catdir catfile updir);
 use FindBin;
@@ -34,6 +34,7 @@ $WORKDIR = catdir($LOGDIR, "working");
 mkdir $WORKDIR if ! -e $WORKDIR;
 $reslog = catdir($FindBin::Bin, updir, "blib", "script", "reslog");
 use vars qw($fs $fr $fe $cs $cr $ce $fs1 $ft1 $fr1 $cs1 $cr1);
+use vars qw($fs2 $fr2 $cs2 $cr2);
 use vars qw($r $retno $out $err $hasfile);
 # If we have the file type checker somewhere
 eval { require File::MMagic; };
@@ -45,13 +46,16 @@ $fe = catfile($LOGDIR, "access_log.resolved");
 $fs1 = catfile($WORKDIR, "access_log");
 $ft1 = catfile($WORKDIR, "access_log.tmp-reslog");
 $fr1 = catfile($WORKDIR, "access_log.resolved");
+$fs2 = catfile($WORKDIR, "access_log.ct");
+$fr2 = catfile($WORKDIR, "access_log.rsd");
 ($cs, $cr, $ce) = (readfile $fs, readfile $fr, readfile $fe);
 
 # The default keep behavior
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 $fs1", \$retno, \$out, \$err;
+    $reslog =~ s/"/\\"/g;
+    runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -68,7 +72,7 @@ ok($cr1, $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 -k=a $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -k=a \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -85,7 +89,7 @@ ok($cr1, $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 -k=r $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -k=r \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -102,7 +106,7 @@ ok($cr1, $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 -k=d $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -k=d \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -119,7 +123,7 @@ ok($cr1, $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1], [$fe, $fr1];
-    runcmd "$reslog -t 1 $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno == 0;
@@ -136,7 +140,7 @@ ok($cr1, $ce);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1], [$fe, $fr1];
-    runcmd "$reslog -t 1 -o=o $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -o=o \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -153,7 +157,7 @@ ok($cr1, $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1], [$fe, $fr1];
-    runcmd "$reslog -t 1 -o=a $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -o=a \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -170,7 +174,7 @@ ok($cr1, $ce . $cr);
 $r = eval {
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1], [$fe, $fr1];
-    runcmd "$reslog -t 1 -o=f $fs1", \$retno, \$out, \$err;
+    runcmd "\"$reslog\" -t 1 -o=f \"$fs1\"", \$retno, \$out, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno == 0;
@@ -188,7 +192,7 @@ $r = eval {
     return unless $hasfile;
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 -c $fs1 > $fr1", \$retno, undef, \$err;
+    runcmd "\"$reslog\" -t 1 -c \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -206,7 +210,7 @@ $r = eval {
     return unless $hasfile;
     rm $fs1, $ft1, $fr1;
     cp [$fs, $fs1];
-    runcmd "$reslog -t 1 < $fs1 > $fr1", \$retno, undef, \$err;
+    runcmd "\"$reslog\" -t 1 < \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
     ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
     rm $fs1, $ft1, $fr1;
     die $out . $err if $retno != 0;
@@ -218,3 +222,54 @@ skip(!$hasfile, $r, 1, $@);
 skip(!$hasfile, $cs1, $cs);
 # 30
 skip(!$hasfile, $cr1, $cr);
+
+# Attach our suffix
+$r = eval {
+    rm $fs1, $ft1, $fr1, $fr2;
+    cp [$fs, $fs1];
+    runcmd "\"$reslog\" -t 1 -s=.rsd \"$fs1\"", \$retno, \$out, \$err;
+    ($cr1, $cr2) = (-e $fr1? "exists": "not exists", readfile $fr2);
+    rm $fs1, $ft1, $fr1, $fr2;
+    die $out . $err if $retno != 0;
+    1;
+};
+# 31
+ok($r, 1, $@);
+# 32
+ok($cr1, "not exists");
+# 33
+ok($cr2, $cr);
+
+# Trim the file name suffix
+$r = eval {
+    rm $fs1, $ft1, $fr1, $fs2;
+    cp [$fs, $fs1], [$fs, $fs2];
+    runcmd "\"$reslog\" -t 1 -t=.ct \"$fs2\"", \$retno, \$out, \$err;
+    ($cs1, $cs2) = (readfile $fs1, -e $fs2? "exists": "not exists");
+    rm $fs1, $ft1, $fr1, $fs2;
+    die $out . $err if $retno != 0;
+    1;
+};
+# 34
+ok($r, 1, $@);
+# 35
+ok($cs1, $cs);
+# 36
+ok($cs2, "not exists");
+
+# Trim and attach our suffix
+$r = eval {
+    rm $fs2, $ft1, $fr2;
+    cp [$fs, $fs2];
+    runcmd "\"$reslog\" -t 1 -t=.ct -s=.rsd \"$fs2\"", \$retno, \$out, \$err;
+    ($cs2, $cr2) = (-e $fs2? "exists": "not exists", readfile $fr2);
+    rm $fs2, $ft1, $fr2;
+    die $out . $err if $retno != 0;
+    1;
+};
+# 37
+ok($r, 1, $@);
+# 38
+ok($cs2, "not exists");
+# 39
+ok($cr2, $cr);

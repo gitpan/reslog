@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # Makefile.PL: Installation configuration for ExtUtils::MakeMaker
-use 5.7.2;
+use 5.8.0;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
@@ -22,7 +22,7 @@ if (@old_version > 0) {
   Remove the following files after "make install":
 
   $_
-  
+
   Refer to UPGRADE for more information..
 ================
 EOT

@@ -9,11 +9,11 @@
 <meta name="author" content="imacat" />
 <meta name="copyright" content="&copy; 2001-2005 imacat.  All rights reserved." />
 <meta name="keywords" content="DNS look up, HostNameLookups, Apache, Analog, log files" />
-<link rel="alternate" type="text/html" href="reslog.zh-tw.html"
+<link rel="alternate" type="application/xhtml+xml" href="reslog.zh-tw.html"
      hreflang="zh-tw" title="&#27491;&#39636;&#20013;&#25991;" />
-<link rel="alternate" type="text/html" href="reslog.zh-cn.html"
+<link rel="alternate" type="application/xhtml+xml" href="reslog.zh-cn.html"
      hreflang="zh-cn" title="&#31616;&#20307;&#20013;&#25991;" />
-<title>reslog Version 3.01</title>
+<title>reslog Version 3.02</title>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> version 3.01</h1>
+<h1><samp>reslog</samp> Version 3.02</h1>
 
 
 <div class="body">
@@ -37,6 +37,11 @@
 <h2>What's New?</h2>
 
 <dl>
+
+<dt>2005-05-02</dt>
+
+<dd><samp>reslog</samp> version 3.02 is released.  Resolver is now independent from the main program.  Successfully tested and run on <samp>MSWin32</samp> and <samp>cygwin</samp>.  Several small bugs are solved.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.02.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.02</a>.</dd>
+
 
 <dt>2005-04-26</dt>
 
@@ -87,7 +92,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.7.2 or above.  <samp>reslog</samp> now has threading to speed up resolving, which requires <acronym title="Practical Extraction and Reporting Language">Perl</acronym>'s ithreads threading module support that's only available since 5.7.2.  You can still disable threading if it causes troubles to you, but the code itself need it.  If you are using a <acronym title="Practical Extraction and Reporting Language">Perl</acronym> before 5.7.2, please upgrade it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  <samp>reslog</samp> now has threading to speed up resolving, which requires <acronym title="Practical Extraction and Reporting Language">Perl</acronym>'s ithreads threading module support that's only available since 5.8.0.  You can still disable threading if it causes troubles to you, but the code itself need it.  If you are using a <acronym title="Practical Extraction and Reporting Language">Perl</acronym> before 5.8.0, please upgrade it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
 
 <li>Required <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules: none.</li>
 
@@ -104,7 +109,7 @@
 
 <dt><a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a>, version 2 or above</dt>
 
-<dd>This is used to support read/write of bzip2 compressed files.  It is only needed when bzip2 compressed files are encountered.  If it is not available when needed, <samp>reslog</samp> will try to use the <samp>bzip2</samp> executable instead.  If that is not available, too, <samp>reslog</samp> will fail.  Notice that older versions before 2 does not work, since file <abbr title="input and output">I/O</abbr> compression were not implemented yet.  ActivePerl MSWin32 does not have Compress::Bzip2 in their <abbr title="Programmer's Package Manager">PPM</abbr> deposit yet, as the time I'm writing this.  You can get <samp>bzip.exe</samp> from the <a href="http://sources.redhat.com/bzip2/">bzip home page</a> instead.  Be sure to save it as <samp>bzip2.exe</samp> somewhere in your <samp>PATH</samp>.</dd>
+<dd>This is used to support read/write of bzip2 compressed files.  It is only needed when bzip2 compressed files are encountered.  If it is not available when needed, <samp>reslog</samp> will try to use the <samp>bzip2</samp> executable instead.  If that is not available, too, <samp>reslog</samp> will fail.  Notice that older versions before 2 does not work, since file <abbr title="input and output">I/O</abbr> compression were not implemented yet.  ActivePerl MSWin32 does not have <samp>Compress::Bzip2</samp> in their <abbr title="Programmer's Package Manager">PPM</abbr> deposit yet, as the time I'm writing this.  You can get <samp>bzip.exe</samp> from the <a href="http://sources.redhat.com/bzip2/">bzip home page</a> instead.  Be sure to save it as <samp>bzip2.exe</samp> somewhere in your <samp>PATH</samp>.</dd>
 
 <dt><a href="http://search.cpan.org/dist/Term-Size/"><samp>Term::Size</samp></a></dt>
    
@@ -112,6 +117,7 @@
 </dl>
 
 You can always search, download and install the missing <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules from the the <a href="http://search.cpan.org/"><abbr title="Comprehensive Perl Archive Network">CPAN</abbr> archieve</a>.</li>
+
 </ol>
 
 
@@ -121,8 +127,11 @@ You can always search, download and install the missing <acronym title="Practica
 
 <ul>
 <li><a href="http://reslog.sourceforge.net/"><samp>reslog</samp> web site at SourceForge</a></li>
-<li><a href="http://sourceforge.net/projects/reslog/"><samp>reslog</samp> project page at SourceForge</a></li>
+
+<li><a href="https://sourceforge.net/projects/reslog/"><samp>reslog</samp> project page at SourceForge</a></li>
+
 <li><a href="http://search.cpan.org/~imacat/reslog/"><samp>reslog</samp> project page at <abbr title="Comprehensive Perl Archive Network">CPAN</abbr></a></li>
+
 <li><a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>reslog</samp> page at Tavern IMACAT's</a></li>
 </ul>
 
@@ -130,7 +139,9 @@ You can always search, download and install the missing <acronym title="Practica
 
 <ul>
 <li><a href="https://sourceforge.net/project/showfiles.php?group_id=62500"><samp>reslog</samp> download page at SourceForge</a></li>
+
 <li><a href="http://search.cpan.org/~imacat/reslog/"><samp>reslog</samp>'s project page at <abbr title="Comprehensive Perl Archive Network">CPAN</abbr></a></li>
+
 <li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">Tavern IMACAT's <abbr title="File Transfer Protocol">FTP</abbr> directory</a></li>
 </ul>
 
@@ -138,6 +149,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 <ul>
 <li><a href="http://reslog.sourceforge.net/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at <samp>reslog</samp> SourceForge web site</a></li>
+
 <li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at Tavern IMACAT's</a></li>
 </ul>
 
@@ -292,7 +304,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 <h2>Bugs</h2>
 
-<p>reslog has a <a href="https://lists.sourceforge.net/lists/listinfo/reslog-users">mailing list <samp>reslog-users@lists.sourceforge.net</samp></a>.  If you have any question, comment, bug report, patch, please send it to the mailing list.  Do not send mails directly to me unless you have private business with me.  The mailing list has an archive.  People having the same trouble as you may search the archive, find the answer and save a lot of time.</p>
+<p><samp>reslog</samp> has a <a href="https://lists.sourceforge.net/lists/listinfo/reslog-users">mailing list <samp>reslog-users@lists.sourceforge.net</samp></a>.  If you have any question, comment, bug report, patch, please send it to the mailing list.  Do not send mails directly to me unless you have private business with me.  The mailing list has an archive.  People having the same trouble as you may search the archive, find the answer and save a lot of time.</p>
 
 
 </div>
