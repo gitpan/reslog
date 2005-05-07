@@ -36,8 +36,8 @@ For example, to install into your home when you are not root:
     Refer to the docuemntation of ExtUtils::MakeMaker for more installation
 options (by running "perldoc ExtUtils::MakeMaker").
 
-    If you are upgrading from reslog.pl version 2, please read UPGRADE for
-some upgrade instruction.
+    If you are upgrading from reslog.pl version 3.02 or earlier, please read
+UPGRADE for some upgrade instruction.
 
     You need to have at least Perl 5.8.0 for this version of reslog.  This
 is due to the ithread threading support that's only available from Perl

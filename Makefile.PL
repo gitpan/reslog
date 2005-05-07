@@ -11,7 +11,9 @@ use vars qw(@old_version);
 foreach (qw(/usr/sbin/reslog.pl
             /usr/share/man/man8/reslog.pl.8
             /usr/local/sbin/reslog.pl
-            /usr/local/share/man/man8/reslog.pl.8)) {
+            /usr/local/share/man/man8/reslog.pl.8
+            /usr/bin/reslog
+            /usr/share/man/man1/reslog.1)) {
     push @old_version, $_ if -e $_;
 }
 if (@old_version > 0) {
@@ -19,9 +21,9 @@ if (@old_version > 0) {
     warn << "EOT";
 ================
   Look like you are upgrading from an old version.
-  Remove the following files after "make install":
+  Run "make upgrade" to remove the following old files after "make install":
 
-  $_
+    $_
 
   Refer to UPGRADE for more information..
 ================
@@ -46,5 +48,36 @@ WriteMakefile(
 );
 
 
+package MY;
+
+sub constants : method {
+    local ($_, %_);
+    my ($self, @args);
+    ($self, @args) = @_;
+    $_ = $_[0]->SUPER::constants(@_[1...$#_]);
+    s/^(INSTALLSCRIPT = .+)\/bin/$1\/sbin/m;
+    s/^(INSTALLMAN1DIR = .+)\/man1/$1\/man8/m;
+    s/^(INSTALLSITEMAN1DIR = .+)\/man1/$1\/man8/m;
+    s/^MAN1EXT = 1/MAN1EXT = 8/m;
+    my $old_version = join " ", @main::old_version;
+    $_ .= << "EOT";
+OLDVERSION = $old_version
+EOT
+    return $_;
+}
+
+sub manifypods : method {
+    local ($_, %_);
+    $_ = shift->SUPER::manifypods(@_);
+    s/ --section=1 / --section=8 /;
+    return $_;
+}
+
+sub postamble : method {
+    return << "EOT";
+upgrade ::
+	\$(RM_F) \$(OLDVERSION)
+EOT
+}
 
 __END__

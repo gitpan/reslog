@@ -1,6 +1,6 @@
 昇級指南
 
-　　若你由第二版昇級到第三版，請閱讀以下說明：
+　　若你由 3.02 或之前的版本昇級，請閱讀以下說明：
 
 
 ◎檔名由 reslog.pl 改為 reslog
@@ -9,23 +9,22 @@
 名。不過你也可以把 reslog 改名回原來的 reslog.pl ，不會有任何問題。
 
 
-◎預設安裝目錄，由 /usr/local/sbin 改為 /usr/bin
+◎預設安裝目錄為 /usr/sbin
 
-　　還有，說明檔也由 /usr/local/share/man/man8/reslog.pl.8 改為
-/usr/share/man/man1/reslog.1 。昇級後，下列舊版檔案：
+　　說明檔則在 /usr/share/man/man8/reslog.8 。你可以執行 make upgrade 移除下列
+舊版檔案：
 
+      /usr/sbin/reslog.pl
       /usr/share/man/man8/reslog.pl.8
+      /usr/local/sbin/reslog.pl
       /usr/local/share/man/man8/reslog.pl.8
+      /usr/bin/reslog
+      /usr/share/man/man1/reslog.1
 
-　　或妳曾經改存到其它地方，請記得要刪掉。不好意思， make install 不會自動幫妳
-清掉舊版檔案。
+　　若妳程式存在其它地方，請記得要自己刪掉。
 
 　　若你有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔名。不過你也可以
 把 reslog 存到原來的目錄去，不會有任何問題。
-
-　　這是 ExtUtils::MakeMaker 的問題。我個人覺得安裝到 sbin 目錄比較適當，因為
-reslog 是設計給系統管理員用的，不是給一般使用者用的。不過 ExtUtils::MakeMaker
-不支援安裝到 sbin 目錄。這種作法，其實是違反 FHS 2.2 規定的。
 
 
 ◎ Perl 5.8.0 版以上

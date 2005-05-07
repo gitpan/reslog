@@ -34,7 +34,7 @@ FTP 站下載：
 　　要知道更多安裝選項的細節，請參閱 ExtUtils::MakeMaker 的說明（請執行
 perldoc ExtUtils::MakeMaker ）。
 
-　　若你是由 reslog.pl 第二版昇級，請參閱 UPGRADE 檔的昇級說明。
+　　若你是由 reslog.pl 3.02 版以前昇級，請參閱 UPGRADE 檔的昇級說明。
 
 　　本版 reslog 至少需要 Perl 5.8.0 以上，以便支援 ithread 多線程功能。若要安
 裝／昇級到你的 Perl ，請上 Perl 的網站 http://www.perl.com/ 。若你是 MSWin32

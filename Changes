@@ -1,13 +1,28 @@
 reslog change log
 
+2005-05-08	version 3.03
+	 1. flock() policy is redesigned.  Now all the file handles that are
+	    not opened to ordinary files are not locked.  Lock is released when
+	    when file handle is accessed with a foreign program.  Files handles
+	    are always locked when opened to ordinary files and accessed
+	    internally, even for anonymous temporary files.  This simplified
+	    the locking problem.  How foreign programs access file handles are
+	    not an issue anymore.
+	 2. Makefile.PL: MY pacakge is added.  Makefile target "upgrade" is
+	    added to remove the old files.  constants() and manifypods()
+	    methods are added to alter the default install location.  Now we
+	    default to install to /sbin directory and as manpage section 8.
+	    That is what I want.
+	 3. BUGS and TODO section of the embedded POD document updated.
+
 2005-05-02	version 3.02
 	 1. _private::Resolver and _private::Resolver::Threaded are added.
 	    Resolver is independent from the main program so that other log
 	    file filter can use the same code with least modification (GeoIP,
 	    for example).
 	 2. Help text on temporary working file updated.
-	 3. Unsupported file format error message was using $type, which should
-	    be $_.  This is fixed.
+	 3. Unsupported file format error message was using $type, which
+	    should be $_.  This is fixed.
 	 4. Test 31-39 added to test --suffix and --trim-suffix.
 	 5. Tested with cygwin.
 	 6. Quotes added to the test suite to avoid problem when make test
@@ -116,8 +131,7 @@ reslog change log
 	    expects.
 
 2003-01-04
-	 1. File handler EOF read checks were fixed with
-	    defined().
+	 1. File handler EOF read checks were fixed with defined().
 
 2002-11-13
          1. Long statistic lines are split for easy reading.

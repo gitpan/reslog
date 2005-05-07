@@ -1,6 +1,6 @@
 Upgrade Instruction
 
-    Here are a few hints for people upgrading from version 2 to version 3:
+    Here are a few hints for people upgrading from 3.02 or earlier:
 
 
 * The Script Name is Changed from reslog.pl to reslog
@@ -20,26 +20,23 @@ for the automatic syntax highlighting rules.  But this is not much trouble.  I
 can manuall set it anyway.
 
 
-* The Default Installation Location is Changed from /usr/local/sbin to /usr/bin
+* The Default Installation Location Is at /usr/sbin
 
-    Also, the man page is changed from /usr/local/share/man/man8/reslog.pl.8
-to /usr/share/man/man1/reslog.1.  Remember to clean up the following old
-files after installation:
+    Also, the man page is at /usr/share/man/man1/reslog.1.  You can run
+"make upgrade" to remove the following old version files:
 
+      /usr/sbin/reslog.pl
       /usr/share/man/man8/reslog.pl.8
+      /usr/local/sbin/reslog.pl
       /usr/local/share/man/man8/reslog.pl.8
+      /usr/bin/reslog
+      /usr/share/man/man1/reslog.1
 
-    Or any location you save your old reslog.pl  Sorry, "make install" won't
-clean them for you.
+    If you saved them in other places, you have to delete them yourself.
 
     Also, if you have any scripts or cron jobs that are running reslog, remember
 to modify your script for the new reslog location.  Of course, you can copy
 reslog to the original location.  It will still work.
-
-    This is due to the limitation of ExtUtils::MakeMaker.  Although I prefer
-sbin directory, for reslog is designed for system administrators, not ordinary
-users, ExtUtils::MakeMaker won't recognize sbin directory at all.  This is a
-violation to Filesystem Hierarchy Standard 2.2, though.
 
 
 * You Need Perl 5.8.0 or Above

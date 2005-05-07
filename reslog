@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.02";
+$VERSION = "3.03";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -385,7 +385,9 @@ sub new : method {
     # Open the file handler
     open $FH, "+<", $file               or die "$THIS_FILE: $file: $!";
     $self->{"FH"} = $FH;
-    flock $FH, LOCK_EX                  or die "$THIS_FILE: $file: $!";
+    if (-f $FH) {
+        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+    }
     
     # Check the file type
     print STDERR "Checking file type of $f0 ... " if $VERBOSE > 1;
@@ -393,9 +395,6 @@ sub new : method {
     print STDERR $self->{"type"} . "\n" if $VERBOSE > 1;
     # Check the I/O handler to use
     $self->check_io;
-    if (!$self->{"io"}->use_flock) {
-        flock $FH, LOCK_UN              or die "$THIS_FILE: $file: $!";
-    }
     # Check the output file availability
     $self->check_output;
     # Reset the file pointer
@@ -412,7 +411,7 @@ sub create_temp : method {
     $temp = $self->{"temp"};
     print STDERR "Creating $temp ... " if $VERBOSE > 2;
     open $FHT, "+>", $temp              or die "$THIS_FILE: $temp: $!";
-    #flock $FHT, LOCK_EX                 or die "$THIS_FILE: $temp: $!";
+    flock $FHT, LOCK_EX                 or die "$THIS_FILE: $temp: $!";
     $self->{"FHT"} = $FHT;
     print STDERR "done\n" if $VERBOSE > 2;
     return $FHT;
@@ -463,6 +462,9 @@ sub write_result : method {
     undef $FH;
     if ($self->{"stdout"}) {
         open $FH, ">&", \*STDOUT        or die "$THIS_FILE: STDOUT: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: STDOUT: $!";
+        }
     }
     if ($self->{"override"} eq OVERRIDE_OVERWRITE) {
         print STDERR "Outputing to $file ... " if $VERBOSE > 1;
@@ -513,8 +515,7 @@ sub check_type : method {
     
     # Check by the file program
     } elsif ($MAGIC_METHOD eq MAGIC_EXEC) {
-        # file for MSWin32 will fail if STDIN/STDOUT is locked
-        if ($^O =~ /^(?:cygwin|MSWin32)$/) {
+        if (-f $FH) {
             flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
         }
         @_ = ($MAGIC, "-");
@@ -536,8 +537,7 @@ sub check_type : method {
         open STDIN, "<&", $_            or die "$THIS_FILE: STDIN: $!";
         $_ = join "", <$PIPE>;
         close $PIPE                     or die "$THIS_FILE: $MAGIC $file: $!";
-        # file for MSWin32 will fail if STDIN/STDOUT is locked
-        if ($^O =~ /^(?:cygwin|MSWin32)$/) {
+        if (-f $FH) {
             flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
         }
     }
@@ -684,7 +684,7 @@ sub check_magic : method {
     print STDERR "Checking file type checker to use ... " if $VERBOSE > 1;
     print STDERR "\n  Checking File::MMagic ... " if $VERBOSE > 2;
     # Check if we have File::MMagic
-    if (eval { require File::MMagic; 1; }) {
+    if (eval { require File::MMagicd; 1; }) {
         print STDERR "OK\nfound " if $VERBOSE > 2;
         print STDERR "File::MMagic\n" if $VERBOSE > 1;
         $MAGIC = File::MMagic->new;
@@ -852,9 +852,6 @@ sub new : method {
     print STDERR $self->{"type"} . "\n" if $VERBOSE > 1;
     # Check the I/O handler to use
     $self->check_io;
-    if (!$self->{"io"}->use_flock) {
-        flock $FH, LOCK_UN              or die "$THIS_FILE: $file: $!";
-    }
     # Set the output file
     $self->{"output"} = undef;
     
@@ -877,7 +874,6 @@ sub remove_temp : method {
     local ($_, %_);
     $_ = $_[0];
     print STDERR "Closing temporary working file for STDIN ... " if $VERBOSE > 2;
-    flock $_->{"FHT"}, LOCK_UN          or die "$THIS_FILE: tempfile: $!";
     close $_->{"FHT"}                   or die "$THIS_FILE: tempfile: $!";
     print STDERR "done\n" if $VERBOSE > 2;
     return;
@@ -895,9 +891,6 @@ import main;
 
 # new: Initialize the I/O handler interface
 sub new : method { bless {}, $_[0]; }
-
-# use_flock: If we should use flock() for the I/O.  Default to 1.
-sub use_flock : method { 1; }
 
 
 # _private::IO::Plain: The plain I/O handle
@@ -922,7 +915,9 @@ sub new_read : method {
     if (!defined $FH) {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -939,7 +934,9 @@ sub new_write : method {
     if (!defined $FH) {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -956,7 +953,9 @@ sub new_append : method {
     if (!defined $FH) {
         print STDERR "  Opening file in append mode ... " if $VERBOSE > 2;
         open $FH, ">>", $file           or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1038,7 +1037,9 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1060,7 +1061,9 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1082,7 +1085,9 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1225,8 +1230,11 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1265,8 +1273,11 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1305,8 +1316,11 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1508,7 +1522,9 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1530,7 +1546,9 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1552,7 +1570,9 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
+        if (-f $FH) {
+            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
+        }
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1686,14 +1706,6 @@ use File::Temp qw(tempfile);
 
 use vars qw($EXEC);
 
-# use_flock: If we should use flock() for the I/O.
-#   bzip2 for MSWin32 will fail if STDIN/STDOUT is locked
-sub use_flock : method {
-    local ($_, %_);
-    return 0 if $^O =~ /^(?:cygwin|MSWin32)$/;
-    return 1;
-}
-
 # new_read: Set a new reader
 sub new_read : method {
     local ($_, %_);
@@ -1705,10 +1717,11 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if ($self->use_flock) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -1747,10 +1760,11 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if ($self->use_flock) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -1789,10 +1803,12 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if ($self->use_flock) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
         print STDERR "done\n" if $VERBOSE > 2;
+    } else {
+        if (-f $FH) {
+            print STDERR "reslog OK\n";
+            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
+        }
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -2428,7 +2444,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.02
+3.03
 
 =head1 COPYRIGHT
 
@@ -2454,11 +2470,17 @@ imacat <imacat@mail.imacat.idv.tw>
 
 =head1 BUGS
 
-Please report if any. ^_*'
+reslog has a mailing list reslog-users@lists.sourceforge.net.  If you
+have any question, comment, bug report, patch, please send it to the
+mailing list.  Do not send mails directly to me unless you have
+private business with me. The mailing list has an archive.  People
+having the same trouble as you may search the archive, find the
+answer and save a lot of time.
 
 =head1 TODO
 
-Currently none.  You can tell me. ^_*'
+Multi-lingual support, with Traditional and Simplified Chinese
+messages.
 
 =head1 SEE ALSO
 
