@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.03";
+$VERSION = "3.04";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -684,7 +684,7 @@ sub check_magic : method {
     print STDERR "Checking file type checker to use ... " if $VERBOSE > 1;
     print STDERR "\n  Checking File::MMagic ... " if $VERBOSE > 2;
     # Check if we have File::MMagic
-    if (eval { require File::MMagicd; 1; }) {
+    if (eval { require File::MMagic; 1; }) {
         print STDERR "OK\nfound " if $VERBOSE > 2;
         print STDERR "File::MMagic\n" if $VERBOSE > 1;
         $MAGIC = File::MMagic->new;
@@ -2444,7 +2444,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.03
+3.04
 
 =head1 COPYRIGHT
 

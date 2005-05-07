@@ -1,5 +1,9 @@
 reslog change log
 
+2005-05-08	version 3.04
+	 1. Fixed a typo when loading File::MMagic that prevent itself from
+	    loading File::MMagic
+
 2005-05-08	version 3.03
 	 1. flock() policy is redesigned.  Now all the file handles that are
 	    not opened to ordinary files are not locked.  Lock is released when
