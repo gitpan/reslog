@@ -1,7 +1,14 @@
 reslog 更新记录
 
-2005-05-08      3.04 版
-         1. 修正载入 File::MMagic 时的别字，导致 File::MMagic 无法载入。
+2005-05-08	3.05 版
+	问题修正。
+	 1. 先检查有没有标准输入和标准输出可用，若没有则做一个暂用的替代品，以
+	    解决在 MSWin32 下，没有标准输入可用时，做标准输入转向会产生错误的
+	    问题。在 CPANPLUS 下做 make test 时，会先关闭标准输入，就会造成这
+	    个问题。
+
+2005-05-08	3.04 版
+	 1. 修正载入 File::MMagic 时的别字，导致 File::MMagic 无法载入。
 
 2005-05-08	3.03 版
 	 1. 重写 flock() 的做法：不是普通档案的档案操作，不再锁档。由外来程式
@@ -11,6 +18,7 @@ reslog 更新记录
 	 2. Makefile.PL: 加上 MY 套件，加上 make upgrade 以移除旧版档案，加上
 	    constants() 与 manifypods() 方法，以改变安装目录。现在程式会安装回
 	    /sbin 目录，说明档则分到 manpage 第八区。这样才对。
+	 3. 更新内建 POD 说明中的 BUG 和 TODO 两节。
 
 2005-05-02	3.02 版
 	 1. 加上 _private::Resolver 和 _private::Resolver::Threaded ，反查程式

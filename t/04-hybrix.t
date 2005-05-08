@@ -75,7 +75,6 @@ $fr3 = catfile($d3, "access_log.resolved.bz2");
 ($csb, $ceb) = (readfile $fsb, readfile $feb)
     if $hasbzip2;
 
-# 1
 $r = eval {
     return if $skip;
     mkdir $d1 if !-e $d1;

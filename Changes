@@ -1,5 +1,13 @@
 reslog change log
 
+2005-05-08	version 3.05
+	Bug fix.
+	 1. STDIN and STDERR are checked for availability first, and create
+	    dummy ones if they are not available.  This fixed the bugs that on
+	    MSWin32 when STDIN is not opened, redirecting unopened STDIN
+	    caused error.  This is the situation running "make test" in
+	    CPANPLUS.
+
 2005-05-08	version 3.04
 	 1. Fixed a typo when loading File::MMagic that prevent itself from
 	    loading File::MMagic

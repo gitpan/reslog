@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.04";
+$VERSION = "3.05";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -57,6 +57,7 @@ use Config qw();
 use ExtUtils::MakeMaker qw();
 use File::Basename qw(basename);
 use File::Spec::Functions qw(path catfile);
+use File::Temp qw(tempfile);
 use Getopt::Long qw(GetOptions);
 use IO::Handle;
 
@@ -79,6 +80,7 @@ use constant DEFAULT_THREADS => 10;
 use constant DEFAULT_PROGBAR => 1;
 
 our ($THIS_FILE, $SHORTHELP, $VERBOSE, %CONF, $RESOLVER, $START, $LASTLINE);
+our ($STDIN, $STDOUT);
 use vars qw(%WHEREIS);
 $THIS_FILE = basename($0);
 $SHORTHELP = "Try `$THIS_FILE --help' for more information.";
@@ -154,7 +156,7 @@ sub parse_args() {
     local ($_, %_);
     
     %CONF = qw();
-    # Get the arguments 取得參數
+    # Get the arguments
     eval {
         local $SIG{__WARN__} = sub { die $_[0]; };
         Getopt::Long::Configure("no_auto_abbrev");
@@ -200,6 +202,15 @@ sub parse_args() {
     }
     die "$THIS_FILE: you can only specify STDIN once\n$SHORTHELP\n"
         if grep($_ eq "-", @_) > 1;
+    
+    # Make sure STDIN and STDOUT are available and save them.
+    # Create them if not.
+    if (!eval { open $STDIN, "<&", \*STDIN or die "$THIS_FILE: STDIN: $!"; 1; }) {
+        $STDIN = tempfile               or die "$THIS_FILE: STDIN: $!";
+    }
+    if (!eval { open $STDOUT, ">&", \*STDOUT or die "$THIS_FILE: STDOUT: $!"; 1; }) {
+        $STDOUT = tempfile              or die "$THIS_FILE: STDIN: $!";
+    }
     
     # Set the verbose level
     autoflush STDERR if $VERBOSE > 1;
@@ -519,12 +530,8 @@ sub check_type : method {
             flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
         }
         @_ = ($MAGIC, "-");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
-        # Save STDIN
-        open $_, "<&", \*STDIN          or die "$THIS_FILE: STDIN: $!";
         # Redirect STDIN to $FH
         open STDIN, "<&", $FH           or die "$THIS_FILE: $file: $!";
         # Start the process
@@ -534,7 +541,7 @@ sub check_type : method {
             open $PIPE, "-|", @_        or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDIN
-        open STDIN, "<&", $_            or die "$THIS_FILE: STDIN: $!";
+        open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
         $_ = join "", <$PIPE>;
         close $PIPE                     or die "$THIS_FILE: $MAGIC $file: $!";
         if (-f $FH) {
@@ -1240,13 +1247,9 @@ sub new_read : method {
     $EXEC = whereis "gzip" if !defined $EXEC;
     
     @_ = ($EXEC, "-cdf");
-    if ($^O eq "MSWin32") {
-        $_[0] = "\"$_[0]\"";
-    }
+    @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
     $CMD = join " ", @_;
     print STDERR "  Starting $CMD from file ... " if $VERBOSE > 2;
-    # Save STDIN
-    open $_, "<&", \*STDIN              or die "$THIS_FILE: STDIN: $!";
     # Redirect STDIN to $FH
     open STDIN, "<&", $FH               or die "$THIS_FILE: $file: $!";
     # Start the process
@@ -1256,7 +1259,7 @@ sub new_read : method {
         open $PIPE, "-|", @_            or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDIN
-    open STDIN, "<&", $_                or die "$THIS_FILE: STDIN: $!";
+    open STDIN, "<&", $STDIN            or die "$THIS_FILE: STDIN: $!";
     print STDERR "done\n" if $VERBOSE > 2;
     ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
     return $self;
@@ -1283,13 +1286,9 @@ sub new_write : method {
     $EXEC = whereis "gzip" if !defined $EXEC;
     
     @_ = ($EXEC, "-c9f");
-    if ($^O eq "MSWin32") {
-        $_[0] = "\"$_[0]\"";
-    }
+    @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
     $CMD = join " ", @_;
     print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-    # Save STDOUT
-    open $_, ">&", \*STDOUT             or die "$THIS_FILE: STDOUT: $!";
     # Redirect STDOUT to $FH
     open STDOUT, ">&", $FH              or die "$THIS_FILE: $file: $!";
     # Start the process
@@ -1299,7 +1298,7 @@ sub new_write : method {
         open $PIPE, "|-", @_            or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDOUT
-    open STDOUT, ">&", $_               or die "$THIS_FILE: STDOUT: $!";
+    open STDOUT, ">&", $STDOUT          or die "$THIS_FILE: STDOUT: $!";
     print STDERR "done\n" if $VERBOSE > 2;
     ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
     return $self;
@@ -1345,13 +1344,9 @@ sub new_append : method {
         
         # Decompress the buffer and save to our file
         @_ = ($EXEC, "-cdf");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMDT = join " ", @_;
         print STDERR "  Starting $CMDT from buffer ... " if $VERBOSE > 2;
-        # Save STDIN
-        open $_, "<&", \*STDIN          or die "$THIS_FILE: STDIN: $!";
         # Redirect STDIN to $FH
         open STDIN, "<&", $FHT          or die "$THIS_FILE: tempfile: $!";
         # Start the process
@@ -1361,17 +1356,13 @@ sub new_append : method {
             open $PIPET, "-|", @_       or die "$THIS_FILE: $CMDT: $!";
         }
         # Restore STDIN
-        open STDIN, "<&", $_            or die "$THIS_FILE: STDIN: $!";
+        open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
         print STDERR "done\n" if $VERBOSE > 2;
         
         @_ = ($EXEC, "-c9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
         print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
@@ -1381,7 +1372,7 @@ sub new_append : method {
             open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
         
         print STDERR "  Reading old records back from the buffer ... " if $VERBOSE > 2;
@@ -1397,13 +1388,9 @@ sub new_append : method {
     # A whole new file
     } else {
         @_ = ($EXEC, "-c9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
         print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
@@ -1413,7 +1400,7 @@ sub new_append : method {
             open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
@@ -1460,12 +1447,8 @@ sub close : method {
         print STDERR "  Applying empty compressed content ... " if $VERBOSE > 2;
         $EXEC = whereis "gzip" if !defined $EXEC;
         @_ = ($EXEC, "-c9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process and end it
@@ -1476,7 +1459,7 @@ sub close : method {
         }
         close $PIPE                     or die "$THIS_FILE: $CMD: $!";
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
@@ -1727,13 +1710,9 @@ sub new_read : method {
     $EXEC = whereis "bzip2" if !defined $EXEC;
     
     @_ = ($EXEC, "-cdf");
-    if ($^O eq "MSWin32") {
-        $_[0] = "\"$_[0]\"";
-    }
+    @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
     $CMD = join " ", @_;
     print STDERR "  Starting $CMD from file ... " if $VERBOSE > 2;
-    # Save STDIN
-    open $_, "<&", \*STDIN              or die "$THIS_FILE: STDIN: $!";
     # Redirect STDIN to $FH
     open STDIN, "<&", $FH               or die "$THIS_FILE: $file: $!";
     # Start the process
@@ -1743,7 +1722,7 @@ sub new_read : method {
         open $PIPE, "-|", @_            or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDIN
-    open STDIN, "<&", $_                or die "$THIS_FILE: STDIN: $!";
+    open STDIN, "<&", $STDIN            or die "$THIS_FILE: STDIN: $!";
     print STDERR "done\n" if $VERBOSE > 2;
     ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
     return $self;
@@ -1770,13 +1749,9 @@ sub new_write : method {
     $EXEC = whereis "bzip2" if !defined $EXEC;
     
     @_ = ($EXEC, "-9f");
-    if ($^O eq "MSWin32") {
-        $_[0] = "\"$_[0]\"";
-    }
+    @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
     $CMD = join " ", @_;
     print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-    # Save STDOUT
-    open $_, ">&", \*STDOUT             or die "$THIS_FILE: STDOUT: $!";
     # Redirect STDOUT to $FH
     open STDOUT, ">&", $FH              or die "$THIS_FILE: $file: $!";
     # Start the process
@@ -1786,7 +1761,7 @@ sub new_write : method {
         open $PIPE, "|-", @_            or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDOUT
-    open STDOUT, ">&", $_               or die "$THIS_FILE: STDOUT: $!";
+    open STDOUT, ">&", $STDOUT          or die "$THIS_FILE: STDOUT: $!";
     print STDERR "done\n" if $VERBOSE > 2;
     ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
     return $self;
@@ -1833,13 +1808,9 @@ sub new_append : method {
         
         # Decompress the buffer and save to our file
         @_ = ($EXEC, "-cdf");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMDT = join " ", @_;
         print STDERR "  Starting $CMDT from buffer ... " if $VERBOSE > 2;
-        # Save STDIN
-        open $_, "<&", \*STDIN          or die "$THIS_FILE: STDIN: $!";
         # Redirect STDIN to $FH
         open STDIN, "<&", $FHT          or die "$THIS_FILE: tempfile: $!";
         # Start the process
@@ -1849,17 +1820,13 @@ sub new_append : method {
             open $PIPET, "-|", @_       or die "$THIS_FILE: $CMDT: $!";
         }
         # Restore STDIN
-        open STDIN, "<&", $_            or die "$THIS_FILE: STDIN: $!";
+        open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
         print STDERR "done\n" if $VERBOSE > 2;
         
         @_ = ($EXEC, "-9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
         print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
@@ -1869,7 +1836,7 @@ sub new_append : method {
             open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
         
         print STDERR "  Reading old records back from the buffer ... " if $VERBOSE > 2;
@@ -1885,13 +1852,9 @@ sub new_append : method {
     # A whole new file
     } else {
         @_ = ($EXEC, "-9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
         print STDERR "  Starting $CMD to file ... " if $VERBOSE > 2;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
@@ -1901,7 +1864,7 @@ sub new_append : method {
             open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
@@ -1938,6 +1901,7 @@ sub close : method {
     
     # Restart the file
     if ($keep eq KEEP_RESTART) {
+        my ($CMD, $PIPE);
         # Empty the source file
         print STDERR "  Emptying file ... " if $VERBOSE > 2;
         seek $FH, 0, SEEK_SET           or die "$THIS_FILE: $file: $!";
@@ -1948,12 +1912,8 @@ sub close : method {
         print STDERR "  Applying empty compressed content ... " if $VERBOSE > 2;
         $EXEC = whereis "bzip2" if !defined $EXEC;
         @_ = ($EXEC, "-9f");
-        if ($^O eq "MSWin32") {
-            $_[0] = "\"$_[0]\"";
-        }
+        @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
-        # Save STDOUT
-        open $_, ">&", \*STDOUT         or die "$THIS_FILE: STDOUT: $!";
         # Redirect STDOUT to $FH
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process and end it
@@ -1964,7 +1924,7 @@ sub close : method {
         }
         close $PIPE                     or die "$THIS_FILE: $CMD: $!";
         # Restore STDOUT
-        open STDOUT, ">&", $_           or die "$THIS_FILE: STDOUT: $!";
+        open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
@@ -2444,7 +2404,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.04
+3.05
 
 =head1 COPYRIGHT
 
