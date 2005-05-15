@@ -43,7 +43,7 @@ WriteMakefile(
         SUFFIX		=> '.gz',
     },
     clean		=> {
-        FILES		=> 't/logs/working/*',
+        FILES		=> 't/logs/*',
     },
 );
 

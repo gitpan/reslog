@@ -1,12 +1,58 @@
 reslog change log
 
-2005-05-08	version 3.05
+2005-05-16	version 3.06
+	 1. t/99-pod.t added to test the POD document with Test::Pod.
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t: Added test for failures
+	    on existing temporary files.
+	 3. t/_helper.pm: Added prevention of generating IP 127.0.0.1.
+	 4. reslog: Added package _private::Filter and move
+	    _private::Resolver::parse_line() and
+	    _private::Resolver::replace_line() there, to allow easier
+	    implementing different log file formats.  Like GeoIP, or maybe
+	    MS-Extended, in the future.
+	 5. reslog: Fixed the POD document.  Section of links L<...> should
+	    be section headings in the document, but not manpage sections.
+	    This is fixed.  Web site URLs are added to the AUTHOR section.
+	    Mailing list URL is added to the BUGS section.
+
+2005-05-15
+	Test suite fix.
+	 1. t/02-gzip.t, t/03-bzip2.t: Tests that weren't skipped when gzip or
+	    bzip2 is not available is fixed.  (perl.cpan.testers 205969)
+	 2. t/01-plain.t, t/02-gzip2.t, t/03-bzip2.t, t/04-hybrix.t: $nofile
+	    replaced $hasfile.  $nogzip replaced $hasgzip.  $nobzip2 replaced
+	    $hasbzip2.  Skipping reason supplied.
+	 3. reslog: devnull is used instead of tempfile when STDIN or STDOUT
+	    is not available.
+	 4. reslog: Not only STDIN, but all files are checked if they are
+	    specified more than once.
+	 5. t/MyHelper.pm: Subroutines thisfile(), rmalldir(), mkcldir(),
+	    fwrite(), whereis(), ftype(), flist(), mkrndlog(), randword() are
+	    added.  Subroutine readfile() is renamed as fread().  Prototype
+	    cplist() is corrected as cp().  Subroutine rm() is removed.
+	 6. t/01-plain.t, t/02-gzip2.t, t/03-bzip2.t, t/04-hybrix.t: I joined
+	    subtests together and shrinked the total number of tests.  They
+	    should be one tests anyway.  This way I can test more on the result.
+	 7. t/MyHelper.pm: flist() is added so that I can test if the resulted
+	    files list is correct.  Several subtests on whether a file exists
+	    are removed.
+	 8. t/MyHelper.pm: ftype() is added so that I can test if the resulted
+	    file format is correct.
+	 9. t/MyHelper.pm: mkrndlog() is added to generate random Apache
+	    access_log files.  No more sample log files shipped anymore.  The
+	    test result should be better, too, since the content of the test
+	    log files vary now.  The content of the shipped samples are all
+	    the same in fact.
+	10. t/MyHelper.pm: Renamed to _helper.pm, to avoid CPAN namespace
+	    pollution.
+
+2005-05-08
 	Bug fix.
 	 1. STDIN and STDERR are checked for availability first, and create
 	    dummy ones if they are not available.  This fixed the bugs that on
 	    MSWin32 when STDIN is not opened, redirecting unopened STDIN
 	    caused error.  This is the situation running "make test" in
-	    CPANPLUS.
+	    CPANPLUS.  (perl.cpan.testers 202971)
 
 2005-05-08	version 3.04
 	 1. Fixed a typo when loading File::MMagic that prevent itself from

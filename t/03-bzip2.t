@@ -22,266 +22,353 @@ use strict;
 use warnings;
 use Test;
 
-BEGIN { plan tests => 39 }
+BEGIN { plan tests => 14 }
 
-use File::Spec::Functions qw(catdir catfile updir);
+use File::Basename qw(basename);
+use File::Spec::Functions qw(splitdir catdir catfile updir);
 use FindBin;
 use lib $FindBin::Bin;
-use MyHelper;
-use vars qw($LOGDIR $WORKDIR $reslog);
-$LOGDIR = catdir($FindBin::Bin, "logs");
-$WORKDIR = catdir($LOGDIR, "working");
-mkdir $WORKDIR if ! -e $WORKDIR;
-$reslog = catdir($FindBin::Bin, updir, "blib", "script", "reslog");
-use vars qw($fs $fr $fe $cs $cr $ce $fs1 $ft1 $fr1 $cs1 $cr1);
-use vars qw($fs2 $fr2 $cs2 $cr2);
-use vars qw($r $retno $out $err $hasfile $hasbzip2);
+use _helper;
+use vars qw($te $WORKDIR $reslog $nofile $nobzip2);
+use vars qw($fs1 $ft1 $fr1 $fs2 $fr2);
+
+$te = "application/x-bzip2";
+$WORKDIR = catdir($FindBin::Bin, "logs");
+@_ = splitdir $FindBin::Bin;
+$reslog = catdir(@_[0...$#_-1], "blib", "script", "reslog");
+
 # If we have the file type checker somewhere
-eval { require File::MMagic; };
-`file --help 2>&1`;
-$hasfile = $@ eq "" || $? == 0;
+$nofile =   eval { require File::MMagic; 1; }
+            || defined whereis "file"?
+    undef: "File::MMagic or file executable not available";
 # If we have bzip2 support somewhere
-eval { require Compress::Bzip2; import Compress::Bzip2 2.00; };
-`bzip2 --help 2>&1`;
-$hasbzip2 = $@ eq "" || $? == 0;
-$fs = catfile($LOGDIR, "access_log.bz2");
-$fr = catfile($LOGDIR, "access_log");
-$fe = catfile($LOGDIR, "access_log.resolved.bz2");
+$nobzip2 =  eval { require Compress::Bzip2; import Compress::Bzip2 2.00; 1; }
+            || defined whereis "bzip2"?
+    undef: "Compress::Bzip2 v2 or bzip2 executable not available";
+
 $fs1 = catfile($WORKDIR, "access_log.bz2");
 $ft1 = catfile($WORKDIR, "access_log.tmp-reslog");
 $fr1 = catfile($WORKDIR, "access_log.resolved.bz2");
 $fs2 = catfile($WORKDIR, "access_log.ct.bz2");
 $fr2 = catfile($WORKDIR, "access_log.rsd.bz2");
-($cs, $cr, $ce) = (readfile $fs, readfile $fr, readfile $fe)
-    if $hasbzip2;
 
-# The default keep behavior
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 1: The default keep behavior
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
+    $reslog =~ s/"/\\"/g;
     runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
-    #rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 1
-skip(!$hasbzip2, $r, 1, $@);
-# 2
-skip(!$hasbzip2, $cs1, "not exists");
-# 3
-skip(!$hasbzip2, $cr1, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# Keep all
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 2: Keep all
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 -k=a \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 4
-skip(!$hasbzip2, $r, 1, $@);
-# 5
-skip(!$hasbzip2, $cs1, $cs);
-# 6
-skip(!$hasbzip2, $cr1, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# Keep restart
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 3: Keep restart
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 -k=r \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (-s $fs1? readfile $fs1: "", readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected \"\"\n"
+        if $cs1 ne "";
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 7
-skip(!$hasbzip2, $r, 1, $@);
-# 8
-skip(!$hasbzip2, $cs1, "");
-# 9
-skip(!$hasbzip2, $cr1, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# Keep delete
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 4: Keep delete
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 -k=d \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 10
-skip(!$hasbzip2, $r, 1, $@);
-# 11
-skip(!$hasbzip2, $cs1, "not exists");
-# 12
-skip(!$hasbzip2, $cr1, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# The default override behavior
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1], [$fe, $fr1];
+# 5: The default override behavior
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
     runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno == 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cr0\n"
+        if $cr1 ne $cr0;
     1;
 };
-# 13
-skip(!$hasbzip2, $r, 1, $@);
-# 14
-skip(!$hasbzip2, $cs1, $cs);
-# 15
-skip(!$hasbzip2, $cr1, $ce);
+skip($nobzip2, $_, 1, $@);
 
-# Override overwrite
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1], [$fe, $fr1];
+# 6: Override overwrite
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
     runcmd "\"$reslog\" -t 1 -o=o \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 16
-skip(!$hasbzip2, $r, 1, $@);
-# 17
-skip(!$hasbzip2, $cs1, "not exists");
-# 18
-skip(!$hasbzip2, $cr1, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# Override append
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1], [$fe, $fr1];
+# 7: Override append
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
     runcmd "\"$reslog\" -t 1 -o=a \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (-e $fs1? "exists": "not exists", readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cr0$cs0\n"
+        if $cr1 ne $cr0 . $cs0;
     1;
 };
-# 19
-skip(!$hasbzip2, $r, 1, $@);
-# 20
-skip(!$hasbzip2, $cs1, "not exists");
-# 21
-skip(!$hasbzip2, $cr1, ($hasbzip2? $ce . $cr: undef));
+skip($nobzip2, $_, 1, $@);
 
-# Override fail
-$r = eval {
-    return unless $hasbzip2;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1], [$fe, $fr1];
+# 8: Override fail
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
     runcmd "\"$reslog\" -t 1 -o=f \"$fs1\"", \$retno, \$out, \$err;
-    ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno == 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cr0\n"
+        if $cr1 ne $cr0;
     1;
 };
-# 22
-skip(!$hasbzip2, $r, 1, $@);
-# 23
-skip(!$hasbzip2, $cs1, $cs);
-# 24
-skip(!$hasbzip2, $cr1, $ce);
+skip($nobzip2, $_, 1, $@);
 
-# From file to STDOUT
-$r = eval {
-    return unless $hasbzip2 && $hasfile;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 9: From file to STDOUT
+$_ = eval {
+    return if $nobzip2 || $nofile;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 -c \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
-    ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 25
-skip(!$hasbzip2 || !$hasfile, $r, 1, $@);
-# 26
-skip(!$hasbzip2 || !$hasfile, $cs1, $cs);
-# 27
-skip(!$hasbzip2 || !$hasfile, $cr1, $cr);
+skip($nobzip2 || $nofile, $_, 1, $@);
 
-# From STDIN to STDOUT
-$r = eval {
-    return unless $hasbzip2 && $hasfile;
-    rm $fs1, $ft1, $fr1;
-    cp [$fs, $fs1];
+# 10: From STDIN to STDOUT
+$_ = eval {
+    return if $nobzip2 || $nofile;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 < \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
-    ($cs1, $cr1) = (readfile $fs1, readfile $fr1);
-    rm $fs1, $ft1, $fr1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
+    ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 28
-skip(!$hasbzip2 || !$hasfile, $r, 1, $@);
-# 29
-skip(!$hasbzip2 || !$hasfile, $cs1, $cs);
-# 30
-skip(!$hasbzip2 || !$hasfile, $cr1, $cr);
+skip($nobzip2 || $nofile, $_, 1, $@);
 
-# Attach our suffix
-$r = eval {
-    rm $fs1, $ft1, $fr1, $fr2;
-    cp [$fs, $fs1];
+# 11: Attach a custom suffix
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs1, $cr2, $tr2);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs1;
     runcmd "\"$reslog\" -t 1 -s=.rsd \"$fs1\"", \$retno, \$out, \$err;
-    ($cr1, $cr2) = (-e $fr1? "exists": "not exists", readfile $fr2);
-    rm $fs1, $ft1, $fr1, $fr2;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr2)), flist $WORKDIR);
+    ($cs1, $cr2, $tr2) = (fread $fs1, fread $fr2, ftype $fr2);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr2: result type incorrect.\nGot: $tr2\nExpected: $te\n"
+        if !$nofile && $tr2 ne $te;
+    die "$fr2: result incorrect.\nGot:\n$cr2\nExpected:\n$cs0\n"
+        if $cr2 ne $cs0;
     1;
 };
-# 31
-ok($r, 1, $@);
-# 32
-ok($cr1, "not exists");
-# 33
-ok($cr2, $cr);
+skip($nobzip2, $_, 1, $@);
 
-# Trim the file name suffix
-$r = eval {
-    rm $fs1, $ft1, $fr1, $fs2;
-    cp [$fs, $fs1], [$fs, $fs2];
+# 12: Trim the file name suffix
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs2, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs2;
     runcmd "\"$reslog\" -t 1 -t=.ct \"$fs2\"", \$retno, \$out, \$err;
-    ($cs1, $cs2) = (readfile $fs1, -e $fs2? "exists": "not exists");
-    rm $fs1, $ft1, $fr1, $fs2;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cs2, $cr1, $tr1) = (fread $fs2, fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
     1;
 };
-# 34
-ok($r, 1, $@);
-# 35
-ok($cs1, $cs);
-# 36
-ok($cs2, "not exists");
+skip($nobzip2, $_, 1, $@);
 
-# Trim and attach our suffix
-$r = eval {
-    rm $fs2, $ft1, $fr2;
-    cp [$fs, $fs2];
+# 13: Trim and attach our suffix
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cs2, $cr2, $tr2);
+    mkcldir $WORKDIR;
+    $cs0 = mkrndlog $fs2;
     runcmd "\"$reslog\" -t 1 -t=.ct -s=.rsd \"$fs2\"", \$retno, \$out, \$err;
-    ($cs2, $cr2) = (-e $fs2? "exists": "not exists", readfile $fr2);
-    rm $fs2, $ft1, $fr2;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr2)), flist $WORKDIR);
+    ($cs2, $cr2, $tr2) = (fread $fs2, fread $fr2, ftype $fr2);
+    rmalldir $WORKDIR;
     die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr2: result type incorrect.\nGot: $tr2\nExpected: $te\n"
+        if !$nofile && $tr2 ne $te;
+    die "$fr2: result incorrect.\nGot:\n$cr2\nExpected:\n$cs0\n"
+        if $cr2 ne $cs0;
     1;
 };
-# 37
-ok($r, 1, $@);
-# 38
-ok($cs2, "not exists");
-# 39
-ok($cr2, $cr);
+skip($nobzip2, $_, 1, $@);
+
+# 14: Stop for the temporary working file
+$_ = eval {
+    return if $nobzip2;
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $ct0, $cs1, $ct1);
+    mkcldir $WORKDIR;
+    ($cs0, $ct0) = (mkrndlog $fs1, mkrndlog $ft1);
+    runcmd "\"$reslog\" -t 1 -t=.ct -s=.rsd \"$fs2\"", \$retno, \$out, \$err;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $ft1)), flist $WORKDIR);
+    ($cs1, $ct1) = (fread $fs1, fread $ft1);
+    rmalldir $WORKDIR;
+    die $out . $err if $retno == 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fs1: source incorrect.\nGot:\n$cs1\nExpected:\n$cs0\n"
+        if $cs1 ne $cs0;
+    die "$ft1: temporary working file incorrect.\nGot:\n$ct1\nExpected:\n$ct0\n"
+        if $ct1 ne $ct0;
+    1;
+};
+skip($nobzip2, $_, 1, $@);

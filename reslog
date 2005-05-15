@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.05";
+$VERSION = "3.06";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -56,8 +56,7 @@ sub term_width();
 use Config qw();
 use ExtUtils::MakeMaker qw();
 use File::Basename qw(basename);
-use File::Spec::Functions qw(path catfile);
-use File::Temp qw(tempfile);
+use File::Spec::Functions qw(path catfile devnull);
 use Getopt::Long qw(GetOptions);
 use IO::Handle;
 
@@ -200,16 +199,27 @@ sub parse_args() {
     } else {
         @_ = qw(-);
     }
-    die "$THIS_FILE: you can only specify STDIN once\n$SHORTHELP\n"
-        if grep($_ eq "-", @_) > 1;
+    # Check if the files are duplicated
+    %_ = qw();
+    foreach (@_) {
+        die "$THIS_FILE: $_: you can only specify a file once\n$SHORTHELP\n"
+            if exists $_{$_};
+        $_{$_} = 1;
+    }
     
     # Make sure STDIN and STDOUT are available and save them.
-    # Create them if not.
-    if (!eval { open $STDIN, "<&", \*STDIN or die "$THIS_FILE: STDIN: $!"; 1; }) {
-        $STDIN = tempfile               or die "$THIS_FILE: STDIN: $!";
+    # Open NULL device for them if they are not available.
+    if (!eval { open $STDIN, "<&", \*STDIN  or die; 1; }) {
+        my ($NH, $NULL);
+        $NULL = devnull;
+        open $NH, $NULL                 or die "$THIS_FILE: $NULL: $!";
+        open $STDIN, "<&", $NH          or die "$THIS_FILE: $NULL: $!";
     }
-    if (!eval { open $STDOUT, ">&", \*STDOUT or die "$THIS_FILE: STDOUT: $!"; 1; }) {
-        $STDOUT = tempfile              or die "$THIS_FILE: STDIN: $!";
+    if (!eval { open $STDOUT, ">&", \*STDOUT or die; 1; }) {
+        my ($NH, $NULL);
+        $NULL = devnull;
+        open $NH, ">$NULL"              or die "$THIS_FILE: $NULL: $!";
+        open $STDOUT, ">&", $NH         or die "$THIS_FILE: $NULL: $!";
     }
     
     # Set the verbose level
@@ -453,7 +463,7 @@ sub read_source : method {
     print STDERR "  Reading source records ... " if $VERBOSE > 2;
     $count = 0;
     while (defined($_ = $io->readline)) {
-        $RESOLVER->add($RESOLVER->parse_line($_));
+        _private::Filter->parse_line($_);
         print $FHT $_                   or die "$THIS_FILE: $!";
         $count++;
     }
@@ -490,7 +500,7 @@ sub write_result : method {
     seek $FHT, 0, SEEK_SET              or die "$THIS_FILE: $!";
     $count = 0;
     while (defined($_ = <$FHT>)) {
-        $io->write($RESOLVER->replace_line($_));
+        $io->write(_private::Filter->replace_line($_));
         $count++;
     }
     print STDERR "$count records\n" if $VERBOSE > 2;
@@ -552,10 +562,8 @@ sub check_type : method {
     # Check the returned file type text
     return ($self->{"type"} = TYPE_GZIP) if /gzip/i;
     return ($self->{"type"} = TYPE_BZIP2) if /bzip2/i;
-    return ($self->{"type"} = TYPE_PLAIN) if /(?:text|empty)/i;
-    
-    # Not a valid file type
-    die "$THIS_FILE: Unsupported file format: $_ ($file)\n$SHORTHELP\n";
+    # Default everything to text/plain
+    return ($self->{"type"} = TYPE_PLAIN);
 }
 
 # check_io: Check the I/O handler to use
@@ -1946,6 +1954,33 @@ sub close : method {
 }
 
 
+# _private::Filter: The log file filter
+# The filter can be override to implementing different log file formats.
+#   Maybe GeoIP.  Or MS-Extended, in the future.
+package _private::Filter;
+use 5.8.0;
+use strict;
+use warnings;
+
+# parse_line: Parse the line to get an IP address
+sub parse_line : method {
+    local ($_, %_);
+    $_ = $_[1];
+    # Skip malformed lines
+    return unless /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) /;
+    $RESOLVER->add($1);
+    return;
+}
+
+# replace_line: Replace the line with the resolved result
+sub replace_line : method {
+    local ($_, %_);
+    $_ = $_[1];
+    s/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) /$RESOLVER->result($1) . " "/e;
+    return $_;
+}
+
+
 # _private::Resolver: The non-threaded resolver
 package _private::Resolver;
 use 5.8.0;
@@ -2072,25 +2107,6 @@ sub show_result : method {
 
 # Methods below are specific to DNS reverse-resolve, but can be overwrite for other type
 #   of resolving, like GeoIP.
-
-# parse_line: Parse the line to get an IP address
-sub parse_line : method {
-    local ($_, %_);
-    my $self;
-    ($self, $_) = @_;
-    # Skip malformed lines
-    return undef unless /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) /;
-    return $1;
-}
-
-# replace_line: Replace the line with the resolved result
-sub replace_line : method {
-    local ($_, %_);
-    my $self;
-    ($self, $_) = @_;
-    s/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) /$self->result($1) . " "/e;
-    return $_;
-}
 
 # resolve_ip: Resolve an IP
 sub resolve_ip : method {
@@ -2282,9 +2298,9 @@ reslog - Reverse-resolve IP in Apache log files
 
 =head1 DESCRIPTION
 
-F<reslog> resolves IPs in L<Apache(8)|apache/8> log files.  The result
-can then be analyzed by another program, like Analog.  You can think
-of it as a replacement of the L<Apache(8)|apache/8> C<HostNameLookups>
+F<reslog> resolves IPs in L<Apache(8)> log files.  The result can
+then be analyzed by another program, like Analog.  You can think
+of it as a replacement of the L<Apache(8)> C<HostNameLookups>
 directive, in the sense that it resolves client IPs altogether once a
 day.
 
@@ -2404,7 +2420,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.05
+3.06
 
 =head1 COPYRIGHT
 
@@ -2426,16 +2442,22 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 =head1 AUTHOR
 
-imacat <imacat@mail.imacat.idv.tw>
+imacat <imacat@mail.imacat.idv.tw>.
+
+You may visit reslog's website at:
+L<http://reslog.sourceforge.net/>,
+L<http://search.cpan.org/dist/reslog/> or
+L<http://www.imacat.idv.tw/tech/reslog.html>.
 
 =head1 BUGS
 
 reslog has a mailing list reslog-users@lists.sourceforge.net.  If you
 have any question, comment, bug report, patch, please send it to the
-mailing list.  Do not send mails directly to me unless you have
-private business with me. The mailing list has an archive.  People
-having the same trouble as you may search the archive, find the
-answer and save a lot of time.
+mailing list.  You may join the mailing list at
+L<https://lists.sourceforge.net/lists/listinfo/reslog-users>.  Do not
+send mails directly to me unless you have private business with me.
+The mailing list has an archive.  People having the same trouble as
+you may search the archive, find the answer and save a lot of time.
 
 =head1 TODO
 
@@ -2444,9 +2466,9 @@ messages.
 
 =head1 SEE ALSO
 
-L<Compress::Zlib(3)|Compress::Zlib/3>,
-L<Compress::Bzip2(3)|Compress::Bzip2/3>,
-L<perlthrtut(1)|perlthrtut/1>, L<gzip(1)|gzip/1>, L<zlib(3)|zlib/3>,
-L<bzip2(1)|bzip2/1>.
+L<Compress::Zlib(3)>,
+L<Compress::Bzip2(3)>,
+L<perlthrtut(1)>, L<gzip(1)>, L<zlib(3)>,
+L<bzip2(1)>.
 
 =cut

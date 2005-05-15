@@ -1,11 +1,49 @@
 reslog 更新記錄
 
+2005-05-16	3.06 版
+	 1. 加上 t/99-pod.t 以 Test::Pod 測試 POD 說明。
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t: 加上暫存檔存在時停止執行
+	    的測試。
+	 3. t/_helper.pm: 修正以防止產生 127.0.0.1 的 IP 。
+	 4. reslog: 加上套件 _private::Filter ，並把
+	    _private::Resolver::parse_line() 與
+	    _private::Resolver::replace_line() 分過去，以便日後套用其它記錄檔
+	    格式，如 GeoIP ，或微軟延伸記錄格式。
+	 5. reslog: 修訂 POD 文件。連結 L<...> 裏的節是指文件裏的章節，而不是
+	    manpage 的章節，已修正。 AUTHOR 小節加上網站網址。 BUGS 小節加上郵
+	    件通訊的網址。
+
+2005-05-15
+	測試程式修正。
+	 1. t/02-gzip.t, t/03-bzip2.t: 修正無法用 gzip 或 bzip 解壓縮時，未略
+	    過測試的錯誤。（ perl.cpan.testers 205969 ）
+	 2. t/01-plain.t, t/02-gzip2.t, t/03-bzip2.t, t/04-hybrix.t: $hasfile
+	    改用 $nofile ， $hasgzip 改用 $nogzip ， $hasbzip2 改用 $nobzip2
+	    ，並加上略過測試原因的說明。
+	 3. reslog: 無法使用標準輸入輸出時，原先用 tempfile 替代，改用 devnull
+	    來替代。
+	 4. reslog: 不只標準輸入，所有要反解的檔案，同一檔案不可指定兩次以上。
+	 5. t/MyHelper.pm: 新增下列副程式： thisfile() 、 rmalldir() 、
+	    mkcldir() 、 fwrite() 、 whereis() 、 ftype() 、 flist() 、
+	    mkrndlog() 、 randword() ，副程式 readfile() 改名為 fread() ，原型
+	    宣告 cplist() 更正為 cp() ，刪除副程式 rm() 。
+	 6. t/01-plain.t, t/02-gzip2.t, t/03-bzip2.t, t/04-hybrix.t: 把多個子
+	    測式結合為一，大幅縮減測試的數目。這些本來就是同一個測試的子項目了
+	    。縮減測試總數後，方便對測試結果做更多檢查。
+	 7. t/MyHelper.pm: 加上 flist() 以檢查結果留下的檔案。刪掉許多關於檔案
+	    存不存在的測試。
+	 8. t/MyHelper.pm: 加上 ftype() 以檢查產生的檔案格式是否正確。
+	 9. t/MyHelper.pm: 加上 mkrndlog() 以隨機製作 Apache 記錄檔。刪掉原有
+	    的隨附記錄檔樣本。記錄檔內容更多樣化後，測試結果應更有意義。之前隨
+	    附的記錄檔樣本，內容其實一模一樣。
+	10. t/MyHelper.pm: 改名為 _helper.pm ，以免和 CPAN 的套件弄混。
+
 2005-05-08	3.05 版
 	問題修正。
 	 1. 先檢查有沒有標準輸入和標準輸出可用，若沒有則做一個暫用的替代品，以
 	    解決在 MSWin32 下，沒有標準輸入可用時，做標準輸入轉向會產生錯誤的
 	    問題。在 CPANPLUS 下做 make test 時，會先關閉標準輸入，就會造成這
-	    個問題。
+	    個問題。（ perl.cpan.testers 202971 ）
 
 2005-05-08	3.04 版
 	 1. 修正載入 File::MMagic 時的別字，導致 File::MMagic 無法載入。

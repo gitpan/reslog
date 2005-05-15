@@ -22,88 +22,94 @@ use strict;
 use warnings;
 use Test;
 
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 1 }
 
-use File::Spec::Functions qw(catdir catfile updir);
+use File::Basename qw(basename);
+use File::Spec::Functions qw(splitdir catdir catfile updir);
 use FindBin;
 use lib $FindBin::Bin;
-use MyHelper;
-use vars qw($LOGDIR $WORKDIR $reslog);
-$LOGDIR = catdir($FindBin::Bin, "logs");
-$WORKDIR = catdir($LOGDIR, "working");
-mkdir $WORKDIR if ! -e $WORKDIR;
-$reslog = catdir($FindBin::Bin, updir, "blib", "script", "reslog");
-use vars qw($fsp $fsg $fsb $fr $fep $feg $feb $csp $csg $csb $cr $cep $ceg $ceb);
-use vars qw($d1 $d2 $d3 $fs1 $ft1 $fr1 $fs2 $ft2 $fr2 $fs3 $ft3 $fr3);
-use vars qw($cs1 $cr1 $cs2 $cr2 $cs3 $cr3);
-use vars qw($r $retno $out $err $hasfile $hasgzip $hasbzip2 $skip);
-# If we have the file type checker somewhere
-eval { require File::MMagic; };
-`file --help 2>&1`;
-$hasfile = $@ eq "" || $? == 0;
-# If we have gzip support somewhere
-eval { require Compress::Zlib; };
-`gzip --help 2>&1`;
-$hasgzip = $@ eq "" || $? == 0;
-# If we have bzip2 support somewhere
-eval { require Compress::Bzip2; import Compress::Bzip2 2.00; };
-`bzip2 --help 2>&1`;
-$hasbzip2 = $@ eq "" || $? == 0;
-$skip = !$hasfile || !$hasgzip || !$hasbzip2;
-$fsp = catfile($LOGDIR, "access_log");
-$fsg = catfile($LOGDIR, "access_log.gz");
-$fsb = catfile($LOGDIR, "access_log.bz2");
-$fr = catfile($LOGDIR, "access_log");
-$fep = catfile($LOGDIR, "access_log.resolved");
-$feg = catfile($LOGDIR, "access_log.resolved.gz");
-$feb = catfile($LOGDIR, "access_log.resolved.bz2");
-$d1 = catdir($WORKDIR, "site1");
-$d2 = catdir($WORKDIR, "site2");
-$d3 = catdir($WORKDIR, "site3");
-$fs1 = catfile($d1, "access_log");
-$ft1 = catfile($d1, "access_log.tmp-reslog");
-$fr1 = catfile($d1, "access_log.resolved");
-$fs2 = catfile($d2, "access_log.gz");
-$ft2 = catfile($d2, "access_log.tmp-reslog");
-$fr2 = catfile($d2, "access_log.resolved.gz");
-$fs3 = catfile($d3, "access_log.bz2");
-$ft3 = catfile($d3, "access_log.tmp-reslog");
-$fr3 = catfile($d3, "access_log.resolved.bz2");
-($csp, $cr, $cep) = (readfile $fsp, readfile $fr, readfile $fep);
-($csg, $ceg) = (readfile $fsg, readfile $feg)
-    if $hasgzip;
-($csb, $ceb) = (readfile $fsb, readfile $feb)
-    if $hasbzip2;
+use _helper;
+use vars qw($WORKDIR $reslog $_ $nofile $nogzip $nobzip2);
+use vars qw($dirp $fsp $frp $dirg $fsg $frg $dirb $fsb $frb);
 
-$r = eval {
-    return if $skip;
-    mkdir $d1 if !-e $d1;
-    mkdir $d2 if !-e $d2;
-    mkdir $d3 if !-e $d3;
-    rm $fs1, $ft1, $fr1, $fs2, $ft2, $fr2, $fs3, $ft3, $fr3;
-    cp  [$fsp, $fs1], [$feg, $fr2], [$feb, $fr3],
-        [$fep, $fr1], [$fsg, $fs2], [$fsb, $fs3];
-    runcmd "\"$reslog\" -t 1 -k=r -o=a \"$fs1\" - \"$fs3\" < \"$fs2\" > \"$fr2\"", \$retno, undef, \$err;
-    ($cs1, $cs2, $cs3) = (readfile $fs1, readfile $fs2, readfile $fs3);
-    ($cr1, $cr2, $cr3) = (readfile $fr1, readfile $fr2, readfile $fr3);
-    rm $fs1, $ft1, $fr1, $fs2, $ft2, $fr2, $fs3, $ft3, $fr3;
-    rmdir $d1;
-    rmdir $d2;
-    rmdir $d3;
+$WORKDIR = catdir($FindBin::Bin, "logs");
+@_ = splitdir $FindBin::Bin;
+$reslog = catdir(@_[0...$#_-1], "blib", "script", "reslog");
+
+# If we have the file type checker somewhere
+$nofile =   eval { require File::MMagic; 1; }
+            || defined whereis "file"?
+    undef: "File::MMagic or file executable not available";
+# If we have gzip support somewhere
+$nogzip =   eval { require Compress::Zlib; 1; }
+            || defined whereis "gzip"?
+    undef: "Compress::Zlib or gzip executable not available";
+# If we have bzip2 support somewhere
+$nobzip2 =  eval { require Compress::Bzip2; import Compress::Bzip2 2.00; 1; }
+            || defined whereis "bzip2"?
+    undef: "Compress::Bzip2 v2 or bzip2 executable not available";
+
+$dirp = catdir($WORKDIR, "site_p");
+$dirg = catdir($WORKDIR, "site_g");
+$dirb = catdir($WORKDIR, "site_b");
+$fsp = catfile($dirp, "access_log");
+$frp = catfile($dirp, "access_log.resolved");
+$fsg = catfile($dirg, "access_log.gz");
+$frg = catfile($dirg, "access_log.resolved.gz");
+$fsb = catfile($dirb, "access_log.bz2");
+$frb = catfile($dirb, "access_log.resolved.bz2");
+
+# 1: Hybrix test: Mixed many type of sources together
+$_ = eval {
+    return if $nofile || $nogzip || $nobzip2;
+    my ($retno, $out, $err);
+    my ($flp, $flp1, $csp0, $cep0, $csp1, $crp1, $trp);
+    my ($flg, $flg1, $csg0, $ceg0, $csg1, $crg1, $trg);
+    my ($flb, $flb1, $csb0, $ceb0, $csb1, $crb1, $trb);
+    
+    mkcldir $dirp, $dirg, $dirb;
+    ($csp0, $cep0) = (mkrndlog $fsp, mkrndlog $frp);
+    ($csg0, $ceg0) = (mkrndlog $fsg, mkrndlog $frg);
+    ($csb0, $ceb0) = (mkrndlog $fsb, mkrndlog $frb);
+    
+    runcmd "\"$reslog\" -t 1 -k=r -o=a \"$fsp\" - \"$fsb\" < \"$fsg\" > \"$frg\"", \$retno, undef, \$err;
+    
+    ($flp, $flp1) = (join(" ", sort map basename($_), ($fsp, $frp)), flist $dirp);
+    ($flg, $flg1) = (join(" ", sort map basename($_), ($fsg, $frg)), flist $dirg);
+    ($flb, $flb1) = (join(" ", sort map basename($_), ($fsb, $frb)), flist $dirb);
+    ($csp1, $crp1, $trp) = (fread $fsp, fread $frp, ftype $frp);
+    ($csg1, $crg1, $trg) = (fread $fsg, fread $frg, ftype $frg);
+    ($csb1, $crb1, $trb) = (fread $fsb, fread $frb, ftype $frb);
+    rmalldir $WORKDIR;
     die $err if $retno != 0;
+    
+    die "result files incorrect.\nGot: $flp1\nExpected: $flp\n"
+        if $flp1 ne $flp;
+    die "$fsp: source incorrect.\nGot:\n$csp1\nExpected \"\"\n"
+        if $csp1 ne "";
+    die "$frp: result type incorrect.\nGot: $trp\nExpected: text/plain\n"
+        if !$nofile && $trp ne "text/plain";
+    die "$frp: result incorrect.\nGot:\n$crp1\nExpected:\n$cep0$csp0\n"
+        if $crp1 ne $cep0 . $csp0;
+    
+    die "result files incorrect.\nGot: $flg1\nExpected: $flg\n"
+        if $flg1 ne $flg;
+    die "$fsg: source incorrect.\nGot:\n$csg1\nExpected:\n$csg0\n"
+        if $csg1 ne $csg0;
+    die "$frg: result type incorrect.\nGot: $trb\nExpected: application/x-gzip\n"
+        if !$nofile && $trg ne "application/x-gzip";
+    die "$frg: result incorrect.\nGot:\n$crg1\nExpected:\n$ceg0\n"
+        if $crg1 ne $csg0;
+    
+    die "result files incorrect.\nGot: $flb1\nExpected: $flb\n"
+        if $flb1 ne $flb;
+    die "$fsb: source incorrect.\nGot:\n$csb1\nExpected \"\"\n"
+        if $csb1 ne "";
+    die "$frb: result type incorrect.\nGot: $trb\nExpected: application/x-bzip2\n"
+        if !$nofile && $trb ne "application/x-bzip2";
+    die "$frb: result incorrect.\nGot:\n$crb1\nExpected:\n$ceb0$csb0\n"
+        if $crb1 ne $ceb0 . $csb0;
+    
     1;
 };
-# 1
-skip($skip, $r, 1, $@);
-# 2
-skip($skip, $cs1, "");
-# 3
-skip($skip, $cs2, $csg);
-# 4
-skip($skip, $cs3, "");
-# 5
-skip($skip, $cr1, $cep . $cr);
-# 6
-skip($skip, $cr2, $cr);
-# 7
-skip($skip, $cr3, $ceb . $cr);
+skip($nofile || $nogzip || $nobzip2, $_, 1, $@);

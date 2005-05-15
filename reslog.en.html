@@ -13,7 +13,7 @@
      hreflang="zh-tw" title="&#27491;&#39636;&#20013;&#25991;" />
 <link rel="alternate" type="application/xhtml+xml" href="reslog.zh-cn.html"
      hreflang="zh-cn" title="&#31616;&#20307;&#20013;&#25991;" />
-<title>reslog Version 3.05</title>
+<title>reslog Version 3.06</title>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> Version 3.05</h1>
+<h1><samp>reslog</samp> Version 3.06</h1>
 
 
 <div class="body">
@@ -38,19 +38,24 @@
 
 <dl>
 
-<dt>2005-05-08</dt>
+<dt>2005-05-16</dt>
 
-<dd><samp>reslog</samp> version 3.05 is released.  Fixed a bug that unavailable <samp>STDIN</samp> may cause error.   <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.05.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.05</a>.</dd>
-
-
-<dt>2005-05-08</dt>
-
-<dd><samp>reslog</samp> version 3.04 is released.  Fixed a typo when loading <samp>File::MMagic</samp>.   <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.04.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.04</a>.</dd>
+<dd><samp>reslog</samp> version 3.06 is released.  Rewrite the test suite so that the result is more correct, accuate and meaningful.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.06.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.06</a>.</dd>
 
 
 <dt>2005-05-08</dt>
 
-<dd><samp>reslog</samp> version 3.03 is released.  Default installation directory moved back to <samp>/sbin</samp>.  <q><samp>make upgrade</samp></q> is added to remove files from the old versions.  <samp>flock()</samp> policy is redesigned for consistency and less errors.   <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.03.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.03</a>.</dd>
+<dd><samp>reslog</samp> version 3.05 is released.  Fixed a bug that unavailable <samp>STDIN</samp> may cause error.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.05.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.05</a>.</dd>
+
+
+<dt>2005-05-08</dt>
+
+<dd><samp>reslog</samp> version 3.04 is released.  Fixed a typo when loading <samp>File::MMagic</samp>.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.04.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.04</a>.</dd>
+
+
+<dt>2005-05-08</dt>
+
+<dd><samp>reslog</samp> version 3.03 is released.  Default installation directory moved back to <samp>/sbin</samp>.  <q><samp>make upgrade</samp></q> is added to remove files from the old versions.  <samp>flock()</samp> policy is redesigned for consistency and less errors.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.03.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.03</a>.</dd>
 
 
 <dt>2005-05-02</dt>
@@ -127,7 +132,7 @@
 <dd>This is used to support read/write of bzip2 compressed files.  It is only needed when bzip2 compressed files are encountered.  If it is not available when needed, <samp>reslog</samp> will try to use the <samp>bzip2</samp> executable instead.  If that is not available, too, <samp>reslog</samp> will fail.  Notice that older versions before 2 does not work, since file <abbr title="input and output">I/O</abbr> compression were not implemented yet.  ActivePerl MSWin32 does not have <samp>Compress::Bzip2</samp> in their <abbr title="Programmer's Package Manager">PPM</abbr> deposit yet, as the time I'm writing this.  You can get <samp>bzip.exe</samp> from the <a href="http://sources.redhat.com/bzip2/">bzip home page</a> instead.  Be sure to save it as <samp>bzip2.exe</samp> somewhere in your <samp>PATH</samp>.</dd>
 
 <dt><a href="http://search.cpan.org/dist/Term-Size/"><samp>Term::Size</samp></a></dt>
-   
+
 <dd>This is used to display the progress bar.  Without this <samp>reslog</samp> won't display the progress bar, but nothing else is different.  The progress bar is a good visual representation of what <samp>reslog</samp> is currently doing.  <samp>Term::Size</samp> is only available for UNIX.  For MSWin32, <samp>reslog</samp> will try to use <a href="http://search.cpan.org/dist/libwin32/"><samp>Win32::Console</samp></a> instead.</dd>
 </dl>
 
@@ -324,7 +329,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 </div>
 
-<address>By imacat &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;, first version 2001-07-04, last updated 2005-05-08</address>
+<address>By imacat &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;, first version 2001-07-04, last updated 2005-05-16</address>
 
 
 <hr />
