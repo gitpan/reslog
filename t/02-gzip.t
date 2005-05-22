@@ -20,12 +20,13 @@
 use 5.005;
 use strict;
 use warnings;
+use diagnostics;
 use Test;
 
 BEGIN { plan tests => 14 }
 
 use File::Basename qw(basename);
-use File::Spec::Functions qw(splitdir catdir catfile updir);
+use File::Spec::Functions qw(catdir catfile updir);
 use FindBin;
 use lib $FindBin::Bin;
 use _helper;
@@ -34,8 +35,7 @@ use vars qw($fs1 $ft1 $fr1 $fs2 $fr2);
 
 $te = "application/x-gzip";
 $WORKDIR = catdir($FindBin::Bin, "logs");
-@_ = splitdir $FindBin::Bin;
-$reslog = catdir(@_[0...$#_-1], "blib", "script", "reslog");
+$reslog = catfile($FindBin::Bin, updir, "blib", "script", "reslog");
 
 # If we have the file type checker somewhere
 $nofile =   eval { require File::MMagic; 1; }
@@ -60,7 +60,7 @@ $_ = eval {
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
     $reslog =~ s/"/\\"/g;
-    runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
     ($cr1, $tr1) = (fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -82,7 +82,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 -k=a \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -k=a), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -106,7 +106,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 -k=r \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -k=r), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -130,7 +130,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 -k=d \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -k=d), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
     ($cr1, $tr1) = (fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -152,7 +152,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
-    runcmd "\"$reslog\" -t 1 \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -176,7 +176,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
-    runcmd "\"$reslog\" -t 1 -o=o \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -o=o), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
     ($cr1, $tr1) = (fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -197,7 +197,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
-    runcmd "\"$reslog\" -t 1 -o=a \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -o=a), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
     ($cr1, $tr1) = (fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -219,7 +219,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cr0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     ($cs0, $cr0) = (mkrndlog $fs1, mkrndlog $fr1);
-    runcmd "\"$reslog\" -t 1 -o=f \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -o=f), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -243,7 +243,8 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 -c \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n=1 -c), $fs1;
+    frwrite $fr1, $out;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -267,7 +268,8 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 < \"$fs1\" > \"$fr1\"", \$retno, undef, \$err;
+    ($retno, $out, $err) = runcmd frread $fs1, $reslog, qw(-d -d -d -n=1);
+    frwrite $fr1, $out;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $fr1)), flist $WORKDIR);
     ($cs1, $cr1, $tr1) = (fread $fs1, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -291,7 +293,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs1, $cr2, $tr2);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs1;
-    runcmd "\"$reslog\" -t 1 -s=.rsd \"$fs1\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd $cs0, $reslog, qw(-d -d -d -n=1 -s=.rsd), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr2)), flist $WORKDIR);
     ($cs1, $cr2, $tr2) = (fread $fs1, fread $fr2, ftype $fr2);
     rmalldir $WORKDIR;
@@ -313,7 +315,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs2, $cr1, $tr1);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs2;
-    runcmd "\"$reslog\" -t 1 -t=.ct \"$fs2\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd $cs0, $reslog, qw(-d -d -d -n=1 -t=.ct), $fs2;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
     ($cs2, $cr1, $tr1) = (fread $fs2, fread $fr1, ftype $fr1);
     rmalldir $WORKDIR;
@@ -335,7 +337,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $cs2, $cr2, $tr2);
     mkcldir $WORKDIR;
     $cs0 = mkrndlog $fs2;
-    runcmd "\"$reslog\" -t 1 -t=.ct -s=.rsd \"$fs2\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd $cs0, $reslog, qw(-d -d -d -n=1 -t=.ct -s=.rsd), $fs2;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fr2)), flist $WORKDIR);
     ($cs2, $cr2, $tr2) = (fread $fs2, fread $fr2, ftype $fr2);
     rmalldir $WORKDIR;
@@ -357,7 +359,7 @@ $_ = eval {
     my ($fl, $fl1, $cs0, $ct0, $cs1, $ct1);
     mkcldir $WORKDIR;
     ($cs0, $ct0) = (mkrndlog $fs1, mkrndlog $ft1);
-    runcmd "\"$reslog\" -t 1 -t=.ct -s=.rsd \"$fs2\"", \$retno, \$out, \$err;
+    ($retno, $out, $err) = runcmd $cs0, $reslog, qw(-d -d -d -n=1), $fs1;
     ($fl, $fl1) = (join(" ", sort map basename($_), ($fs1, $ft1)), flist $WORKDIR);
     ($cs1, $ct1) = (fread $fs1, fread $ft1);
     rmalldir $WORKDIR;

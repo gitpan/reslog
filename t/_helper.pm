@@ -7,15 +7,18 @@ use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT);
 $VERSION = "0.03";
-@EXPORT = qw(cp rmalldir mkcldir fread fwrite runcmd whereis ftype flist mkrndlog);
+@EXPORT = qw();
+push @EXPORT, qw(rmalldir mkcldir fread frread fwrite frwrite);
+push @EXPORT, qw(runcmd whereis ftype flist mkrndlog);
 # Prototype declaration
 sub thisfile();
-sub cp(@);
 sub rmalldir(@);
 sub mkcldir(@);
 sub fread($);
+sub frread($);
 sub fwrite($$);
-sub runcmd($$$$);
+sub frwrite($$);
+sub runcmd($@);
 sub whereis($);
 sub ftype($);
 sub flist($);
@@ -27,29 +30,12 @@ use Fcntl qw(:seek);
 use File::Basename qw(basename);
 use File::Copy qw(copy);
 use File::Spec::Functions qw(splitdir catdir catfile path);
-use File::Temp qw(tmpnam);
+use File::Temp qw(tempfile);
 
 use vars qw(%WHEREIS);
 
 # thisfile: Return the name of this file
 sub thisfile() { basename($0); }
-
-# cp: Copy a list of files
-sub cp(@) {
-    local ($_, %_);
-    foreach (@_) {
-        copy $$_[0], $$_[1]             or die thisfile . ": copy $$_[0], $$_[1]: $!";
-    }
-}
-
-# rm: Remove a list of files
-sub rm(@) {
-    local ($_, %_);
-    foreach (@_) {
-        next if !-e $_;
-        unlink $_                       or die thisfile . ": unlink $_: $!";
-    }
-}
 
 # rmalldir: Remove a whole directory
 sub rmalldir(@) {
@@ -117,11 +103,10 @@ sub fread($) {
     $file = $_[0];
     
     # non-existing file
-    if (!-e $file) {
-        return undef;
+    return undef if !-e $file;
     
     # a gzip compressed file
-    } elsif ($file =~ /\.gz$/) {
+    if ($file =~ /\.gz$/) {
         # Compress::Zlib
         if (eval {  require Compress::Zlib;
                     import Compress::Zlib qw(gzopen);
@@ -181,7 +166,7 @@ sub fread($) {
             return $content;
         }
     
-    # a plain file
+    # a plain text file
     } else {
         my $FH;
         open $FH, $file                 or die thisfile . ": $file: $!";
@@ -191,7 +176,25 @@ sub fread($) {
     }
 }
 
-# fwrite: A simple write to write a log file in any supported format
+# frread: A raw file reader
+sub frread($) {
+    local ($_, %_);
+    my ($file, $content, $FH, $size);
+    $file = $_[0];
+    
+    # non-existing file
+    return undef if !-e $file;
+    
+    $size = (stat $file)[7];
+    open $FH, $file                     or die thisfile . ": $file: $!";
+    binmode $FH                         or die thisfile . ": $file: $!";
+    (read($FH, $content, $size) == $size)
+                                        or die thisfile . ": $file: $!";
+    close $FH                           or die thisfile . ": $file: $!";
+    return $content;
+}
+
+# fwrite: A simple writer to write a log file in any supported format
 sub fwrite($$) {
     local ($_, %_);
     my ($file, $content);
@@ -248,7 +251,7 @@ sub fwrite($$) {
             return;
         }
     
-    # a plain file
+    # a plain text file
     } else {
         my $FH;
         open $FH, ">$file"              or die thisfile . ": $file: $!";
@@ -258,37 +261,61 @@ sub fwrite($$) {
     }
 }
 
-# runcmd: Run a command and return the result
-sub runcmd($$$$) {
+# frwrite: A raw file writer
+sub frwrite($$) {
     local ($_, %_);
-    my ($cmd, $retno, $out, $err, $tmpout, $tmperr, $FH);
-    ($cmd, $retno, $out, $err) = @_;
+    my ($file, $content, $FH);
+    ($file, $content) = @_;
     
-    if (defined $out) {
-        $tmpout = tmpnam                or die thisfile . ": tmpnam: $!";
-        $cmd .= " >$tmpout";
-    }
-    if (defined $err) {
-        $tmperr = tmpnam                or die thisfile . ": tmpnam: $!";
-        $cmd .= " 2>$tmperr";
-    }
-    
-    # Run the command
-    `$cmd`;
-    $$retno = $?;
-    if (defined $out) {
-        open $FH, $tmpout               or die thisfile . ": $tmpout: $!";
-        $$out = join "", <$FH>;
-        close $FH                       or die thisfile . ": $tmpout: $!";
-        unlink $tmpout;
-    }
-    if (defined $err) {
-        open $FH, $tmperr               or die thisfile . ": $tmperr: $!";
-        $$err = join "", <$FH>;
-        close $FH                       or die thisfile . ": $tmperr: $!";
-        unlink $tmperr;
-    }
+    open $FH, ">$file"                  or die thisfile . ": $file: $!";
+    binmode $FH                         or die thisfile . ": $file: $!";
+    print $FH $content                  or die thisfile . ": $file: $!";
+    close $FH                           or die thisfile . ": $file: $!";
     return;
+}
+
+# runcmd: Run a command and return the result
+sub runcmd($@) {
+    local ($_, %_);
+    my ($retno, $out, $err, $in, @cmd, $cmd, $OUT, $ERR, $STDOUT, $STDERR, $PH);
+    ($in, @cmd) = @_;
+    
+    $err = "Running " . join(" ", map "\"$_\"", @cmd) . "\n";
+    $out = "";
+    
+    open $STDOUT, ">&", \*STDOUT        or die thisfile . ": STDOUT: $!";
+    open $STDERR, ">&", \*STDERR        or die thisfile . ": STDERR: $!";
+    $OUT = tempfile                     or die thisfile . ": tempfile: $!";
+    binmode $OUT                        or die thisfile . ": tempfile: $!";
+    $ERR = tempfile                     or die thisfile . ": tempfile: $!";
+    binmode $ERR                        or die thisfile . ": tempfile: $!";
+    open STDOUT, ">&", $OUT             or die thisfile . ": tempfile: $!";
+    binmode STDOUT                      or die thisfile . ": tempfile: $!";
+    open STDERR, ">&", $ERR             or die thisfile . ": tempfile: $!";
+    binmode STDERR                      or die thisfile . ": tempfile: $!";
+    
+    $cmd = join " ", map "\"$_\"", @cmd;
+    if ($^O eq "MSWin32") {
+        open $PH, "| $cmd"              or die thisfile . ": $cmd: $!";
+    } else {
+        open $PH, "|-", @cmd            or die thisfile . ": $cmd: $!";
+    }
+    binmode $PH                         or die thisfile . ": $cmd: $!";
+    print $PH $in                       or die thisfile . ": $cmd: $!";
+    close $PH;
+    $retno = $?;
+    
+    open STDOUT, ">&", $STDOUT          or die thisfile . ": tempfile: $!";
+    open STDERR, ">&", $STDERR          or die thisfile . ": tempfile: $!";
+    
+    seek $OUT, 0, SEEK_SET              or die thisfile . ": tempfile: $!";
+    $out = join "", <$OUT>;
+    close $OUT                          or die thisfile . ": tempfile: $!";
+    seek $ERR, 0, SEEK_SET              or die thisfile . ": tempfile: $!";
+    $err = join "", <$ERR>;
+    close $ERR                          or die thisfile . ": tempfile: $!";
+    
+    return ($retno, $out, $err);
 }
 
 # whereis: Find an executable

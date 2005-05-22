@@ -1,5 +1,54 @@
 reslog 更新记录
 
+2005-05-22	3.07 版
+	 1. reslog: 不再检查标准输入和标准输入能不能用，也不再做一个暂用的代替
+	    品。原先这样做是为了解决 perl.cpan.testers 202971 在 CPANPLUS 及
+	    MSWin32 下执行时，要复制标准输入会造成错误的问题。不过我搞错方向了
+	    。原先我是用 shell 反引号执行来测试，并做标准输入、输出、错误的转
+	    向，这时候不管 CPANPLUS 有没有关闭标准输入，因为转向的关系其实还是
+	    会有标准输入。问题可能是出在 shell 反引号执行上。总之，我重写了程
+	    式执行方式，问题就解决了。其实没有标准输入、输出时，执行还是会有问
+	    题，不过这时连 IPC::Open3 都无法执行，所以其实不用在意这个问题。
+	 2. t/_helper.pm: 重写 runcmd() ，原先用 shell 反引号执行，改用管道开
+	    启执行。程式的参数介面也因而改变。
+	 3. t/_helper.pm: 加上 frread() 及 frwrite() 以做直接档案读写。
+	 4. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: 因应
+	    runcmd() 的新参数界面修正。
+	 5. t/_helper.pm: 删掉不用的副程式 cp() 和 rm() 。
+	 6. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: 加上
+	    use diagnostics; 以便侦错。
+	 7. 在 Linux 2.4 i686 、 Linux 2.6 i686 、 Linux 2.4 AMD64 、 FreeBSD
+	    、 Solaris 、 MacOSX Darwin 、 MSWin32 及 cygwin 上成功测试执行。
+	    （感谢 SourceForge compile farm 提供平台测试。）
+
+2005-05-19
+	 1. reslog: 改用 stat() 检查标准输入和标准输出有没有问题，而不是直接复
+	    制了再检查复制成不成功。在 MacOSX Dawrin 上若没有标准输入时，直接
+	    复制标准输入，程式会直接当掉。
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: 参数加上
+	    -d -d -d ，以在错误时取得更多侦错讯息。
+	 3. t/_helper.pm: runcmd() 标准错误结果前加上执行的命令行，以便侦错。
+
+2005-05-18
+	Solaris 修正。
+	 1. Solaris 上的 file 程式无法由标准输入读档，问题已修正。 file 程式改
+	    用档名为参数。当由标准输入读取记录档时，而要由 file 程式判别时，会
+	    建立有档名的暂存档，并随时删除。
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: 改回用
+	    updir 以设定程式名称，而不把 splitdir() 的最后一段去掉。
+	    $FindBin::Bin 传回的目录尾可能会有斜线，在 splitdir() 后会留下一个
+	    空白段。（ Fedora 3 AMD 64 ）
+	 3. 成功在 Sparc/Solaris, FreeBSD, Fedora 3 AMD 64 上测试执行。
+	 4. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: 修正错误的
+	    测试参数， -t 1 应为 -n 1 。
+	 5. reslog: 不再检查 flock() 成功与否。在某些特殊情况下就是无法用
+	    flock() ，如 MacOSX Darwin 下一般档案可以用 flock() ，可是 NFS 档
+	    案就不能用了。我不可能侦测出这种情况。反正 flock() 只是建议用的锁
+	    定，没有也无妨。
+
+2005-05-17
+	 1. pgpkey.asc: 更新改用 UTF-8 姓名的新档。
+
 2005-05-16	3.06 版
 	 1. 加上 t/99-pod.t 以 Test::Pod 测试 POD 说明。
 	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t: 加上暂存档存在时停止执行

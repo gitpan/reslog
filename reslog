@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.06";
+$VERSION = "3.07";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -57,6 +57,7 @@ use Config qw();
 use ExtUtils::MakeMaker qw();
 use File::Basename qw(basename);
 use File::Spec::Functions qw(path catfile devnull);
+use File::Temp qw(tempfile);
 use Getopt::Long qw(GetOptions);
 use IO::Handle;
 
@@ -207,20 +208,9 @@ sub parse_args() {
         $_{$_} = 1;
     }
     
-    # Make sure STDIN and STDOUT are available and save them.
-    # Open NULL device for them if they are not available.
-    if (!eval { open $STDIN, "<&", \*STDIN  or die; 1; }) {
-        my ($NH, $NULL);
-        $NULL = devnull;
-        open $NH, $NULL                 or die "$THIS_FILE: $NULL: $!";
-        open $STDIN, "<&", $NH          or die "$THIS_FILE: $NULL: $!";
-    }
-    if (!eval { open $STDOUT, ">&", \*STDOUT or die; 1; }) {
-        my ($NH, $NULL);
-        $NULL = devnull;
-        open $NH, ">$NULL"              or die "$THIS_FILE: $NULL: $!";
-        open $STDOUT, ">&", $NH         or die "$THIS_FILE: $NULL: $!";
-    }
+    # Save the original STDIN and STDOUT
+    open $STDIN, "<&", \*STDIN          or die "$THIS_FILE: STDIN: $!";
+    open $STDOUT, ">&", \*STDOUT        or die "$THIS_FILE: STDOUT: $!";
     
     # Set the verbose level
     autoflush STDERR if $VERBOSE > 1;
@@ -390,10 +380,12 @@ sub new : method {
     $self->{"suffix"} = $CONF{"SUFFIX"};
     $self->{"trim_suffix"} = $CONF{"TRIM_SUFFIX"};
     $self->{"stdout"} = $CONF{"STDOUT"};
+    $self->{"tmp"} = undef;
     
     # Load the File::MMagic first before opening anything, or the seek
     #   method will not be loaded into IO::Handle
     $self->check_magic;
+    $self->{"checktype"} = $file if $MAGIC_METHOD eq MAGIC_EXEC;
     
     $self->{"file"} = $file;
     $self->rel2abs;
@@ -406,9 +398,7 @@ sub new : method {
     # Open the file handler
     open $FH, "+<", $file               or die "$THIS_FILE: $file: $!";
     $self->{"FH"} = $FH;
-    if (-f $FH) {
-        flock $FH, LOCK_EX              or die "$THIS_FILE: $file: $!";
-    }
+    flock $FH, LOCK_EX;
     
     # Check the file type
     print STDERR "Checking file type of $f0 ... " if $VERBOSE > 1;
@@ -432,7 +422,7 @@ sub create_temp : method {
     $temp = $self->{"temp"};
     print STDERR "Creating $temp ... " if $VERBOSE > 2;
     open $FHT, "+>", $temp              or die "$THIS_FILE: $temp: $!";
-    flock $FHT, LOCK_EX                 or die "$THIS_FILE: $temp: $!";
+    flock $FHT, LOCK_EX;
     $self->{"FHT"} = $FHT;
     print STDERR "done\n" if $VERBOSE > 2;
     return $FHT;
@@ -468,7 +458,7 @@ sub read_source : method {
         $count++;
     }
     print STDERR "$count records\n" if $VERBOSE > 2;
-    $io->close($self->{"keep"});
+    $io->close($self->{"keep"}, $self->{"tmp"});
     print STDERR "$count records\n" if $VERBOSE > 1;
     return $count;;
 }
@@ -483,9 +473,7 @@ sub write_result : method {
     undef $FH;
     if ($self->{"stdout"}) {
         open $FH, ">&", \*STDOUT        or die "$THIS_FILE: STDOUT: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: STDOUT: $!";
-        }
+        flock $FH, LOCK_EX;
     }
     if ($self->{"override"} eq OVERRIDE_OVERWRITE) {
         print STDERR "Outputing to $file ... " if $VERBOSE > 1;
@@ -512,7 +500,7 @@ sub write_result : method {
 # check_type: Check the source file type
 sub check_type : method {
     local ($_, %_);
-    my ($self, $file, $FH, $PIPE, $CMD);
+    my ($self, $file, $FH, $PH, $CMD);
     $self = $_[0];
     ($file, $FH) = ($self->{"file"}, $self->{"FH"});
     
@@ -536,27 +524,19 @@ sub check_type : method {
     
     # Check by the file program
     } elsif ($MAGIC_METHOD eq MAGIC_EXEC) {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
-        @_ = ($MAGIC, "-");
+        flock $FH, LOCK_UN;
+        @_ = ($MAGIC, $self->{"checktype"});
         @_ = map "\"$_\"", @_ if $^O eq "MSWin32";
         $CMD = join " ", @_;
-        # Redirect STDIN to $FH
-        open STDIN, "<&", $FH           or die "$THIS_FILE: $file: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPE, "$CMD |"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "$CMD |"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "-|", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "-|", @_          or die "$THIS_FILE: $CMD: $!";
         }
-        # Restore STDIN
-        open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
-        $_ = join "", <$PIPE>;
-        close $PIPE                     or die "$THIS_FILE: $MAGIC $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        $_ = join "", <$PH>;
+        close $PH                       or die "$THIS_FILE: $CMD: $!";
+        flock $FH, LOCK_EX;
     }
     
     # Check the returned file type text
@@ -824,12 +804,12 @@ import main;
 
 use IO::Handle;
 use Fcntl qw(:flock :seek);
-use File::Temp qw(tempfile);
+use File::Temp qw(tempfile unlink0);
 
 # new: Initialize the source log file processer
 sub new : method {
     local ($_, %_);
-    my ($class, $self, $file, $FH);
+    my ($class, $self, $file, $FH, $tmp);
     ($class, $file) = @_;
     
     # We only initialize STDIN
@@ -842,6 +822,7 @@ sub new : method {
     $self->{"suffix"} = undef;
     $self->{"trim_suffix"} = undef;
     $self->{"stdout"} = 1;
+    $self->{"tmp"} = undef;
     
     # Load the File::MMagic first before opening anything, or the seek
     #   method will not be loaded into IO::Handle
@@ -849,10 +830,17 @@ sub new : method {
     
     # Save STDIN to somewhere
     $file = "the STDIN buffer";
-    $FH = tempfile                      or die "$THIS_FILE: tempfile: $!";
+    if ($_private::LogFile::MAGIC_METHOD eq _private::LogFile::MAGIC_EXEC) {
+        ($FH, $tmp) = tempfile(undef, , UNLINK => 1)
+                                        or die "$THIS_FILE: tempfile: $!";
+        $self->{"checktype"} = $tmp;
+        $self->{"tmp"} = $tmp;
+    } else {
+        $FH = tempfile                  or die "$THIS_FILE: tempfile: $!";
+        undef $tmp;
+    }
     ($self->{"FH"}, $self->{"file"}) = ($FH, $file);
-    flock $FH, LOCK_EX                  or die "$THIS_FILE: $file: $!";
-    binmode $FH                         or die "$THIS_FILE: $file: $!";
+    flock $FH, LOCK_EX;
     print STDERR "Saving STDIN to a buffer ... " if $VERBOSE > 1;
     while (defined($_ = <STDIN>)) {
         print $FH $_                    or die "$THIS_FILE: $file: $!";
@@ -863,6 +851,9 @@ sub new : method {
     # Check the file type
     print STDERR "Checking file type of STDIN ... " if $VERBOSE > 1;
     $self->check_type;
+    if (defined $tmp && -e $tmp) {
+        unlink0($FH, $tmp)              or die "$THIS_FILE: $tmp: $!";
+    }
     seek $FH, 0, SEEK_SET               or die "$THIS_FILE: $file: $!";
     print STDERR $self->{"type"} . "\n" if $VERBOSE > 1;
     # Check the I/O handler to use
@@ -879,7 +870,7 @@ sub create_temp : method {
     $_ = $_[0];
     print STDERR "Creating temporary working file for STDIN ... " if $VERBOSE > 2;
     $_->{"FHT"} = tempfile              or die "$THIS_FILE: tempfile: $!";
-    flock $_->{"FHT"}, LOCK_EX          or die "$THIS_FILE: tempfile: $!";
+    flock $_->{"FHT"}, LOCK_EX;
     print STDERR "done\n" if $VERBOSE > 2;
     return $_->{"FHT"};
 }
@@ -930,9 +921,7 @@ sub new_read : method {
     if (!defined $FH) {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -949,9 +938,7 @@ sub new_write : method {
     if (!defined $FH) {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -968,9 +955,7 @@ sub new_append : method {
     if (!defined $FH) {
         print STDERR "  Opening file in append mode ... " if $VERBOSE > 2;
         open $FH, ">>", $file           or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -999,8 +984,8 @@ sub write : method {
 # close: Close the I/O stream
 sub close : method {
     local ($_, %_);
-    my ($self, $keep, $file, $FH);
-    ($self, $keep) = @_;
+    my ($self, $keep, $tmp, $file, $FH);
+    ($self, $keep, $tmp) = @_;
     $keep = KEEP_ALL if @_ < 2;
     ($file, $FH) = ($self->{"file"}, $self->{"FH"});
     
@@ -1023,6 +1008,10 @@ sub close : method {
         print STDERR "  Deleting file ... " if $VERBOSE > 2;
         unlink $file                    or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    }
+    # Delete the temporary file if needed
+    if (defined $tmp && -e $tmp) {
+        unlink $tmp                     or die "$THIS_FILE: $tmp: $!";
     }
     return;
 }
@@ -1052,9 +1041,7 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1076,9 +1063,7 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1100,9 +1085,7 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1179,8 +1162,8 @@ sub write : method {
 # close: Close the I/O stream
 sub close : method {
     local ($_, %_);
-    my ($self, $keep, $file, $FH, $gz);
-    ($self, $keep) = @_;
+    my ($self, $keep, $tmp, $file, $FH, $gz);
+    ($self, $keep, $tmp) = @_;
     $keep = KEEP_ALL if @_ < 2;
     ($file, $FH, $gz) = ($self->{"file"}, $self->{"FH"}, $self->{"gz"});
     
@@ -1215,6 +1198,10 @@ sub close : method {
         unlink $file                    or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
+    # Delete the temporary file if needed
+    if (defined $tmp && -e $tmp) {
+        unlink $tmp                     or die "$THIS_FILE: $tmp: $!";
+    }
     return;
 }
 
@@ -1237,7 +1224,7 @@ use vars qw($EXEC);
 # new_read: Set a new reader
 sub new_read : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1247,9 +1234,7 @@ sub new_read : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1262,21 +1247,21 @@ sub new_read : method {
     open STDIN, "<&", $FH               or die "$THIS_FILE: $file: $!";
     # Start the process
     if ($^O eq "MSWin32") {
-        open $PIPE, "$CMD |"            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "$CMD |"              or die "$THIS_FILE: $CMD: $!";
     } else {
-        open $PIPE, "-|", @_            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "-|", @_              or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDIN
     open STDIN, "<&", $STDIN            or die "$THIS_FILE: STDIN: $!";
     print STDERR "done\n" if $VERBOSE > 2;
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # new_write: Set a new writer
 sub new_write : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1286,9 +1271,7 @@ sub new_write : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1301,21 +1284,21 @@ sub new_write : method {
     open STDOUT, ">&", $FH              or die "$THIS_FILE: $file: $!";
     # Start the process
     if ($^O eq "MSWin32") {
-        open $PIPE, "| $CMD"            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "| $CMD"              or die "$THIS_FILE: $CMD: $!";
     } else {
-        open $PIPE, "|-", @_            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "|-", @_              or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDOUT
     open STDOUT, ">&", $STDOUT          or die "$THIS_FILE: STDOUT: $!";
     print STDERR "done\n" if $VERBOSE > 2;
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # new_append: Set a new appender
 sub new_append : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1325,9 +1308,7 @@ sub new_append : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "gzip" if !defined $EXEC;
@@ -1335,7 +1316,7 @@ sub new_append : method {
     # Save the original data if file has content so that file size is
     # greater than 0.  STDOUT is always of size 0.
     if ((stat $FH)[7] > 0) {
-        my ($count, $FHT, $PIPET, $CMDT);
+        my ($count, $FHT, $PHT, $CMDT);
         seek $FH, 0, SEEK_SET           or die "$THIS_FILE: $file: $!";
         # Copy the original content to a buffer
         print STDERR "  Reading compressed data to the buffer ... " if $VERBOSE > 2;
@@ -1359,9 +1340,9 @@ sub new_append : method {
         open STDIN, "<&", $FHT          or die "$THIS_FILE: tempfile: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPET, "$CMDT |"      or die "$THIS_FILE: $CMDT: $!";
+            open $PHT, "$CMDT |"        or die "$THIS_FILE: $CMDT: $!";
         } else {
-            open $PIPET, "-|", @_       or die "$THIS_FILE: $CMDT: $!";
+            open $PHT, "-|", @_         or die "$THIS_FILE: $CMDT: $!";
         }
         # Restore STDIN
         open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
@@ -1375,9 +1356,9 @@ sub new_append : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
@@ -1385,11 +1366,11 @@ sub new_append : method {
         
         print STDERR "  Reading old records back from the buffer ... " if $VERBOSE > 2;
         $count = 0;
-        while (defined($_ = <$PIPET>)) {
-            print $PIPE $_              or die "$THIS_FILE: $file: $!";
+        while (defined($_ = <$PHT>)) {
+            print $PH $_                or die "$THIS_FILE: $file: $!";
             $count++;
         }
-        close $PIPET                    or die "$THIS_FILE: $CMDT: $!";
+        close $PHT                      or die "$THIS_FILE: $CMDT: $!";
         close $FHT                      or die "$THIS_FILE: tempfile: $!";
         print STDERR "$count records\n" if $VERBOSE > 2;
     
@@ -1403,43 +1384,43 @@ sub new_append : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # readline: Read a line from the I/O stream
 sub readline : method {
     local ($_, %_);
-    my ($self, $PIPE);
+    my ($self, $PH);
     $self = $_[0];
-    $PIPE = $self->{"PIPE"};
-    return <$PIPE>;
+    $PH = $self->{"PH"};
+    return <$PH>;
 }
 
 # write: Output data to the I/O stream
 sub write : method {
     local ($_, %_);
-    my ($self, $CMD, $PIPE);
+    my ($self, $CMD, $PH);
     ($self, $_) = @_;
-    ($CMD, $PIPE) = (join(" ", @{$self->{"CMD"}}), $self->{"PIPE"});
-    print $PIPE $_                      or die "$THIS_FILE: $CMD: $!";
+    ($CMD, $PH) = (join(" ", @{$self->{"CMD"}}), $self->{"PH"});
+    print $PH $_                        or die "$THIS_FILE: $CMD: $!";
     return;
 }
 
 # close: Close the I/O stream
 sub close : method {
     local ($_, %_);
-    my ($self, $keep, $file, $FH, $CMD, $PIPE);
-    ($self, $keep) = @_;
+    my ($self, $keep, $tmp, $file, $FH, $CMD, $PH);
+    ($self, $keep, $tmp) = @_;
     $keep = KEEP_ALL if @_ < 2;
     ($file, $FH) = ($self->{"file"}, $self->{"FH"});
     
@@ -1461,20 +1442,20 @@ sub close : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process and end it
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
-        close $PIPE                     or die "$THIS_FILE: $CMD: $!";
+        close $PH                       or die "$THIS_FILE: $CMD: $!";
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
-    ($CMD, $PIPE) = (join(" ", @{$self->{"CMD"}}), $self->{"PIPE"});
-    CORE::close $PIPE                   or die "$THIS_FILE: $CMD: $!";
+    ($CMD, $PH) = (join(" ", @{$self->{"CMD"}}), $self->{"PH"});
+    CORE::close $PH                     or die "$THIS_FILE: $CMD: $!";
     CORE::close $FH                     or die "$THIS_FILE: $file: $!";
-    delete $self->{"PIPE"};
+    delete $self->{"PH"};
     delete $self->{"CMD"};
     delete $self->{"FH"};
     delete $self->{"file"};
@@ -1484,6 +1465,10 @@ sub close : method {
         print STDERR "  Deleting file ... " if $VERBOSE > 2;
         unlink $file                    or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    }
+    # Delete the temporary file if needed
+    if (defined $tmp && -e $tmp) {
+        unlink $tmp                     or die "$THIS_FILE: $tmp: $!";
     }
     return;
 }
@@ -1513,9 +1498,7 @@ sub new_read : method {
         print STDERR "  Opening file in read mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1537,9 +1520,7 @@ sub new_write : method {
         print STDERR "  Creating file in write mode ... " if $VERBOSE > 2;
         open $FH, "+>", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1561,9 +1542,7 @@ sub new_append : method {
         print STDERR "  Opening file in read/write mode ... " if $VERBOSE > 2;
         open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
         binmode $FH                     or die "$THIS_FILE: $file: $!";
-        if (-f $FH) {
-            flock $FH, LOCK_EX          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_EX;
         print STDERR "done\n" if $VERBOSE > 2;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
@@ -1642,8 +1621,8 @@ sub write : method {
 # close: Close the I/O stream
 sub close : method {
     local ($_, %_);
-    my ($self, $keep, $file, $FH, $bz);
-    ($self, $keep) = @_;
+    my ($self, $keep, $tmp, $file, $FH, $bz);
+    ($self, $keep, $tmp) = @_;
     $keep = KEEP_ALL if @_ < 2;
     ($file, $FH, $bz) = ($self->{"file"}, $self->{"FH"}, $self->{"bz"});
     
@@ -1678,6 +1657,10 @@ sub close : method {
         unlink $file                    or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
+    # Delete the temporary file if needed
+    if (defined $tmp && -e $tmp) {
+        unlink $tmp                     or die "$THIS_FILE: $tmp: $!";
+    }
     return;
 }
 
@@ -1700,7 +1683,7 @@ use vars qw($EXEC);
 # new_read: Set a new reader
 sub new_read : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1710,9 +1693,7 @@ sub new_read : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -1725,21 +1706,21 @@ sub new_read : method {
     open STDIN, "<&", $FH               or die "$THIS_FILE: $file: $!";
     # Start the process
     if ($^O eq "MSWin32") {
-        open $PIPE, "$CMD |"            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "$CMD |"              or die "$THIS_FILE: $CMD: $!";
     } else {
-        open $PIPE, "-|", @_            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "-|", @_              or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDIN
     open STDIN, "<&", $STDIN            or die "$THIS_FILE: STDIN: $!";
     print STDERR "done\n" if $VERBOSE > 2;
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # new_write: Set a new writer
 sub new_write : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1749,9 +1730,7 @@ sub new_write : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -1764,21 +1743,21 @@ sub new_write : method {
     open STDOUT, ">&", $FH              or die "$THIS_FILE: $file: $!";
     # Start the process
     if ($^O eq "MSWin32") {
-        open $PIPE, "| $CMD"            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "| $CMD"              or die "$THIS_FILE: $CMD: $!";
     } else {
-        open $PIPE, "|-", @_            or die "$THIS_FILE: $CMD: $!";
+        open $PH, "|-", @_              or die "$THIS_FILE: $CMD: $!";
     }
     # Restore STDOUT
     open STDOUT, ">&", $STDOUT          or die "$THIS_FILE: STDOUT: $!";
     print STDERR "done\n" if $VERBOSE > 2;
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # new_append: Set a new appender
 sub new_append : method {
     local ($_, %_);
-    my ($io, $self, $file, $FH, $PIPE, $CMD);
+    my ($io, $self, $file, $FH, $PH, $CMD);
     ($io, $file, $FH) = @_;
     $self = bless {}, ref $io;
     # Open the file if it is not opened yet
@@ -1788,10 +1767,7 @@ sub new_append : method {
         binmode $FH                     or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     } else {
-        if (-f $FH) {
-            print STDERR "reslog OK\n";
-            flock $FH, LOCK_UN          or die "$THIS_FILE: $file: $!";
-        }
+        flock $FH, LOCK_UN;
     }
     ($self->{"file"}, $self->{"FH"}) = ($file, $FH);
     $EXEC = whereis "bzip2" if !defined $EXEC;
@@ -1799,7 +1775,7 @@ sub new_append : method {
     # Save the original data if file has content so that file size is
     # greater than 0.  STDOUT is always of size 0.
     if ((stat $FH)[7] > 0) {
-        my ($count, $FHT, $PIPET, $CMDT);
+        my ($count, $FHT, $PHT, $CMDT);
         seek $FH, 0, SEEK_SET           or die "$THIS_FILE: $file: $!";
         # Copy the original content to a buffer
         print STDERR "  Reading compressed data to the buffer ... " if $VERBOSE > 2;
@@ -1823,9 +1799,9 @@ sub new_append : method {
         open STDIN, "<&", $FHT          or die "$THIS_FILE: tempfile: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPET, "$CMDT |"      or die "$THIS_FILE: $CMDT: $!";
+            open $PHT, "$CMDT |"        or die "$THIS_FILE: $CMDT: $!";
         } else {
-            open $PIPET, "-|", @_       or die "$THIS_FILE: $CMDT: $!";
+            open $PHT, "-|", @_         or die "$THIS_FILE: $CMDT: $!";
         }
         # Restore STDIN
         open STDIN, "<&", $STDIN        or die "$THIS_FILE: STDIN: $!";
@@ -1839,9 +1815,9 @@ sub new_append : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
@@ -1849,11 +1825,11 @@ sub new_append : method {
         
         print STDERR "  Reading old records back from the buffer ... " if $VERBOSE > 2;
         $count = 0;
-        while (defined($_ = <$PIPET>)) {
-            print $PIPE $_              or die "$THIS_FILE: $file: $!";
+        while (defined($_ = <$PHT>)) {
+            print $PH $_                or die "$THIS_FILE: $file: $!";
             $count++;
         }
-        close $PIPET                    or die "$THIS_FILE: $CMDT: $!";
+        close $PHT                      or die "$THIS_FILE: $CMDT: $!";
         close $FHT                      or die "$THIS_FILE: tempfile: $!";
         print STDERR "$count records\n" if $VERBOSE > 2;
     
@@ -1867,49 +1843,49 @@ sub new_append : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
-    ($self->{"CMD"}, $self->{"PIPE"}) = ([@_], $PIPE);
+    ($self->{"CMD"}, $self->{"PH"}) = ([@_], $PH);
     return $self;
 }
 
 # readline: Read a line from the I/O stream
 sub readline : method {
     local ($_, %_);
-    my ($self, $PIPE);
+    my ($self, $PH);
     $self = $_[0];
-    $PIPE = $self->{"PIPE"};
-    return <$PIPE>;
+    $PH = $self->{"PH"};
+    return <$PH>;
 }
 
 # write: Output data to the I/O stream
 sub write : method {
     local ($_, %_);
-    my ($self, $CMD, $PIPE);
+    my ($self, $CMD, $PH);
     ($self, $_) = @_;
-    ($CMD, $PIPE) = (join(" ", @{$self->{"CMD"}}), $self->{"PIPE"});
-    print $PIPE $_                      or die "$THIS_FILE: $CMD: $!";
+    ($CMD, $PH) = (join(" ", @{$self->{"CMD"}}), $self->{"PH"});
+    print $PH $_                        or die "$THIS_FILE: $CMD: $!";
     return;
 }
 
 # close: Close the I/O stream
 sub close : method {
     local ($_, %_);
-    my ($self, $keep, $file, $FH, $CMD, $PIPE);
-    ($self, $keep) = @_;
+    my ($self, $keep, $tmp, $file, $FH, $CMD, $PH);
+    ($self, $keep, $tmp) = @_;
     $keep = KEEP_ALL if @_ < 2;
     ($file, $FH) = ($self->{"file"}, $self->{"FH"});
     
     # Restart the file
     if ($keep eq KEEP_RESTART) {
-        my ($CMD, $PIPE);
+        my ($CMD, $PH);
         # Empty the source file
         print STDERR "  Emptying file ... " if $VERBOSE > 2;
         seek $FH, 0, SEEK_SET           or die "$THIS_FILE: $file: $!";
@@ -1926,20 +1902,20 @@ sub close : method {
         open STDOUT, ">&", $FH          or die "$THIS_FILE: $file: $!";
         # Start the process and end it
         if ($^O eq "MSWin32") {
-            open $PIPE, "| $CMD"        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "| $CMD"          or die "$THIS_FILE: $CMD: $!";
         } else {
-            open $PIPE, "|-", @_        or die "$THIS_FILE: $CMD: $!";
+            open $PH, "|-", @_          or die "$THIS_FILE: $CMD: $!";
         }
-        close $PIPE                     or die "$THIS_FILE: $CMD: $!";
+        close $PH                       or die "$THIS_FILE: $CMD: $!";
         # Restore STDOUT
         open STDOUT, ">&", $STDOUT      or die "$THIS_FILE: STDOUT: $!";
         print STDERR "done\n" if $VERBOSE > 2;
     }
     
-    ($CMD, $PIPE) = (join(" ", @{$self->{"CMD"}}), $self->{"PIPE"});
-    CORE::close $PIPE                   or die "$THIS_FILE: $CMD: $!";
+    ($CMD, $PH) = (join(" ", @{$self->{"CMD"}}), $self->{"PH"});
+    CORE::close $PH                     or die "$THIS_FILE: $CMD: $!";
     CORE::close $FH                     or die "$THIS_FILE: $file: $!";
-    delete $self->{"PIPE"};
+    delete $self->{"PH"};
     delete $self->{"CMD"};
     delete $self->{"FH"};
     delete $self->{"file"};
@@ -1949,6 +1925,10 @@ sub close : method {
         print STDERR "  Deleting file ... " if $VERBOSE > 2;
         unlink $file                    or die "$THIS_FILE: $file: $!";
         print STDERR "done\n" if $VERBOSE > 2;
+    }
+    # Delete the temporary file if needed
+    if (defined $tmp && -e $tmp) {
+        unlink $tmp                     or die "$THIS_FILE: $tmp: $!";
     }
     return;
 }
@@ -2202,8 +2182,8 @@ sub resolve_all : method {
     $self->sort;
     # Start the thread workers
     for ($_ = 0, @_ = qw(); $_ < $CONF{"THREADS"}; $_++) {
-        push @_, threads->new(\&resolve_in_a_thread, $self, $_+1)
-    };
+        push @_, threads->new(\&resolve_in_a_thread, $self, $_+1);
+    }
     # Wait for everyone to end
     $_->join foreach @_;
     
@@ -2223,9 +2203,7 @@ sub show_result : method {
     ($self, $idx, $result) = @_;
     $IP = $self->{"IP"};
     # Lock to prevent simultaneous write to STDERR
-    if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-        flock STDERR, LOCK_EX           or die "$THIS_FILE: STDERR: $!";
-    }
+    flock STDERR, LOCK_EX;
     # Show the progress bar
     if ($CONF{"PROGBAR"}) {
         lock $self->{"DONE"};
@@ -2238,9 +2216,7 @@ sub show_result : method {
             $self->{"tno"}, $idx+1, scalar(@$IP), $$IP[$idx], $result;
     }
     # Release the lock
-    if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-        flock STDERR, LOCK_UN           or die "$THIS_FILE: STDERR: $!";
-    }
+    flock STDERR, LOCK_UN;
     return;
 }
 
@@ -2252,25 +2228,17 @@ sub resolve_in_a_thread($$) {
     $self->{"tno"} = $tno;
     $IP = $self->{"IP"};
     if ($VERBOSE > 2) {
-        if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-            flock STDERR, LOCK_EX       or die "$THIS_FILE: STDERR: $!";
-        }
+        flock STDERR, LOCK_EX;
         print STDERR "Thread $tno started.\n" ;
-        if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-            flock STDERR, LOCK_UN       or die "$THIS_FILE: STDERR: $!";
-        }
+        flock STDERR, LOCK_UN;
     }
     # Check until the end
     $self->resolve_ip($_)
         while ($_ = $self->newidx) < @$IP;
     if ($VERBOSE > 2) {
-        if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-            flock STDERR, LOCK_EX       or die "$THIS_FILE: STDERR: $!";
-        }
+        flock STDERR, LOCK_EX;
         print STDERR "Thread $tno finished.\n";
-        if ($^O !~ /^(?:cygwin|MSWin32)$/) {
-            flock STDERR, LOCK_UN       or die "$THIS_FILE: STDERR: $!";
-        }
+        flock STDERR, LOCK_UN;
     }
     return;
 }
@@ -2420,7 +2388,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.06
+3.07
 
 =head1 COPYRIGHT
 

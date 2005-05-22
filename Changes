@@ -1,5 +1,38 @@
 reslog change log
 
+2005-05-19
+	 1. reslog: Use stat() to check whether STDIN and STDOUT are
+	    available, instead of duplicate them and check if success
+	    directly.  This avoids the problem on MacOSX Darwin where trying
+	    to duplicate unopened STDIN crashes directly instead of dies that
+	    can be caught by eval().
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: Add
+	    option -d -d -d for more debug information when failures occure.
+	 2. t/_helper.pm: Prepend the command line to the STDERR result to
+	    ease debuging.
+
+2005-05-18
+	Solaris fix.
+	 1. The file executable on Solaris does not accept file content from
+	    STDIN.  This is solved.  The target file name is passed to the
+	    file executable.  When reading from STDIN in this case, a named
+	    temporary file is created for this and deleted whenever possible.
+	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: Use updir
+	    for composing the script name in the old way, but not popping
+	    splitdir().  $FindBin::Bin may return a directory ended with a
+	    slash which become an empty part in splitdir. (Fedora 3 on AMD64)
+	 3. Tested on Sparc/Solaris, FreeBSD, Fedora 3 on AMD64.
+	 4. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: Setting
+	    wrong testing parameter.  -t 1 should be -n 1.
+	 5. reslog: Checks on whether flock() success or not are removed.  In
+	    some specific situation flock() is simply not available.  For
+	    example, MacOSX Darwin has flock() on local file systems, but not
+	    over NFS.  It's not possible to detect and avoid all these
+	    situation.
+
+2005-05-17
+	 1. pgpkey.asc: Updated with the new identity with UTF-8 names.
+
 2005-05-16	version 3.06
 	 1. t/99-pod.t added to test the POD document with Test::Pod.
 	 2. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t: Added test for failures

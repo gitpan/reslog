@@ -20,12 +20,13 @@
 use 5.005;
 use strict;
 use warnings;
+use diagnostics;
 use Test;
 
 BEGIN { plan tests => 1 }
 
 use File::Basename qw(basename);
-use File::Spec::Functions qw(splitdir catdir catfile updir);
+use File::Spec::Functions qw(catdir catfile updir);
 use FindBin;
 use lib $FindBin::Bin;
 use _helper;
@@ -33,8 +34,7 @@ use vars qw($WORKDIR $reslog $_ $nofile $nogzip $nobzip2);
 use vars qw($dirp $fsp $frp $dirg $fsg $frg $dirb $fsb $frb);
 
 $WORKDIR = catdir($FindBin::Bin, "logs");
-@_ = splitdir $FindBin::Bin;
-$reslog = catdir(@_[0...$#_-1], "blib", "script", "reslog");
+$reslog = catfile($FindBin::Bin, updir, "blib", "script", "reslog");
 
 # If we have the file type checker somewhere
 $nofile =   eval { require File::MMagic; 1; }
@@ -72,7 +72,8 @@ $_ = eval {
     ($csg0, $ceg0) = (mkrndlog $fsg, mkrndlog $frg);
     ($csb0, $ceb0) = (mkrndlog $fsb, mkrndlog $frb);
     
-    runcmd "\"$reslog\" -t 1 -k=r -o=a \"$fsp\" - \"$fsb\" < \"$fsg\" > \"$frg\"", \$retno, undef, \$err;
+    ($retno, $out, $err) = runcmd frread $fsg, $reslog, qw(-d -d -d -n=1 -k=r -o=a), $fsp, "-", $fsb;
+    frwrite $frg, $out;
     
     ($flp, $flp1) = (join(" ", sort map basename($_), ($fsp, $frp)), flist $dirp);
     ($flg, $flg1) = (join(" ", sort map basename($_), ($fsg, $frg)), flist $dirg);
