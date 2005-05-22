@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.07";
+$VERSION = "3.08";
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -2388,7 +2388,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.07
+3.08
 
 =head1 COPYRIGHT
 

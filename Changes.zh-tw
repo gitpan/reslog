@@ -1,5 +1,10 @@
 reslog 更新記錄
 
+2005-05-22	3.08 版
+	說明文件修訂。
+	 1. HTML 文件最後更新日期修正。
+	 2. Changes: 英文更新記錄不見了？？（不小心剪貼掉了？）增補上去。
+
 2005-05-22	3.07 版
 	 1. reslog: 不再檢查標準輸入和標準輸入能不能用，也不再做一個暫用的代替
 	    品。原先這樣做是為了解決 perl.cpan.testers 202971 在 CPANPLUS 及
@@ -20,6 +25,7 @@ reslog 更新記錄
 	 7. 在 Linux 2.4 i686 、 Linux 2.6 i686 、 Linux 2.4 AMD64 、 FreeBSD
 	    、 Solaris 、 MacOSX Darwin 、 MSWin32 及 cygwin 上成功測試執行。
 	    （感謝 SourceForge compile farm 提供平台測試。）
+	 8. THANKS, THANKS.zh-tw, THANKS.zh-cn: 增修。
 
 2005-05-19
 	 1. reslog: 改用 stat() 檢查標準輸入和標準輸出有沒有問題，而不是直接複

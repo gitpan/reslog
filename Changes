@@ -1,5 +1,38 @@
 reslog change log
 
+2005-05-22	version 3.08
+	Documentation fixes.
+	 1. The last update of the HTML documents are fixed.
+	 2. Changes:  English change log was gone.  (Maybe lost when
+	    cut-and-paste?)  A correct one is supplied.
+
+2005-05-22	version 3.07
+	 1. reslog: No more checks on the availablility of STDIN and STDOUT,
+	    and no more dummy replacement created if not.  It was originally
+	    to solve perl.cpan.testers 202971 when running with CPANPLUS under
+	    MSWin32,  duplicating closed STDIN causes errors.  But I was going
+	    the wrong way.  I was testing STDIN/STDOUT/STDRR redirection in
+	    shell backticks.  Whether CPANPLUS closes STDIN or not should be
+	    irrevelent.  It may be a issue of the shell backticks itself.
+	    Anyhow I rewrote the testing executing method and it is solve.  In
+	    fact, it's still not working when STDIN and STDOUT is unavailable.
+	    But IPC::Open3 won't work on that, too.  It should be safe to be
+	    ignored.
+	 2. t/_helper.pm: runcmd() was rewritten.  It now run the command with
+	    pipe open instead of shell backticks.  It's API is hence changed.
+	 3. t/_helper.pm: frread() and frwrite() are added to do raw file
+	    read-write.
+	 4. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: Edited
+	    for the new runcmd() API.
+	 5. t/_helper.pm: Unused subroutines cp() and rm() are removed.
+	 6. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t, t/04-hybrix.t: Added
+	    "use diagnostics;" to help debugging.
+	 7. Successfully tested and run under Linux 2.4 i686, Linux 2.6 i686,
+	    Linux 2.4 AMD64, FreeBSD, Solaris, MacOSX Darwin, MSWin32 and
+	    cygwin.  (Thanks to SourceForge compile farm for providing testing
+	    platforms.)
+	 8. THANKS, THANKS.zh-tw, THANKS.zh-cn: Edited.
+
 2005-05-19
 	 1. reslog: Use stat() to check whether STDIN and STDOUT are
 	    available, instead of duplicate them and check if success
