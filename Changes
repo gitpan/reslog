@@ -1,6 +1,17 @@
 reslog change log
 
-2007-07-21	version 3.10
+2007-07-22	version 3.10
+	Documentation fixes.
+	 1. Removed pod2htmd.tmp, pod2htmi.tmp from distribution.
+
+2007-07-21
+	 1. reslog.html: HTML fixes for accessibility, correct HTML character
+	    references, HTML numeric references, author information and so on.
+	 2. Changes: Version number 3.10 was updated as 3.09.  I was planning
+	    to bounce the version to 3.10, but forgot this and tagged 3.09
+	    everywhere.  Well, then let it be 3.09 anyway.
+
+2007-07-21	version 3.09
 	License updated to GPLv3, and various fixes.
 	 1. INSTALL and reslog.html: Replace Term::Size with Term::ReadKey.
 	 2. Changes.zh-tw and Changes.zh-cn: Removed.
