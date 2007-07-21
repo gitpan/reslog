@@ -1,11 +1,11 @@
 #! /usr/bin/perl -w
 # reslog: Reverse-resolve IP in Apache log files
 
-# Copyright (c) 2000-2005 imacat
+# Copyright (c) 2000-2007 imacat
 # 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
 # This program is distributed in the hope that it will be useful,
@@ -14,21 +14,7 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-# 版權所有 (c) 2000-2005 依瑪貓
-# 
-# 本程式是自由軟體，您可以遵照自由軟體基金會（ Free Software Foundation
-# ）出版的 GNU 通用公共許可證條款（ GNU General Public License ）第二版
-# 來修改和重新發佈這一程式，或者自由選擇使用任何更新的版本。
-# 
-# 發佈這一程式的目的是希望它有用，但沒有任何擔保。甚至沒有適合特定目的
-# 而隱含的擔保。更詳細的情況請參閱 GNU 通用公共許可證。
-# 
-# 您應該已經和程式一起收到一份 GNU 通用公共許可證的副本。如果還沒有，寫
-# 信給： Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # First written: 2000-12-22
 
@@ -37,8 +23,7 @@ use 5.8.0;
 use strict;
 use warnings;
 use base qw(Exporter);
-use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = "3.08";
+use vars qw(@EXPORT @EXPORT_OK);
 BEGIN {
 @EXPORT = qw();
 push @EXPORT, qw(OVERRIDE_OVERWRITE OVERRIDE_APPEND OVERRIDE_FAIL);
@@ -50,7 +35,6 @@ sub main();
 sub parse_args();
 sub whereis($);
 sub show_progress($$$);
-sub term_width();
 }
 
 use Config qw();
@@ -60,6 +44,12 @@ use File::Spec::Functions qw(path catfile devnull);
 use File::Temp qw(tempfile);
 use Getopt::Long qw(GetOptions);
 use IO::Handle;
+
+our ($THIS_FILE, $VERBOSE);
+use vars qw($VERSION);
+$THIS_FILE = basename($0);
+$VERSION = "3.09";
+$VERBOSE = 1;
 
 # Constants
 # The override mode
@@ -79,36 +69,36 @@ use constant DEFAULT_STDOUT => 0;
 use constant DEFAULT_THREADS => 10;
 use constant DEFAULT_PROGBAR => 1;
 
-our ($THIS_FILE, $SHORTHELP, $VERBOSE, %CONF, $RESOLVER, $START, $LASTLINE);
-our ($STDIN, $STDOUT);
+our (%CONF, @LOGFILES, $RESOLVER, $START, $LASTLINE, $STDIN, $STDOUT);
 use vars qw(%WHEREIS);
-$THIS_FILE = basename($0);
-$SHORTHELP = "Try `$THIS_FILE --help' for more information.";
-$VERBOSE = 1;
 
-use vars qw($VERSTR $HELPSTR);
-$VERSTR = "$THIS_FILE v$VERSION by imacat <imacat\@mail.imacat.idv.tw>";
-$HELPSTR = << "EOF";
+use vars qw($VERMSG $HELPMSG);
+our $SHORTHELP;
+$VERMSG = "$THIS_FILE v$VERSION by imacat <imacat\@mail.imacat.idv.tw>";
+$SHORTHELP = "Try `$THIS_FILE --help' for more information.";
+$HELPMSG = << "EOF";
 Usage: $THIS_FILE [options] [logfile...]
 Resolve IPs from the Apache access log.
 
-  -k,--keep=mode        What to keep in the logfile.  Available modes are:
+  -k,--keep mode        What to keep in the logfile.  Available modes are:
                         all, restart and delete.  The default is "restart".
-  -o,--override=mode    What to do when the target file exists.  Available
+  -o,--override mode    What to do when the target file exists.  Available
                         modes are: overwrite, append and fail.  The default
                         is "fail".
-  -s,--suffix=suf       The suffix to be appended to the output file.  If not
+  -s,--suffix suf       The suffix to be appended to the output file.  If not
                         specified, the default is ".resolved".
-  -t,--trim-suffix=suf  The suffix to be trimmed from the input file name
+  -t,--trim-suffix suf  The suffix to be trimmed from the input file name
                         before appending the above suffix.  Default is none.
                         If you are running several log file filters, this can
                         help you trim the suffix of the previous one.
-  -n,--num-threads=num  Number of threads to run simultaneously.  The default
+  -n,--num-threads num  Number of threads to run simultaneously.  The default
                         is 10.  Use 0 to disable threading.  This option has
                         no effect on systems that does not support threading.
   -c,--stdout           Output the result to STDOUT.
-  -d,--debug            Display debugging messages.
-  -q,--quiet            Be quiet. Only yell when errors.
+  -d,--debug            Display debug messages.  Multiple --debug to debug
+                        more.
+  -q,--quiet            Disable debug messages.  An opposite that cancels the
+                        effect of --debug.
   -h,--help             Display this help.
   -v,--version          Display version number.
   logfile               The Apache access log file to be resolved.
@@ -123,28 +113,29 @@ ordinary log file.
 EOF
 
 main;
-exit;
+exit 0;
 
 # main: Main program
 sub main() {
     local ($_, %_);
-    my (@logfiles, $c, $t0);
+    my ($c, $t0);
     
     # Parse the arguments
-    @logfiles = parse_args;
+    parse_args;
+    
     # Create the temporary working files
-    $_->create_temp foreach @logfiles;
+    $_->create_temp foreach @LOGFILES;
     # Read the source files to temporary working files
     $c = 0;
-    $c += $_->read_source foreach @logfiles;
+    $c += $_->read_source foreach @LOGFILES;
     printf STDERR "%d IP found in %d records\n", scalar(@{$RESOLVER->{"IP"}}), $c
         if $VERBOSE > 0;
     # Resolve the IP
     $RESOLVER->resolve_all;
     # Replace the IP with the host name and output to the resolved result
-    $_->write_result foreach @logfiles;
+    $_->write_result foreach @LOGFILES;
     # Remove the temporary working files
-    $_->remove_temp foreach @logfiles;
+    $_->remove_temp foreach @LOGFILES;
     
     print STDERR "Done.  " . (time - $^T) . " seconds elapsed.\n"
         if $VERBOSE > 0;
@@ -159,7 +150,7 @@ sub parse_args() {
     # Get the arguments
     eval {
         local $SIG{__WARN__} = sub { die $_[0]; };
-        Getopt::Long::Configure("no_auto_abbrev");
+        Getopt::Long::Configure(qw(no_auto_abbrev bundling));
         GetOptions( "keep|k=s"=>sub {
                         if ($_[1] =~ /^(?:a|all)?$/i) {
                             $CONF{"KEEP"} = KEEP_ALL;
@@ -168,7 +159,7 @@ sub parse_args() {
                         } elsif ($_[1] =~ /^(?:d|delete)?$/i) {
                             $CONF{"KEEP"} = KEEP_DELETE;
                         } else {
-                            die "$THIS_FILE: unknown keep mode: $_[1]\n";
+                            die "$THIS_FILE: Unknown keep mode: $_[1]\n$SHORTHELP\n";
                         } },
                     "override|o=s"=>sub {
                         if ($_[1] =~ /^(?:o|overwrite)?$/i) {
@@ -178,35 +169,34 @@ sub parse_args() {
                         } elsif ($_[1] =~ /^(?:f|fail)?$/i) {
                             $CONF{"OVERRIDE"} = OVERRIDE_FAIL;
                         } else {
-                            die "$THIS_FILE: unknown override mode: $_[1]\n";
+                            die "$THIS_FILE: Unknown override mode: $_[1]\n$SHORTHELP\n";
                         } },
                     "suffix|s=s"=>sub { $CONF{"SUFFIX"} = $_[1]; },
                     "trim-suffix|t=s"=>sub { $CONF{"TRIM_SUFFIX"} = $_[1]; },
                     "num-threads|n=i"=>sub {
-                        die "$THIS_FILE: invalid number of threads: $_[1]\n"
+                        die "$THIS_FILE: Invalid number of threads: $_[1]\n$SHORTHELP\n"
                             if $_[1] < 0;
                         $CONF{"THREADS"} = $_[1]; },
                     "stdout|c!"=>sub { $CONF{"STDOUT"} = $_[1]; },
-                    "debug|d"=>sub { $VERBOSE++; },
-                    "quiet|q"=>sub { $VERBOSE = 0; },
-                    "help|h"=>sub { print $HELPSTR; exit 0; },
-                    "version|v"=>sub { print "$VERSTR\n"; exit 0; });
+                    "debug|d+"=>\$VERBOSE,
+                    "quiet|q"=>sub { $VERBOSE-- if $VERBOSE > 0; },
+                    "help|h"=>sub { print $HELPMSG; exit 0; },
+                    "version|v"=>sub { print "$VERMSG\n"; exit 0; });
     };
     die "$THIS_FILE: $@$SHORTHELP\n" if $@ ne "";
     
-    # The log files
-    if (@ARGV > 0) {
-        @_ = @ARGV;
-    } else {
-        @_ = qw(-);
-    }
-    # Check if the files are duplicated
+    # Check the arguments
+    # Arguments are log files
+    @LOGFILES = qw();
     %_ = qw();
-    foreach (@_) {
-        die "$THIS_FILE: $_: you can only specify a file once\n$SHORTHELP\n"
+    while (@ARGV > 0) {
+        $_ = shift @ARGV;
+        die "$THIS_FILE: $_: You can only specify a file once\n$SHORTHELP\n"
             if exists $_{$_};
+        push @LOGFILES, $_;
         $_{$_} = 1;
     }
+    @LOGFILES = qw(-) if @LOGFILES == 0;
     
     # Save the original STDIN and STDOUT
     open $STDIN, "<&", \*STDIN          or die "$THIS_FILE: STDIN: $!";
@@ -217,15 +207,8 @@ sub parse_args() {
     $CONF{"PROGBAR"} = DEFAULT_PROGBAR;
     $CONF{"PROGBAR"} = 0 if $VERBOSE == 0 || $VERBOSE > 2 || !-t STDERR;
     if ($CONF{"PROGBAR"}) {
-        # Check if we have Term::Size
-        $CONF{"PROGBAR"} = 0 unless eval {
-                if ($^O eq "MSWin32") {
-                    require Win32::Console;
-                } else {
-                    require Term::Size;
-                }
-                1;
-            };
+        # Check if we have Term::ReadKey
+        $CONF{"PROGBAR"} = 0 unless eval { require Term::ReadKey; 1; };
     }
     
     # Set the default STDOUT mode
@@ -243,7 +226,7 @@ sub parse_args() {
     
     # Set the default number of threads
     if (!defined $Config::Config{"useithreads"}) {
-        warn "$THIS_FILE: Threading disabled because your OS or perl does not support it.\n"
+        warn "$THIS_FILE: Threading disabled because your OS or Perl does not support it.\n"
             if defined $CONF{"THREADS"} && $CONF{"THREADS"} > 0;
         $CONF{"THREADS"} = 0;
     }
@@ -266,13 +249,9 @@ sub parse_args() {
     }
     
     # Check the log files
-    # Initialize STDIN at last.  STDIN copies data to a temporarily file
-    # which will be a lot slower
-    @_ = map new _private::LogFile($_), @_;
-    # Initialize the STDIN
-    @_ = map new _private::LogFile::STDIN($_), @_;
+    @LOGFILES = map new _private::LogFile($_), @LOGFILES;
     
-    return @_;
+    return;
 }
 
 # whereis: Find an executable
@@ -302,7 +281,7 @@ sub show_progress($$$) {
     # Disable line buffer
     $| = 1;
     # Not enough space for a progress bar
-    return if ($width = term_width - 30) < 1;
+    return if ($width = (Term::ReadKey::GetTerminalSize())[0] - 30) < 1;
     # Start the timer
     $START = time if !defined $START;
     # Calculate the elapsed time
@@ -324,13 +303,6 @@ sub show_progress($$$) {
     # Finished
     print STDERR "\n" if $cur == $total;
     return;
-}
-
-# term_width: Get the terminal width
-sub term_width() {
-    local ($_, %_);
-    return ((new Win32::Console)->Info)[0] if $^O eq "MSWin32";
-    return (Term::Size::chars(*STDERR{IO}))[0];
 }
 
 
@@ -370,8 +342,11 @@ sub new : method {
     my ($class, $self, $file, $FH, $f0);
     ($class, $file) = @_;
     
-    # STDIN is not initialized here
-    return $file if $file eq "-";
+    # STDIN is another class
+    if ($file eq "-") {
+        $class .= "::STDIN";
+        return $class->new(@_[1...$#_]);
+    }
     
     $self = bless {}, $class;
     $self->{"stdin"} = 0;
@@ -390,26 +365,24 @@ sub new : method {
     $self->{"file"} = $file;
     $self->rel2abs;
     ($f0, $file) = ($file, $self->{"file"});
-    die "$THIS_FILE: $file: not found\n$SHORTHELP\n"
-        if !-e $file;
-    die "$THIS_FILE: $file: permission denied\n$SHORTHELP\n"
-        if !-r $file || !-w $file;
-    
-    # Open the file handler
-    open $FH, "+<", $file               or die "$THIS_FILE: $file: $!";
+    # Open the file
+    if ($self->{"keep"} eq KEEP_ALL) {
+        open $FH, $file                 or die "$THIS_FILE: $file: $!";
+        flock $FH, LOCK_SH;
+    } else {
+        open $FH, "+<", $file           or die "$THIS_FILE: $file: $!";
+        flock $FH, LOCK_EX;
+    }
     $self->{"FH"} = $FH;
-    flock $FH, LOCK_EX;
     
     # Check the file type
     print STDERR "Checking file type of $f0 ... " if $VERBOSE > 1;
-    $self->check_type;
+    $self->{"type"} = $self->check_type;
     print STDERR $self->{"type"} . "\n" if $VERBOSE > 1;
     # Check the I/O handler to use
-    $self->check_io;
+    $self->{"io"} = $self->check_io;
     # Check the output file availability
     $self->check_output;
-    # Reset the file pointer
-    seek $FH, 0, SEEK_SET               or die "$THIS_FILE: $file: $!";
     
     return $self;
 }
@@ -511,16 +484,17 @@ sub check_type : method {
     
     # Check by file name suffix
     if ($MAGIC_METHOD eq MAGIC_SUFFIX) {
-        return ($self->{"type"} = TYPE_GZIP) if $file =~ /\.gz$/;
-        return ($self->{"type"} = TYPE_BZIP2) if $file =~ /\.bz2$/;
+        return TYPE_GZIP if $file =~ /\.gz$/;
+        return TYPE_BZIP2 if $file =~ /\.bz2$/;
         # Otherwise we assume it to be text/plain
-        return ($self->{"type"} = TYPE_PLAIN);
+        return TYPE_PLAIN;
     }
     
     # Check the file format
     # Check by File::MMagic
     if ($MAGIC_METHOD eq MAGIC_PM) {
         $_ = $MAGIC->checktype_filehandle($FH);
+        seek $FH, 0, SEEK_SET           or die "$THIS_FILE: $file: $!";
     
     # Check by the file program
     } elsif ($MAGIC_METHOD eq MAGIC_EXEC) {
@@ -536,14 +510,18 @@ sub check_type : method {
         }
         $_ = join "", <$PH>;
         close $PH                       or die "$THIS_FILE: $CMD: $!";
-        flock $FH, LOCK_EX;
+        if ($self->{"keep"} eq KEEP_ALL) {
+            flock $FH, LOCK_SH;
+        } else {
+            flock $FH, LOCK_EX;
+        }
     }
     
     # Check the returned file type text
-    return ($self->{"type"} = TYPE_GZIP) if /gzip/i;
-    return ($self->{"type"} = TYPE_BZIP2) if /bzip2/i;
+    return TYPE_GZIP if /gzip/i;
+    return TYPE_BZIP2 if /bzip2/i;
     # Default everything to text/plain
-    return ($self->{"type"} = TYPE_PLAIN);
+    return TYPE_PLAIN;
 }
 
 # check_io: Check the I/O handler to use
@@ -551,17 +529,12 @@ sub check_io : method {
     local ($_, %_);
     my $self;
     $self = $_[0];
-    
     # We need a gzip compression I/O handler
-    return ($self->{"io"} = $self->check_gzip)
-    	if $self->{"type"} eq TYPE_GZIP;
-    
+    return $self->check_gzip if $self->{"type"} eq TYPE_GZIP;
     # We need a bzip2 compression I/O handler
-    return ($self->{"io"} = $self->check_bzip2)
-    	if $self->{"type"} eq TYPE_BZIP2;
-    
+    return $self->check_bzip2 if $self->{"type"} eq TYPE_BZIP2;
     # We need a plain I/O handler
-    return ($self->{"io"} = _private::IO::Plain->new);
+    return _private::IO::Plain->new;
 }
 
 # check_output: Check the availability of the output file
@@ -584,14 +557,14 @@ sub check_output : method {
     
     # Is its directory writable?  We need to create the temporary working
     # file and possibly the ouput file there.
-    die "$THIS_FILE: $dir: permission denied\n$SHORTHELP\n"
-        unless -w $dir;
+    die "$THIS_FILE: $dir: Permission denied\n$SHORTHELP\n"
+        if !-w $dir;
     
     # Check the temporary working file
     $self->{"temp"} = $dir . $file . TMP_SUFFIX;
     $_ = $self->{"temp"};
     # Does the temporary working file exists?
-    die "$THIS_FILE: $_: temporary working file exists\n$SHORTHELP\n"
+    die "$THIS_FILE: $_: Temporary working file exists\n$SHORTHELP\n"
         if -e $_;
     
     # Check the output file
@@ -606,12 +579,12 @@ sub check_output : method {
         $self->{"output"} = $dir . $file . $self->{"suffix"} . $suf;
         # Output exists -- is it writable?
         if (-e $self->{"output"}) {
-            die "$THIS_FILE: " . $self->{"output"} . ": file exists\n$SHORTHELP\n"
+            die "$THIS_FILE: " . $self->{"output"} . ": File exists\n$SHORTHELP\n"
                 if $self->{"override"} eq OVERRIDE_FAIL;
-            die "$THIS_FILE: " . $self->{"output"} . ": not a file\n$SHORTHELP\n"
-                unless -f $self->{"output"};
-            die "$THIS_FILE: " . $self->{"output"} . ": permission denied\n$SHORTHELP\n"
-                unless -w $self->{"output"};
+            die "$THIS_FILE: " . $self->{"output"} . ": Not a file\n$SHORTHELP\n"
+                if !-f $self->{"output"};
+            die "$THIS_FILE: " . $self->{"output"} . ": Permission denied\n$SHORTHELP\n"
+                if !-w $self->{"output"};
         
         # Output does not exist -- always overwrite it
         } else {
@@ -831,13 +804,14 @@ sub new : method {
     # Save STDIN to somewhere
     $file = "the STDIN buffer";
     if ($_private::LogFile::MAGIC_METHOD eq _private::LogFile::MAGIC_EXEC) {
-        ($FH, $tmp) = tempfile(undef, , UNLINK => 1)
+        ($FH, $tmp) = tempfile(undef, UNLINK => 1)
                                         or die "$THIS_FILE: tempfile: $!";
         $self->{"checktype"} = $tmp;
         $self->{"tmp"} = $tmp;
+        unlink0($FH, $tmp)              or die "$THIS_FILE: $tmp: $!";
     } else {
-        $FH = tempfile                  or die "$THIS_FILE: tempfile: $!";
         undef $tmp;
+        $FH = tempfile                  or die "$THIS_FILE: tempfile: $!";
     }
     ($self->{"FH"}, $self->{"file"}) = ($FH, $file);
     flock $FH, LOCK_EX;
@@ -850,14 +824,10 @@ sub new : method {
     
     # Check the file type
     print STDERR "Checking file type of STDIN ... " if $VERBOSE > 1;
-    $self->check_type;
-    if (defined $tmp && -e $tmp) {
-        unlink0($FH, $tmp)              or die "$THIS_FILE: $tmp: $!";
-    }
-    seek $FH, 0, SEEK_SET               or die "$THIS_FILE: $file: $!";
+    $self->{"type"} = $self->check_type;
     print STDERR $self->{"type"} . "\n" if $VERBOSE > 1;
     # Check the I/O handler to use
-    $self->check_io;
+    $self->{"io"} = $self->check_io;
     # Set the output file
     $self->{"output"} = undef;
     
@@ -2303,7 +2273,7 @@ from C<STDIN>.  Multiple log files are supported.  If one of these
 files are C<STDIN>, it will output to C<STDOUT>.  Gzipped files are
 supported, too.
 
-=item -k,--keep=mode
+=item -k,--keep mode
 
 What to keep in the source file.  Currently the following modes are
 supported:
@@ -2325,7 +2295,7 @@ Delete the source file after records are resolved.
 
 =back
 
-=item -o,--override=mode
+=item -o,--override mode
 
 Whether we should overwrite the existing resolved files.  Currently
 the following modes are supported:
@@ -2347,18 +2317,18 @@ any existing files by accident.  This is the default.
 
 =back
 
-=item -s,--suffix=suf
+=item -s,--suffix suf
 
 The suffix to be appended to the output file.  If not specified, the
 default is C<.resolved>.
 
-=item -t,--trim-suffix=suf
+=item -t,--trim-suffix suf
 
 The suffix to be trimmed from the input file name before appending
 the above suffix.  Default is none.  If you are running several log
 file filters, this can help you trim the suffix of the previous one.
 
-=item -n,--num-threads=n
+=item -n,--num-threads n
 
 Number of threads to run simultaneously.  The default is 10.  Use 0
 to disable threading.  This option has no effect on systems that does
@@ -2388,15 +2358,15 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.08
+3.09
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001-2005 imacat. All rights reserved.
+Copyright (c) 2000-2007 imacat.
 
-This program is free software; you can redistribute it and/or modify
+This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -2405,8 +2375,7 @@ I<MERCHANTABILITY> or I<FITNESS FOR A PARTICULAR PURPOSE>.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+along with this program.  If not, see L<http://www.gnu.org/licenses/>.
 
 =head1 AUTHOR
 

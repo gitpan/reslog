@@ -7,13 +7,13 @@
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 <meta name="author" content="依瑪貓" />
-<meta name="copyright" content="&copy; 2001-2005 依瑪貓。依瑪貓保有所有權利。" />
+<meta name="copyright" content="&copy; 2001-2007 依瑪貓。" />
 <meta name="keywords" content="DNS 反查, HostNameLookups, Apache, Analog, 記錄檔" />
 <link rel="alternate" type="application/xhtml+xml" href="reslog.zh-cn.html"
      hreflang="zh-cn" title="&#31616;体中文" />
 <link rel="alternate" type="application/xhtml+xml" href="reslog.en.html"
      hreflang="en-us" title="English" />
-<title>reslog 3.08 版</title>
+<title>reslog 3.09 版</title>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> 3.08 版</h1>
+<h1><samp>reslog</samp> 3.09 版</h1>
 
 
 <div class="body">
@@ -37,6 +37,11 @@
 <h2>最新消息</h2>
 
 <dl>
+
+<dt>2007-07-21</dt>
+
+<dd><samp>reslog</samp> 最新版本 3.09 。版權更新為 <a href="http://www.gnu.org/licenses/gpl-3.0.html" hreflang="en" xml:lang="en"><abbr title="GNU General Public License version 3">GPLv3</abbr></a> ，及多項問題修正，。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.09.tar.gz" type="application/x-gzip">下載 <samp>reslog</samp> 3.09 版</a>。</dd>
+
 
 <dt>2005-05-22</dt>
 
@@ -90,7 +95,7 @@
 
 <dt>2002-09-17</dt>
 
-<dd>好消息！ <samp>reslog.pl</samp> 已開始架設於 <a href="http://sourceforge.net/projects/reslog/" hreflang="en">SourceForge</a> 囉！（雖然我幾乎還完全搞不清楚要怎麼架……摸索中…… ^^; ）</dd>
+<dd>好消息！ <samp>reslog.pl</samp> 已開始架設於 <a href="http://sourceforge.net/projects/reslog/" hreflang="en">SourceForge</a> 囉！（雖然我幾乎還完全搞不清楚要怎麼架&hellip;摸索中&hellip; ^^; ）</dd>
 
 
 <dt>2002-08-31</dt>
@@ -102,18 +107,20 @@
 
 <h2>說明</h2>
 
-<p><samp>reslog</samp> 是記錄檔的反查程式，用來反查 <a href="http://httpd.apache.org/" hreflang="en">Apache</a> 記錄檔裏 <abbr>IP</abbr> 的主機名稱。查過後，可以套用像 <a href="http://analog.cx/" hreflang="en">Analog</a> 之類的記錄檔統計程式。妳可以把它當做 Apache <samp>HostNameLookups</samp> 指令的替代品，每天一次反查當天所有的 <abbr>IP</abbr> 。</p>
+<p><samp>reslog</samp> 是記錄檔的反查程式，用來反查 <a href="http://httpd.apache.org/" hreflang="en">Apache</a> 記錄檔裏 <abbr title="internet protocol">IP</abbr> 的主機名稱。查過後，可以套用像 <a href="http://analog.cx/" hreflang="en">Analog</a> 之類的記錄檔統計程式。妳可以把它當做 Apache <samp>HostNameLookups</samp> 指令的替代品，每天一次反查當天所有的 <abbr title="internet protocol">IP</abbr> 。</p>
 
 
 <h2>注意事項</h2>
 
 <ul>
 
-<li>反查網域名稱<em>很耗時間</em>。時間主要耗在查詢上：防火牆過濾網路封包，網域名稱伺服器設錯、沒有開機、位在慢速網路上、等級太低反應慢、網路塞車……等。這些外部因素，都不是程式本身能控制的。</li>
+<li>反查網域名稱<em>很耗時間</em>。時間主要耗在查詢上：防火牆過濾網路封包，網域名稱伺服器設錯、沒有開機、位在慢速網路上、等級太低反應慢、網路塞車&hellip;等。這些外部因素，都不是程式本身能控制的。</li>
 
 <li>若程式半途中斷，如按了 <samp>Ctrl-Break</samp> ，可能會殘餘一個暫時工作檔。下次執行時碰到殘存的暫時工作檔，程式會拒絕執行跳出。請先處理殘存的暫時工作檔。妳可以把暫時工作檔當成原來的記錄檔來用，重新反查。</li>
 
 <li>本程式需要很多暫存資料的空間。硬碟和記憶體比起來，價格便宜，用起來也比較省，所以我用硬碟暫存。這個程式需要原記錄檔兩倍以上的硬碟空間，才能執行（用記憶體暫存的話要用十倍）。請檢查硬碟空間夠不夠。</li>
+
+<li><samp>reslog</samp> 尚未支援 <abbr title="internet protocol version 6">IPv6</abbr> 。</li>
 
 </ul>
 
@@ -139,11 +146,11 @@
 
 <dt><a href="http://search.cpan.org/dist/Compress-Bzip2/" hreflang="en"><samp>Compress::Bzip2</samp></a> 第二版以上</dt>
 
-<dd>這是處理 bzip2 壓縮檔用的，只有在處理 bzip2 壓縮檔才會用到。若要 用時沒有安裝， <samp>reslog</samp> 會試著改用 <samp>bzip2</samp> 程式代替。若還找不到， <samp>reslog</samp> 就無法執行。到我寫這一篇說明的時候為止， ActivePerl MSWin32 的 <abbr title="Programmer's Package Manager">PPM</abbr> 模組庫裏都還沒有 <samp>Compress::Bzip2</samp> 。不過 MSWin32 的使用者還是可以由 <a href="http://sources.redhat.com/bzip2/" hreflang="en">bzip2 網站</a> 下載 <samp>bzip2.exe</samp> 。請確認下載後，存檔在系統的路徑下，檔名為 <samp>bzip2.exe</samp> 。</dd>
+<dd>這是處理 bzip2 壓縮檔用的，只有在處理 bzip2 壓縮檔才會用到。若要 用時沒有安裝， <samp>reslog</samp> 會試著改用 <samp>bzip2</samp> 程式代替。若還找不到， <samp>reslog</samp> 就無法執行。到我寫這一篇說明的時候為止， ActivePerl MSWin32 的 <abbr title="Programmer&rsquo;s Package Manager">PPM</abbr> 模組庫裏都還沒有 <samp>Compress::Bzip2</samp> 。不過 MSWin32 的使用者還是可以由 <a href="http://www.bzip.org/" hreflang="en">bzip2 網站</a> 下載 <samp>bzip2.exe</samp> 。請確認下載後，存檔在系統的路徑下，檔名為 <samp>bzip2.exe</samp> 。</dd>
 
-<dt><a href="http://search.cpan.org/dist/Term-Size/" hreflang="en"><samp>Term::Size</samp></a></dt>
+<dt><a href="http://search.cpan.org/dist/TermReadKey/" hreflang="en"><samp>Term::ReadKey</samp></a></dt>
 
-<dd>這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會有任何問題。進度列可以讓你對 <samp>reslog</samp> 的工作進度一目瞭然。 <samp>Term::Size</samp> 只能在 UNIX 下安裝，在 MSWin32 下， reslog 會改用 <a href="http://search.cpan.org/dist/libwin32/" hreflang="en"><samp>Win32::Console</samp></a> 。</dd>
+<dd>這是顯示進度列用的，若沒有安裝，就不會顯示進度列。此外不會有任何問題。進度列可以讓你對 <samp>reslog</samp> 的工作進度一目瞭然。</dd>
 </dl>
 
 若沒有上列 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模組，請到 <a href="http://search.cpan.org/" hreflang="en"><abbr title="Comprehensive Perl Archive Network">CPAN</abbr> 程式庫</a> 下載安裝。</li>
@@ -186,7 +193,7 @@
 <h2>安裝</h2>
 
 
-<p>其實， <samp>reslog</samp> 根本不用安裝。直接跑就是了。 ^_*'</p>
+<p>其實， <samp>reslog</samp> 根本不用安裝。直接跑就是了。 ^_*&rsquo;</p>
 
 <p>好吧，如果你不給它安裝個一下，就會輾轉難眠的話，那就請看以下的安裝指南吧。再次強調，妳可以不用看以下的安裝指南。直接跑就是了。</p>
 
@@ -317,13 +324,13 @@
 
 <h2>版權聲明</h2>
 
-<p>版權所有 &copy; 2001-2005 依瑪貓。依瑪貓保有所有權利。</p>
+<p>版權所有 &copy; 2001-2007 依瑪貓。依瑪貓保有所有權利。</p>
 
-<p>本程式是自由軟體，您可以遵照自由軟體基金會 (Free Software Foundation) 出版的 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>條款 (<cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite>) 第二版來修改和重新發佈這一程式，或者自由選擇使用任何更新的版本。</p>
+<p>本程式是自由軟體，您可以遵照自由軟體基金會 (Free Software Foundation) 出版的 <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> 通用公共許可證</cite>條款 (<cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> General Public License</cite>) 第三版來修改和重新發佈這一程式，或者自由選擇使用任何更新的版本。</p>
 
-<p>發佈這一程式的目的是希望它有用，但沒有任何擔保。甚至沒有適合特定目的而隱含的擔保。更詳細的情況請參閱 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>。</p>
+<p>發佈這一程式的目的是希望它有用，但沒有任何擔保。甚至沒有適合特定目的而隱含的擔保。更詳細的情況請參閱 <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> 通用公共許可證</cite>。</p>
 
-<p>您應該已經和程式一起收到一份 <cite><acronym title="GNU's Not UNIX">GNU</acronym> 通用公共許可證</cite>的副本。如果還沒有，寫信給： Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, <abbr title="Massachusetts">MA</abbr> 02111-1307, <abbr title="United States of America">USA</abbr>.</p>
+<p>您應該已經和程式一起收到一份 <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> 通用公共許可證</cite>的副本。如果還沒有，參閱<samp>&lt;<a href="http://www.gnu.org/licenses/" hreflang="en">http://www.gnu.org/licenses/</a>&gt;</samp>。</p>
 
 
 <h2>版本紀錄</h2>
@@ -338,7 +345,7 @@
 
 </div>
 
-<address>依瑪貓 &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt; 初稿 2001-07-04 ，上次更新日期 2005-05-22</address>
+<address>依瑪貓 &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt; 初稿 2001-07-04 ，上次更新日期 2007-07-21</address>
 
 
 <hr />

@@ -1,10 +1,13 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         reslog
-version:      3.08
-version_from: reslog
-installdirs:  site
-requires:
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.28
+--- #YAML:1.0
+name:                reslog
+version:             3.09
+abstract:            Reverse-resolve IP in Apache log files
+license:             gpl
+generated_by:        ExtUtils::MakeMaker version 6.36
+distribution_type:   module
+requires:     
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - imacat <imacat@mail.imacat.idv.tw>

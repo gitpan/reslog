@@ -31,11 +31,13 @@ EOT
 }
 
 WriteMakefile(
-    AUTHOR		=> 'imacat <imacat@mail.imacat.idv.tw>',
-    ABSTRACT		=> 'Reverse-resolve IP in Apache log files',
     NAME                => 'reslog',
     VERSION_FROM        => 'reslog',
+    ABSTRACT		=> 'Reverse-resolve IP in Apache log files',
+    AUTHOR		=> 'imacat <imacat@mail.imacat.idv.tw>',
+    LICENSE		=> "gpl",
     PREREQ_PM		=> { },
+    SIGN            => 1,
     
     EXE_FILES		=> [ "reslog" ],
     dist		=> {

@@ -79,19 +79,17 @@ Optional Perl Modules
     older versions before 2 does not work, since file I/O compression were not
     implemented yet.  ActivePerl MSWin32 does not have Compress::Bzip2 in
     their PPM deposit yet, as the time I'm writing this.  You can get bzip.exe
-    from the bzip home page instead: http://sources.redhat.com/bzip2/.  Be
-    sure to save it as bzip2.exe somewhere in your PATH.
+    from the bzip home page instead: http://www.bzip.org/.  Be sure to save it
+    as bzip2.exe somewhere in your PATH.
 
-   4. Term::Size
+   4. Term::ReadKey
 
         This is used to display the progress bar.  Without this reslog won't
     display the progress bar, but nothing else is different.  The progress bar
     is a good visual representation of what reslog is currently doing.
-    Term::Size is only available for UNIX.  For MSWin32, reslog will try to
-    use Win32::Console instead.
 
 
 imacat
-2005-04-26
+2007-07-21
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

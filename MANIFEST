@@ -2,11 +2,7 @@ AUTHORS
 AUTHORS.zh-cn
 AUTHORS.zh-tw
 Changes
-Changes.zh-cn
-Changes.zh-tw
 COPYING
-COPYING.zh-cn
-COPYING.zh-tw
 INSTALL
 INSTALL.zh-cn
 INSTALL.zh-tw
@@ -14,6 +10,8 @@ Makefile.PL
 MANIFEST			This list of files
 META.yml
 pgpkey.asc
+pod2htmd.tmp
+pod2htmi.tmp
 README
 README.zh-cn
 README.zh-tw

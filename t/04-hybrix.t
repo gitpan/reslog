@@ -72,7 +72,7 @@ $_ = eval {
     ($csg0, $ceg0) = (mkrndlog $fsg, mkrndlog $frg);
     ($csb0, $ceb0) = (mkrndlog $fsb, mkrndlog $frb);
     
-    ($retno, $out, $err) = runcmd frread $fsg, $reslog, qw(-d -d -d -n=1 -k=r -o=a), $fsp, "-", $fsb;
+    ($retno, $out, $err) = runcmd frread $fsg, $reslog, qw(-d -d -d -n 1 -k r -o a), $fsp, "-", $fsb;
     frwrite $frg, $out;
     
     ($flp, $flp1) = (join(" ", sort map basename($_), ($fsp, $frp)), flist $dirp);

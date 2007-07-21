@@ -7,13 +7,13 @@
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 <meta name="author" content="imacat" />
-<meta name="copyright" content="&copy; 2001-2005 imacat.  All rights reserved." />
+<meta name="copyright" content="&copy; 2001-2007 imacat." />
 <meta name="keywords" content="DNS look up, HostNameLookups, Apache, Analog, log files" />
 <link rel="alternate" type="application/xhtml+xml" href="reslog.zh-tw.html"
      hreflang="zh-tw" title="&#27491;&#39636;&#20013;&#25991;" />
 <link rel="alternate" type="application/xhtml+xml" href="reslog.zh-cn.html"
      hreflang="zh-cn" title="&#31616;&#20307;&#20013;&#25991;" />
-<title>reslog Version 3.08</title>
+<title>reslog Version 3.09</title>
 </head>
 <body>
 
@@ -29,14 +29,19 @@
 <hr />
 
 
-<h1><samp>reslog</samp> Version 3.08</h1>
+<h1><samp>reslog</samp> Version 3.09</h1>
 
 
 <div class="body">
 
-<h2>What's New?</h2>
+<h2>What&rsquo;s New?</h2>
 
 <dl>
+
+<dt>2007-07-21</dt>
+
+<dd><samp>reslog</samp> version 3.09 is released.  License updated to <a href="http://www.gnu.org/licenses/gpl-3.0.html"><abbr title="GNU General Public License version 3">GPLv3</abbr></a>, and various fixes.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.09.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.09</a>.</dd>
+
 
 <dt>2005-05-22</dt>
 
@@ -85,17 +90,17 @@
 
 <dt>2002-09-18</dt>
 
-<dd><samp>reslog.pl</samp> version 2.1.0dev2 is released.  This release corrects several documentation errors.  It also adds <a href="http://sourceforge.net/">SourceForge</a> in the documentations as one of the sources of <samp>reslog.pl</samp>.  You can think of it as a <q>Source Forge Memorial Release</q>. :p  You don't have to upgrade to this version in a rush.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz" type="application/x-gzip">Download <samp>reslog.pl</samp> version 2.1.0dev2</a>.</dd>
+<dd><samp>reslog.pl</samp> version 2.1.0dev2 is released.  This release corrects several documentation errors.  It also adds <a href="http://sourceforge.net/">SourceForge</a> in the documentations as one of the sources of <samp>reslog.pl</samp>.  You can think of it as a <q>Source Forge Memorial Release</q>. :p  You don&rsquo;t have to upgrade to this version in a rush.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev2.tar.gz" type="application/x-gzip">Download <samp>reslog.pl</samp> version 2.1.0dev2</a>.</dd>
 
 
 <dt>2002-09-17</dt>
 
-<dd><samp>reslog.pl</samp> is hosted at <a href="http://sourceforge.net/projects/reslog/">SourceForge</a> now!  Congratulations!  (Although I'm still trying hard to get it working at this time... ^^; )</dd>
+<dd><samp>reslog.pl</samp> is hosted at <a href="http://sourceforge.net/projects/reslog/">SourceForge</a> now!  Congratulations!  (Although I&rsquo;m still trying hard to get it working at this time&hellip; ^^; )</dd>
 
 
 <dt>2002-08-31</dt>
 
-<dd><samp>reslog.pl</samp> version 2.1.0dev1 is released.  This release fixes the problem that it wouldn't run with <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0.  I marked it as <q>dev</q> because I wish I can implement <a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a> and <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a> in the 2.1.0 stable release.  But it is is in fact very stable.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz" type="application/x-gzip">Download <samp>reslog.pl</samp> version 2.1.0dev1</a>.</dd>
+<dd><samp>reslog.pl</samp> version 2.1.0dev1 is released.  This release fixes the problem that it wouldn&rsquo;t run with <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0.  I marked it as <q>dev</q> because I wish I can implement <a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a> and <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a> in the 2.1.0 stable release.  But it is is in fact very stable.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog.pl-2.1.0dev1.tar.gz" type="application/x-gzip">Download <samp>reslog.pl</samp> version 2.1.0dev1</a>.</dd>
 
 </dl>
 
@@ -109,11 +114,13 @@
 
 <ul>
 
-<li><em>Resolving takes long time</em>.  This is mainly caused by resolving:  Network packets may be filtered by firewalls; <abbr title="Domain Name Service">DNS</abbr> servers may not be correctly configured; may not be up working; may sit in slow network sections; may be old slow machines; may have traffic jam... <abbr title="et cetera">etc</abbr>.  All these reasons are out of our control.</li>
+<li><em>Resolving takes long time</em>.  This is mainly caused by resolving:  Network packets may be filtered by firewalls; <abbr title="Domain Name Service">DNS</abbr> servers may not be correctly configured; may not be up working; may sit in slow network sections; may be old slow machines; may have traffic jam&hellip; <abbr title="et cetera">etc</abbr>.  All these reasons are out of our control.</li>
 
 <li>If it stops in the middle of its execution, as when the user hits a <samp>Ctrl-Break</samp>, it may leave a temporary working file. The next time it runs, it will stop when it sees that temporary working file at the first sight.  Please process that file first.  You can resolve it again, just like an ordinary log file.</li>
 
 <li>This prorgam needs temporary working space.  Between memory and disk space, I choose disk space, since it is cheaper and may be available in more environments.  However, this means that it needs free temporary disk space about 2 times of the size of the source log log file (10 times if using memory).  Please make sure you have that much free space.</li>
+
+<li><samp>reslog</samp> does not support <abbr title="internet protocol version 6">IPv6</abbr> yet.</li>
 
 </ul>
 
@@ -122,7 +129,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  <samp>reslog</samp> now has threading to speed up resolving, which requires <acronym title="Practical Extraction and Reporting Language">Perl</acronym>'s ithreads threading module support that's only available since 5.8.0.  You can still disable threading if it causes troubles to you, but the code itself need it.  If you are using a <acronym title="Practical Extraction and Reporting Language">Perl</acronym> before 5.8.0, please upgrade it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  <samp>reslog</samp> now has threading to speed up resolving, which requires <acronym title="Practical Extraction and Reporting Language">Perl</acronym>&rsquo;s ithreads threading module support that&rsquo;s only available since 5.8.0.  You can still disable threading if it causes troubles to you, but the code itself need it.  If you are using a <acronym title="Practical Extraction and Reporting Language">Perl</acronym> before 5.8.0, please upgrade it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
 
 <li>Required <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules: none.</li>
 
@@ -139,11 +146,11 @@
 
 <dt><a href="http://search.cpan.org/dist/Compress-Bzip2/"><samp>Compress::Bzip2</samp></a>, version 2 or above</dt>
 
-<dd>This is used to support read/write of bzip2 compressed files.  It is only needed when bzip2 compressed files are encountered.  If it is not available when needed, <samp>reslog</samp> will try to use the <samp>bzip2</samp> executable instead.  If that is not available, too, <samp>reslog</samp> will fail.  Notice that older versions before 2 does not work, since file <abbr title="input and output">I/O</abbr> compression were not implemented yet.  ActivePerl MSWin32 does not have <samp>Compress::Bzip2</samp> in their <abbr title="Programmer's Package Manager">PPM</abbr> deposit yet, as the time I'm writing this.  You can get <samp>bzip.exe</samp> from the <a href="http://sources.redhat.com/bzip2/">bzip home page</a> instead.  Be sure to save it as <samp>bzip2.exe</samp> somewhere in your <samp>PATH</samp>.</dd>
+<dd>This is used to support read/write of bzip2 compressed files.  It is only needed when bzip2 compressed files are encountered.  If it is not available when needed, <samp>reslog</samp> will try to use the <samp>bzip2</samp> executable instead.  If that is not available, too, <samp>reslog</samp> will fail.  Notice that older versions before 2 does not work, since file <abbr title="input and output">I/O</abbr> compression were not implemented yet.  ActivePerl MSWin32 does not have <samp>Compress::Bzip2</samp> in their <abbr title="Programmer&rsquo;s Package Manager">PPM</abbr> deposit yet, as the time I&rsquo;m writing this.  You can get <samp>bzip.exe</samp> from the <a href="http://www.bzip.org/">bzip home page</a> instead.  Be sure to save it as <samp>bzip2.exe</samp> somewhere in your <samp>PATH</samp>.</dd>
 
-<dt><a href="http://search.cpan.org/dist/Term-Size/"><samp>Term::Size</samp></a></dt>
+<dt><a href="http://search.cpan.org/dist/TermReadKey/"><samp>Term::ReadKey</samp></a></dt>
 
-<dd>This is used to display the progress bar.  Without this <samp>reslog</samp> won't display the progress bar, but nothing else is different.  The progress bar is a good visual representation of what <samp>reslog</samp> is currently doing.  <samp>Term::Size</samp> is only available for UNIX.  For MSWin32, <samp>reslog</samp> will try to use <a href="http://search.cpan.org/dist/libwin32/"><samp>Win32::Console</samp></a> instead.</dd>
+<dd>This is used to display the progress bar.  Without this <samp>reslog</samp> won&rsquo;t display the progress bar, but nothing else is different.  The progress bar is a good visual representation of what <samp>reslog</samp> is currently doing.</dd>
 </dl>
 
 You can always search, download and install the missing <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules from the the <a href="http://search.cpan.org/"><abbr title="Comprehensive Perl Archive Network">CPAN</abbr> archieve</a>.</li>
@@ -153,7 +160,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 <h2>Download</h2>
 
-<p><samp>reslog</samp>'s official websites is at...</p>
+<p><samp>reslog</samp>&rsquo;s official websites is at&hellip;</p>
 
 <ul>
 <li><a href="http://reslog.sourceforge.net/"><samp>reslog</samp> web site at SourceForge</a></li>
@@ -162,34 +169,34 @@ You can always search, download and install the missing <acronym title="Practica
 
 <li><a href="http://search.cpan.org/~imacat/reslog/"><samp>reslog</samp> project page at <abbr title="Comprehensive Perl Archive Network">CPAN</abbr></a></li>
 
-<li><a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>reslog</samp> page at Tavern IMACAT's</a></li>
+<li><a href="http://www.imacat.idv.tw/tech/reslog.html"><samp>reslog</samp> page at Tavern IMACAT&rsquo;s</a></li>
 </ul>
 
-<p>You can always download the newest version of <samp>reslog</samp> from...</p>
+<p>You can always download the newest version of <samp>reslog</samp> from&hellip;</p>
 
 <ul>
 <li><a href="https://sourceforge.net/project/showfiles.php?group_id=62500"><samp>reslog</samp> download page at SourceForge</a></li>
 
-<li><a href="http://search.cpan.org/~imacat/reslog/"><samp>reslog</samp>'s project page at <abbr title="Comprehensive Perl Archive Network">CPAN</abbr></a></li>
+<li><a href="http://search.cpan.org/~imacat/reslog/"><samp>reslog</samp>&rsquo;s project page at <abbr title="Comprehensive Perl Archive Network">CPAN</abbr></a></li>
 
-<li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">Tavern IMACAT's <abbr title="File Transfer Protocol">FTP</abbr> directory</a></li>
+<li><a href="ftp://ftp.imacat.idv.tw/pub/reslog/">Tavern IMACAT&rsquo;s <abbr title="File Transfer Protocol">FTP</abbr> directory</a></li>
 </ul>
 
-<p>imacat's <abbr title="Pretty Good Privacy">PGP</abbr> public key is at...</p>
+<p>imacat&rsquo;s <abbr title="Pretty Good Privacy">PGP</abbr> public key is at&hellip;</p>
 
 <ul>
-<li><a href="http://reslog.sourceforge.net/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at <samp>reslog</samp> SourceForge web site</a></li>
+<li><a href="http://reslog.sourceforge.net/pgpkey.asc">imacat&rsquo;s <abbr title="Pretty Good Privacy">PGP</abbr> key at <samp>reslog</samp> SourceForge web site</a></li>
 
-<li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">imacat's <abbr title="Pretty Good Privacy">PGP</abbr> key at Tavern IMACAT's</a></li>
+<li><a href="http://www.imacat.idv.tw/me/pgpkey.asc">imacat&rsquo;s <abbr title="Pretty Good Privacy">PGP</abbr> key at Tavern IMACAT&rsquo;s</a></li>
 </ul>
 
 
 <h2>Install</h2>
 
 
-<p>Well, <samp>reslog</samp> doesn't need installation. :p  Just run it.</p>
+<p>Well, <samp>reslog</samp> doesn&rsquo;t need installation. :p  Just run it.</p>
 
-<p>Okay, okay.  In case that you can't get a good sleep without proper installation, here is the instruction.  Notice that you can completely ignore this.  Just run it.</p>
+<p>Okay, okay.  In case that you can&rsquo;t get a good sleep without proper installation, here is the instruction.  Notice that you can completely ignore this.  Just run it.</p>
 
 <p>Starting from version 3, <samp>reslog</samp> uses standard <acronym title="Practical Extraction and Reporting Language">Perl</acronym> installation with <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a>.  Follow these steps:</p>
 
@@ -218,7 +225,7 @@ You can always search, download and install the missing <acronym title="Practica
 <h2>Options</h2>
 
 <pre>
-./reslog [options] [logfile...]
+./reslog [options] [logfile&hellip;]
 ./reslog [-h|-v]
 </pre>
 
@@ -318,13 +325,13 @@ You can always search, download and install the missing <acronym title="Practica
 
 <h2>Copyright</h2>
 
-<p>Copyright &copy; 2001-2005 imacat.  All rights reserved.</p>
+<p>Copyright &copy; 2001-2007 imacat.</p>
 
-<p>This program is free software; you can redistribute it and/or modify it under the terms of the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>This program is free software: you can redistribute it and/or modify it under the terms of the <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> General Public License</cite> as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
 
-<p>This program is distributed in the hope that it will be useful, but <em>WITHOUT ANY WARRANTY</em>; without even the implied warranty of <em>MERCHANTABILITY</em> or <em>FITNESS FOR A PARTICULAR PURPOSE</em>.  See the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> for more details.</p>
+<p>This program is distributed in the hope that it will be useful, but <em>WITHOUT ANY WARRANTY</em>; without even the implied warranty of <em>MERCHANTABILITY</em> or <em>FITNESS FOR A PARTICULAR PURPOSE</em>.  See the <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> General Public License</cite> for more details.</p>
 
-<p>You should have received a copy of the <cite><acronym title="GNU's Not UNIX">GNU</acronym> General Public License</cite> along with this program; if not, write to the Free Software Foundation, <abbr title="Incorporated">Inc.</abbr>, 675 Mass Ave, Cambridge, <abbr title="Massachusetts">MA</abbr> 02139, <abbr title="United States of America">USA</abbr>.</p>
+<p>You should have received a copy of the <cite><acronym title="GNU&rsquo;s Not UNIX">GNU</acronym> General Public License</cite> along with this program.  If not, see <samp>&lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;</samp>.</p>
 
 
 <h2>Release Notes</h2>
@@ -339,7 +346,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 </div>
 
-<address>By imacat &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;, first version 2001-07-04, last updated 2005-05-22</address>
+<address>By imacat &lt;<a href="mailto:imacat@mail.imacat.idv.tw">imacat@mail.imacat.idv.tw</a>&gt;, first version 2001-07-04, last updated 2007-07-21</address>
 
 
 <hr />

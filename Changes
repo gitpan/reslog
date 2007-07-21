@@ -1,16 +1,58 @@
 reslog change log
 
+2007-07-21	version 3.10
+	License updated to GPLv3, and various fixes.
+	 1. INSTALL and reslog.html: Replace Term::Size with Term::ReadKey.
+	 2. Changes.zh-tw and Changes.zh-cn: Removed.
+	 3. License updated to GPLv3.
+	 4. COPYING.zh-tw and COPYING.zh-cn: Removed since official
+	    translation of GPLv3 is not available yet.
+	 5. Removed stupid "All rights reserved" from the copyright notice.
+	    It shouldn't appear from the beginning.
+	 6. Makefile.PL: Rearranged the order, and added LICENSE and SIGN.
+
+2006-06-12
+	 1. reslog: new() method of _private::LogFile class now opens
+	    the log file and bounces there, instead of checking the log file
+	    first.  This way we will return localed system error message.
+	 2. reslog: new() method of _private::LogFile class now opens
+	    the log file in read-only mode when keep all.
+	 2. reslog: check_type() method of _private::LogFile class now returns
+	    the type instead of setting $self->{"type"}, for code readibility.
+
+2006-06-11
+	 1. reslog: new() method of _private::LogFile class now initialized
+	    STDIN with _private::LogFile::STDIN class, instead of bouncing.
+	    parse_args() subroutine does not initialize the files twice now.
+	 2. reslog: Upper-case the error messages in _private::LogFile.
+	 3. reslog: check_io() method of _private::LogFile class now returns
+	    the IO object instead of setting $self->{"io"}, for code
+	    readibility.
+	 4. reslog: Fixed _private::LogFile::STDIN::new() method that we
+	    passed an extra empty argument to tempfile().
+	 5. reslog: Fixed comment, use "handler" instead of "handle".
+
+2006-06-08
+	 1. reslog: Revised the code with my own coding standard.
+	 2. reslog: Added "bundling" to Getopt::Long::Configure().  This
+	    might introduce option-processing incompatibility.
+	 3. reslog: Replaced Term::Size and Win32::Console with Term::ReadKey.
+	    Term::ReadKey seems to be more recent and portable.
+
+2006-05-28
+	 1. INSTALL and reslog.html: Fixed the bzip2 website address.
+
 2005-05-22	version 3.08
 	Documentation fixes.
 	 1. The last update of the HTML documents are fixed.
-	 2. Changes:  English change log was gone.  (Maybe lost when
+	 2. Changes: English change log was gone.  (Maybe lost when
 	    cut-and-paste?)  A correct one is supplied.
 
 2005-05-22	version 3.07
 	 1. reslog: No more checks on the availablility of STDIN and STDOUT,
 	    and no more dummy replacement created if not.  It was originally
 	    to solve perl.cpan.testers 202971 when running with CPANPLUS under
-	    MSWin32,  duplicating closed STDIN causes errors.  But I was going
+	    MSWin32, duplicating closed STDIN causes errors.  But I was going
 	    the wrong way.  I was testing STDIN/STDOUT/STDRR redirection in
 	    shell backticks.  Whether CPANPLUS closes STDIN or not should be
 	    irrevelent.  It may be a issue of the shell backticks itself.

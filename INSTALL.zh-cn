@@ -68,17 +68,16 @@ http://www.activestate.com/ 。
     时没有安装， reslog 会试著改用 bzip2 程式代替。若还找不到， reslog 就无法
     执行。到我写这一篇说明的时候为止， ActivePerl MSWin32 的 PPM 模组库里都还
     没有 Compress::Bzip2 。不过 MSWin32 的使用者还是可以由 bzip2 网站下载
-    bzip2.exe ： http://sources.redhat.com/bzip2/ 。请确认下载后，存档在系统的
-    路径下，档名为 bzip2.exe 。
+    bzip2.exe ： http://www.bzip.org/ 。请确认下载后，存档在系统的路径下，档名
+    为 bzip2.exe 。
 
-   4. Term::Size
+   4. Term::ReadKey
 
     　　这是显示进度列用的，若没有安装，就不会显示进度列。此外不会有任何问题。
-    进度列可以让你对 reslog 的工作进度一目了然。 Term::Size 只能在 UNIX 下安装
-    ，在 MSWin32 下， reslog 会改用 Win32::Console 。
+    进度列可以让你对 reslog 的工作进度一目了然。
 
 
 依玛猫
-2005-04-26
+2007-07-21
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/
