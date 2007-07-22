@@ -1,5 +1,23 @@
 reslog change log
 
+2007-07-23	version 3.11
+	Fixed problem with systems without useithreads, fixed bug checking
+	STDIN file type with the file program, moved files back to the Perl
+	default installation directories, and added support for installation
+	with Module::Build
+	 1. Build.PL: Added to support installation with Module::Build.
+
+2007-07-22
+	 1. reslog.en.html: Updated "Internet Protocol" as "internet protocol"
+	    in abbreviation title.
+	 2. reslog: Fixed the new() method of the _private::LogFile::STDIN
+	    class, to run unlink0() after checking the file type, to fix the
+	    issue that file was removed before checking the file type with
+	    the file program
+	 3. reslog: Fixed _private::Resolver::Threaded, to load threads
+	    in eval() and define share() when threading is not available, in
+	    order to work with systems that are not compiled with useithreads.
+
 2007-07-22	version 3.10
 	Documentation fixes.
 	 1. Removed pod2htmd.tmp, pod2htmi.tmp from distribution.

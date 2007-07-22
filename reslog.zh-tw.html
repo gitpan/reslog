@@ -14,7 +14,7 @@
 <link rel="alternate" type="application/xhtml+xml" href="reslog.en.html"
      hreflang="en-us" title="English" />
 <link rel="author" href="mailto:imacat&#64;mail.imacat.idv.tw" />
-<title>reslog 3.10 版</title>
+<title>reslog 3.11 版</title>
 </head>
 <body>
 
@@ -30,7 +30,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> 3.10 版</h1>
+<h1><samp>reslog</samp> 3.11 版</h1>
 
 
 <div class="body">
@@ -38,6 +38,11 @@
 <h2>最新消息</h2>
 
 <dl>
+
+<dt>2007-07-23</dt>
+
+<dd><samp>reslog</samp> 最新版本 3.11 。修正在無線程 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 上執行的問題，以 <samp>file</samp> 程式檢查標準輸入檔案類型的問題，修正安裝檔案位置以符合 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 標準安裝設定，並加上支援用 <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a> 安裝。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.11.tar.gz" type="application/x-gzip">下載 <samp>reslog</samp> 3.11 版</a>。</dd>
+
 
 <dt>2007-07-22</dt>
 
@@ -135,7 +140,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 以上。新版的 <samp>reslog</samp> 用多線程加速反查，要用到 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 之後的新 ithread 多線程模式。你若不想用多線程功能，可以不用，不過程式碼本身，還是要用到 ithread 。若你用的是 5.8.0 以前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本，請昇級你的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。你可以輸入 <samp>perl -v</samp> 查詢你目前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本。如果你沒有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要昇級，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 網站</a>下載安裝最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若妳是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下載 ActivePerl 安裝。</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 以上。我還沒有在更早的版本上成功執行過。若妳可以在更早的版本上執行，請告訴我。你可以輸入 <samp>perl -v</samp> 查詢你目前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本。如果你沒有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要昇級，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 網站</a>下載安裝最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若妳是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下載 ActivePerl 安裝。</li>
 
 <li>需搭配的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模組：無。</li>
 
@@ -198,12 +203,11 @@
 
 <h2>安裝</h2>
 
+<p>若你是由 <samp>reslog</samp> 3.10 以前的版本昇級，或是由 <samp>reslog.pl</samp> 3.02 以前的版本昇級，請參閱 <samp>UPGRADE.zh-tw</samp> 檔的昇級說明。</p>
 
-<p>其實， <samp>reslog</samp> 根本不用安裝。直接跑就是了。 ^_*&rsquo;</p>
+<h3>以 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 安裝</h3>
 
-<p>好吧，如果你不給它安裝個一下，就會輾轉難眠的話，那就請看以下的安裝指南吧。再次強調，妳可以不用看以下的安裝指南。直接跑就是了。</p>
-
-<p>從第三版起， <samp>reslog</samp> 改用 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 標準的 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en"><samp>ExtUtils::MakeMaker</samp></a> 安裝，程序如下：</p>
+<p><samp>reslog</samp> 用 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 標準的 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 安裝，程序如下：</p>
 
 <blockquote><pre>
 % perl Makefile.PL
@@ -212,19 +216,40 @@
 % make install
 </pre></blockquote>
 
-<p>在 <samp>make install</samp> 前，請先確認你有在安裝目錄存檔的權限。通常這時後都要切到 <samp>root</samp> ，才能安裝存檔。</p>
+<p>在 <q><samp>make install</samp></q> 前，請先確認你有在安裝目錄存檔的權限。通常這時候要切換為 <samp>root</samp> ，才能安裝存檔。</p>
 
-<p>如果你是用 MSWin32 下的 ActivePerl ， <samp>make</samp> 請改用 <samp>nmake</samp> 。 <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> 可由微軟的 <abbr title="File Transfer Protocol">FTP</abbr> 站下載。</a></p>
+<p>若你是用 MSWin32 下的 ActivePerl ， <samp>make</samp> 請改用 <samp>nmake</samp> 。 <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> 可
+由微軟的 <abbr title="File Transfer Protocol">FTP</abbr> 站下載</a>。</p>
 
-<p>若要安裝到其它地方，請設定好 <samp>PREFIX</samp> 。例如，一個一般使用者，要安裝在自己的目錄下時：</p>
+<p>若要安裝到其它地方，請設定好 <samp>PREFIX</samp> 。例如，一般使用者，要安裝在自己的目錄下時：</p>
 
 <blockquote><pre>
 % perl Makefile.PL PREFIX=/home/jessica
 </pre></blockquote>
 
-<p>要知道更多安裝選項的細節，請參閱 <samp>ExtUtils::MakeMaker</samp> 的說明（請執行 <samp>perldoc ExtUtils::MakeMaker</samp> ）。</p>
+<p>要知道更多安裝選項的細節，請參閱 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 的說明（請執行 <q><samp>perldoc ExtUtils::MakeMaker</samp></q> ）。</p>
 
-<p>若你是由 <samp>reslog.pl</samp> 3.02 以前的版本昇級，請參閱 <samp>UPGRADE.zh-tw</samp> 檔的昇級說明。</p>
+
+<h3>以 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 安裝</h3>
+
+<p>若妳喜歡，也可以用 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 安裝，程序如下：</p>
+
+<blockquote><pre>
+% perl Build.PL
+% ./Build
+% ./Build test
+% ./Build install
+</pre></blockquote>
+
+<p>在 <q><samp>./Build install</samp></q> 前，請先確認你有在安裝目錄存檔的權限。通常這時候要切換為 <samp>root</samp> ，才能安裝存檔。</p>
+
+<p>若要安裝到其它地方，請設定好 <samp>--prefix</samp> 。例如，一般使用者，要安裝在自己的目錄下時：</p>
+
+<blockquote><pre>
+% perl Build.PL --prefix=/home/jessica
+</pre></blockquote>
+
+<p>要知道更多安裝選項的細節，請參閱 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 的說明（請執行 <q><samp>perldoc Module::Build</samp></q> ）。</p>
 
 
 <h2>命令列參數</h2>
@@ -351,7 +376,7 @@
 
 </div>
 
-<address><a href="mailto:imacat&#64;mail.imacat.idv.tw">依瑪貓</a>，初稿 2001-07-04 ，上次更新日期 2007-07-22</address>
+<address><a href="mailto:imacat&#64;mail.imacat.idv.tw">依瑪貓</a>，初稿 2001-07-04 ，上次更新日期 2007-07-23</address>
 
 
 <hr />

@@ -1,10 +1,8 @@
 #! /usr/bin/perl -w
-# Makefile.PL: Installation configuration for ExtUtils::MakeMaker
-use 5.8.0;
+# Makefile.PL: Installation configuration for Module::Build
 use strict;
-use warnings;
 use Config qw(%Config);
-use ExtUtils::MakeMaker;
+use Module::Build;
 
 # Check if there is any old files
 use vars qw(%old_version);
@@ -53,23 +51,21 @@ if (keys %old_version > 0) {
 EOT
 }
 
-WriteMakefile(
-    NAME                => "reslog",
-    VERSION_FROM        => "reslog",
-    ABSTRACT		=> "Reverse-resolve IP in Apache log files",
-    AUTHOR		=> "imacat <imacat\@mail.imacat.idv.tw>",
-    LICENSE		=> "gpl",
-    PREREQ_PM		=> { },
-    SIGN		=> 1,
+my $build = Module::Build->new(
+    dist_name		=> "reslog",
+    dist_version_from	=> "reslog",
+    dist_abstract	=> "Reverse-resolve IP in Apache log files",
+    dist_author		=> "imacat <imacat\@mail.imacat.idv.tw>",
+    license		=> "gpl",
+    sign		=> 1,
     
-    EXE_FILES		=> [ "reslog" ],
-    dist		=> {
-        COMPRESS	=> "gzip -9",
-        SUFFIX		=> ".gz",
+    script_files	=> [ "reslog" ],
+    requires		=> {
+        "perl"		=> "5.8.0",
     },
-    clean		=> {
-        FILES		=> "t/logs/*",
-    },
+    add_to_cleanup	=> [ "t/logs/*" ],
 );
+
+$build->create_build_script;
 
 __END__

@@ -1,83 +1,119 @@
-目录
+reslog 安装指南
 
-　◎安装指南
-　◎其它 Perl 模组支援
+◎目录
+
+  ◎系统需求
+  ◎安装指南
+    ◎◎以 ExtUtils::MakeMaker 安装
+    ◎◎以 Module::Build 安装
 
 
-安装指南
+◎系统需求
 
-　　其实， reslog 根本不用安装。直接跑就是了。 ^_*'
+   1. Perl 5.8.0 或以上。我还没有在更早的版本上成功执行过。若你可以在
+更早的版本上执行，请告诉我。你可以输入 perl -v 查询你目前的 Perl 版本
+。目前大多数的 Unix 系统都有 Perl 。如果你没有 Perl 或需要升级，可以到
+Perl 网站下载安装最新版 Perl 。
 
-　　好吧，如果你不给它安装个一下，就会辗转难眠的话，那就请看以下的安装指南吧。
-再次强调，你可以不用看以下的安装指南。直接跑就是了。
+  http://www.perl.com/
 
-　　从第三版起， reslog 改用 Perl 标准的 ExtUtils::MakeMaker 安装，程序如下：
+      若你用 MS-Windows ，可以下载安装 ActiveState 公司的 ActivePerl 。
 
-  % perl Makefile.PL
-  % make
-  % make test
-  % make install
+  http://www.activestate.com/
 
-　　在 make install 前，请先确认你有在安装目录存档的权限。通常这时后都要切到
-root ，才能安装存档。
+   2. 需搭配的 Perl 模组：无。
 
-　　若你是用 MSWin32 下的 ActivePerl ， make 请改用 nmake 。 nmake 可由微软的
-FTP 站下载：
+   3. 选配的 Perl 模组：
+
+     * File::MMagic
+
+          这是检查档案类型用的。若没有安装， reslog 会试著去找 file 程
+      式代替。若还找不到， reslog 会改用档尾（副档名）判断档案类型。这
+      时若从标准输入读档， reslog 会无法判断。 MSWin32 使用者可以由
+      GnuWin32 网站下载 file.exe 程式：
+      http://gnuwin32.sourceforge.net/ 。请确认下载后，存档在系统的路
+      径下，档名为 file.exe 。
+
+     * Compress::Zlib
+
+          这是处理 gzip 压缩档用的，只有处理 gzip 压缩档时才会用到。若
+      要用时没有安装， reslog 会试著改用 gzip 程式代替。若还找不到，
+      reslog 就无法执行。若你是 ActivePerl MSWin32 使用者，可以用
+      ppm install Compress::Zlib 安装，或由 gzip 网站下载 gzip.exe ：
+      http://www.gzip.org/ 。请确认下载后，存档在系统的路径下，档名为
+      gzip.exe 。
+
+     * Compress::Bzip2 第二版以上
+
+          这是支援读写 bzip2 压缩档用的，只有处理 bzip2 压缩档时才会用
+      到。若要用时没有安装， reslog 会试著改用 bzip2 程式代替。若还找
+      不到， reslog 就无法执行。到我写这一篇说明的时候为止，
+      ActivePerl MSWin32 的 PPM 模组库里都还没有 Compress::Bzip2 。不
+      过 MSWin32 的使用者还是可以由 bzip2 网站下载 bzip2.exe ：
+      http://www.bzip.org/ 。请确认下载后，存档在系统的路径下，档名为
+      bzip2.exe 。
+
+     * Term::ReadKey
+
+          这是显示进度列用的，若没有安装，就不会显示进度列。此外不会有
+      任何问题。进度列可以让你对 reslog 的工作进度一目了然。
+
+      若没有上列 Perl 模组，请到 CPAN 程式库 下载安装。
+
+
+◎安装指南
+
+    若你是由 reslog 3.10 以前的版本升级，或是由 reslog.pl 3.02 以前的
+版本升级，请参阅 UPGRADE.zh-tw 档的升级说明。
+
+◎◎以 ExtUtils::MakeMaker 安装
+
+    reslog 用 Perl 标准的 ExtUtils::MakeMaker 安装，程序如下：
+
+    % perl Makefile.PL
+    % make
+    % make test
+    % make install
+
+    在 make install 前，请先确认你有在安装目录存档的权限。通常这时候
+要切换为 root ，才能安装存档。
+
+    若你是用 MSWin32 下的 ActivePerl ， make 请改用 nmake 。 nmake 可
+由微软的 FTP 站下载：
 
   ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
 
-　　若要安装到其它地方，请设定好 PREFIX 。例如，一个一般使用者，要安装在自己的
-目录下时：
+    若要安装到其它地方，请设定好 PREFIX 。例如，一般使用者，要安装在
+自己的目录下时：
 
   % perl Makefile.PL PREFIX=/home/jessica
 
-　　要知道更多安装选项的细节，请参阅 ExtUtils::MakeMaker 的说明（请执行
-perldoc ExtUtils::MakeMaker ）。
-
-　　若你是由 reslog.pl 3.02 版以前升级，请参阅 UPGRADE 档的升级说明。
-
-　　本版 reslog 至少需要 Perl 5.8.0 以上，以便支援 ithread 多线程功能。若要安
-装／升级到你的 Perl ，请上 Perl 的网站 http://www.perl.com/ 。若你是 MSWin32
-的使用者，你可以到 ActiveState 公司的网站，下载免费的 Perl 程式：
-http://www.activestate.com/ 。
+    要知道更多安装选项的细节，请参阅 ExtUtils::MakeMaker 的说明（请执
+行 perldoc ExtUtils::MakeMaker ）。
 
 
-其它 Perl 模组支援
+◎◎以 Module::Build 安装
 
-　　你可以安装下列 Perl 模组，以支援更多功能：
+    若你喜欢，也可以用 Module::Build 安装，程序如下：
 
-   1. File::MMagic
+    % perl Build.PL
+    % ./Build
+    % ./Build test
+    % ./Build install
 
-    　　这是检查档案类型用的。若没有安装， reslog 会试著去找 file 程式代替。若
-    还找不到， reslog 会改用档尾（副档名）判断档案类型。这时若从标准输入读档，
-    reslog 会无法判断。 MSWin32 使用者可以由 GnuWin32 网站下载 file.exe 程式：
-    http://gnuwin32.sourceforge.net/ 。请确认下载后，存档在系统的路径下，档名
-    为 file.exe 。
+    在 ./Build install 前，请先确认你有在安装目录存档的权限。通常这时
+候要切换为 root ，才能安装存档。
 
-   2. Compress::Zlib
+    若要安装到其它地方，请设定好 --prefix 。例如，一般使用者，要安装
+在自己的目录下时：
 
-    　　这是处理 gzip 压缩档用的，只有处理 gzip 压缩档时才会用到。若要用时没有
-    安装， reslog 会试著改用 gzip 程式代替。若还找不到， reslog 就无法执行。若
-    你是 ActivePerl MSWin32 使用者，可以用 ppm install Compress::Zlib 安装，或
-    由 gzip 网站下载 gzip.exe ： http://www.gzip.org/ 。请确认下载后，存档在系
-    统的路径下，档名为 gzip.exe 。
+  % perl Build.PL --prefix=/home/jessica
 
-   3. Compress::Bzip2 第二版以上
-
-    　　这是支援读写 bzip2 压缩档用的，只有处理 bzip2 压缩档时才会用到。若要用
-    时没有安装， reslog 会试著改用 bzip2 程式代替。若还找不到， reslog 就无法
-    执行。到我写这一篇说明的时候为止， ActivePerl MSWin32 的 PPM 模组库里都还
-    没有 Compress::Bzip2 。不过 MSWin32 的使用者还是可以由 bzip2 网站下载
-    bzip2.exe ： http://www.bzip.org/ 。请确认下载后，存档在系统的路径下，档名
-    为 bzip2.exe 。
-
-   4. Term::ReadKey
-
-    　　这是显示进度列用的，若没有安装，就不会显示进度列。此外不会有任何问题。
-    进度列可以让你对 reslog 的工作进度一目了然。
+    要知道更多安装选项的细节，请参阅 Module::Build 的说明（请执行
+perldoc Module::Build ）。
 
 
 依玛猫
-2007-07-21
+2007-07-22
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

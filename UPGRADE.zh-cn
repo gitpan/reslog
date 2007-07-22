@@ -1,7 +1,20 @@
 升级指南
 
-　　若你由第二版升级到第三版，请阅读以下说明：
+　　若你由 3.10 或之前的版本升级，请阅读以下说明：
 
+◎预设安装目录为 /usr/bin
+
+　　说明档则在 /usr/share/man/man1/reslog.1 。这是为符合 Perl 的标准安装流程，
+敝免破坏 ExtUtils::MakeMaker 的预设设定，造成日后升级的问题。
+
+　　执行 perl Makefile.PL 时，会提示你所在系统上发现的的旧档案。请自行删除。若
+你程式存在其它地方，请记得要自己删掉。
+
+　　若你有写程式，或设定 cron 排程来执行 reslog ，请记得更改档名。不过你也可以
+把 reslog 存到原来的目录去，不会有任何问题。
+
+
+　　若你由 3.02 或之前的版本升级，请阅读以下说明：
 
 ◎档名由 reslog.pl 改为 reslog
 
@@ -9,31 +22,30 @@
 名。不过你也可以把 reslog 改名回原来的 reslog.pl ，不会有任何问题。
 
 
-◎预设安装目录，由 /usr/local/sbin 改为 /usr/bin
+◎预设安装目录为 /usr/sbin
 
-　　还有，说明档也由 /usr/local/share/man/man8/reslog.pl.8 改为
-/usr/share/man/man1/reslog.1 。升级后，下列旧版档案：
+　　说明档则在 /usr/share/man/man8/reslog.8 。你可以执行 make upgrade 移除下列
+旧版档案：
 
+      /usr/sbin/reslog.pl
       /usr/share/man/man8/reslog.pl.8
+      /usr/local/sbin/reslog.pl
       /usr/local/share/man/man8/reslog.pl.8
+      /usr/bin/reslog
+      /usr/share/man/man1/reslog.1
 
-　　或你曾经改存到其它地方，请记得要删掉。不好意思， make install 不会自动帮你
-清掉旧版档案。
+　　若你程式存在其它地方，请记得要自己删掉。
 
 　　若你有写程式，或设定 cron 排程来执行 reslog ，请记得更改档名。不过你也可以
 把 reslog 存到原来的目录去，不会有任何问题。
-
-　　这是 ExtUtils::MakeMaker 的问题。我个人觉得安装到 sbin 目录比较适当，因为
-reslog 是设计给系统管理员用的，不是给一般使用者用的。不过 ExtUtils::MakeMaker
-不支援安装到 sbin 目录。这种作法，其实是违反 FHS 2.2 规定的。
 
 
 ◎ Perl 5.8.0 版以上
 
 　　新版的 reslog 用多线程加速反查，要用到 Perl 5.8.0 之后的新 ithread 多线程
 模式。你若不想用多线程功能，可以不用，不过程式码本身，还是要用到 ithread 。若
-你用的是 5.8.0 以前的 Perl 版本，请升级你的 Perl 。你可以用输入 perl -v 查询你
-目前的 Perl 版本。
+你用的是 5.8.0 以前的 Perl 版本，请升级你的 Perl 。你可以输入 perl -v 查询你目
+前的 Perl 版本。
 
 
 ◎预设 keep 原记录档保留模式是 delete
@@ -58,6 +70,6 @@ reslog 是设计给系统管理员用的，不是给一般使用者用的。不过 ExtUtils::MakeMaker
 
 
 依玛猫
-2005-04-26
+2007-07-23
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

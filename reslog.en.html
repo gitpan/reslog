@@ -14,7 +14,7 @@
 <link rel="alternate" type="application/xhtml+xml" href="reslog.zh-cn.html"
      hreflang="zh-cn" title="&#31616;&#20307;&#20013;&#25991;" />
 <link rel="author" href="mailto:imacat&#64;mail.imacat.idv.tw" />
-<title>reslog Version 3.10</title>
+<title>reslog Version 3.11</title>
 </head>
 <body>
 
@@ -30,7 +30,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> Version 3.10</h1>
+<h1><samp>reslog</samp> Version 3.11</h1>
 
 
 <div class="body">
@@ -38,6 +38,11 @@
 <h2>What&rsquo;s New?</h2>
 
 <dl>
+
+<dt>2007-07-23</dt>
+
+<dd><samp>reslog</samp> version 3.11 is released.  Fixed problem with non-threaded <acronym title="Practical Extraction and Reporting Language">Perl</acronym>, fixed bug checking <samp>STDIN</samp> file type with the <samp>file</samp> program, moved files back to the <acronym title="Practical Extraction and Reporting Language">Perl</acronym> default installation directories, and added support for installation with <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a>.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.11.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.11</a>.</dd>
+
 
 <dt>2007-07-22</dt>
 
@@ -113,7 +118,7 @@
 
 <h2>Description</h2>
 
-<p><samp>reslog</samp> reverse-resolves <abbr title="Internet Protocol">IP</abbr> in the <a href="http://httpd.apache.org/">Apache</a> log files.  These log files can then be analyzed by another program, like <a href="http://analog.cx/">Analog</a>.  You can think of it as a replacement of Apache <samp>HostNameLookups</samp> directive, in the sense that it resolves the client <abbr title="Internet Protocol">IP</abbr> altogether once a day.</p>
+<p><samp>reslog</samp> reverse-resolves <abbr title="internet protocol">IP</abbr> in the <a href="http://httpd.apache.org/">Apache</a> log files.  These log files can then be analyzed by another program, like <a href="http://analog.cx/">Analog</a>.  You can think of it as a replacement of Apache <samp>HostNameLookups</samp> directive, in the sense that it resolves the client <abbr title="internet protocol">IP</abbr> altogether once a day.</p>
 
 
 <h2>Caution</h2>
@@ -135,7 +140,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  <samp>reslog</samp> now has threading to speed up resolving, which requires <acronym title="Practical Extraction and Reporting Language">Perl</acronym>&rsquo;s ithreads threading module support that&rsquo;s only available since 5.8.0.  You can still disable threading if it causes troubles to you, but the code itself need it.  If you are using a <acronym title="Practical Extraction and Reporting Language">Perl</acronym> before 5.8.0, please upgrade it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  I have not successfully run this on earlier versions.  Please tell me if you can.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.</li>
 
 <li>Required <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules: none.</li>
 
@@ -199,12 +204,11 @@ You can always search, download and install the missing <acronym title="Practica
 
 <h2>Install</h2>
 
+<p>If you are upgrading from <samp>reslog</samp> 3.10 or earlier, or if you are upgrading from <samp>reslog.pl</samp> 3.02 or earlier, please read <samp>UPGRADE</samp> for some upgrade instruction.</p>
 
-<p>Well, <samp>reslog</samp> doesn&rsquo;t need installation. :p  Just run it.</p>
+<h3>Install with <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a></h3>
 
-<p>Okay, okay.  In case that you can&rsquo;t get a good sleep without proper installation, here is the instruction.  Notice that you can completely ignore this.  Just run it.</p>
-
-<p>Starting from version 3, <samp>reslog</samp> uses standard <acronym title="Practical Extraction and Reporting Language">Perl</acronym> installation with <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a>.  Follow these steps:</p>
+<p><samp>reslog</samp> uses standard <acronym title="Practical Extraction and Reporting Language">Perl</acronym> installation with <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/"><samp>ExtUtils::MakeMaker</samp></a>.  Follow these steps:</p>
 
 <blockquote><pre>
 % perl Makefile.PL
@@ -213,7 +217,7 @@ You can always search, download and install the missing <acronym title="Practica
 % make install
 </pre></blockquote>
 
-<p>When running <q><samp>make install</samp></q>, make sure you have the priviledge to write to the instalation location.  This usually requires the root priviledge.</p>
+<p>When running <q><samp>make install</samp></q>, make sure you have the priviledge to write to the instalation location.  This usually requires the <samp>root</samp> priviledge.</p>
 
 <p>If you are using ActivePerl under MSWin32, you should use <samp>nmake</samp> instead of <samp>make</samp>.  <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> can be obtained from the Microsoft <abbr title="File Transfer Protocol">FTP</abbr> site.</a></p>
 
@@ -223,9 +227,29 @@ You can always search, download and install the missing <acronym title="Practica
 % perl Makefile.PL PREFIX=/home/jessica
 </pre></blockquote>
 
-<p>Refer to the docuemntation of <samp>ExtUtils::MakeMaker</samp> for more installation options (by running <q><samp>perldoc ExtUtils::MakeMaker</samp></q>).</p>
+<p>Refer to the docuemntation of <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> for more installation options (by running <q><samp>perldoc ExtUtils::MakeMaker</samp></q>).</p>
 
-<p>If you are upgrading from <samp>reslog.pl</samp> 3.02 or earlier, please read <samp>UPGRADE</samp> for some upgrade instruction.</p>
+
+<h3>Install with <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a></h3>
+
+<p>You can install with <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a> instead, if you prefer.  Follow these steps:</p>
+
+<blockquote><pre>
+% perl Build.PL
+% ./Build
+% ./Build test
+% ./Build install
+</pre></blockquote>
+
+<p>When running <q><samp>./Build install</samp></q>, make sure you have the priviledge to write to the instalation location.  This usually requires the <samp>root</samp> priviledge.</p>
+
+<p>If you want to install into another location, you can set the <samp>--prefix</samp>.  For example, to install into your home when you are not <samp>root</samp>:</p>
+
+<blockquote><pre>
+% perl Build.PL --prefix=/home/jessica
+</pre></blockquote>
+
+<p>Refer to the docuemntation of <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a> for more installation options (by running <q><samp>perldoc Module::Build</samp></q>).</p>
 
 
 <h2>Options</h2>
@@ -352,7 +376,7 @@ You can always search, download and install the missing <acronym title="Practica
 
 </div>
 
-<address>By <a href="mailto:imacat&#64;mail.imacat.idv.tw">imacat</a>, first version 2001-07-04, last updated 2007-07-22</address>
+<address>By <a href="mailto:imacat&#64;mail.imacat.idv.tw">imacat</a>, first version 2001-07-04, last updated 2007-07-23</address>
 
 
 <hr />

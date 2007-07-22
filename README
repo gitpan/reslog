@@ -1,4 +1,4 @@
-reslog -- Reverse-resolve IP in Apache log files
+reslog - Reverse-resolve IP in Apache log files
 
     reslog reverse-resolves IP in the Apache log files. These log files can
 then be analyzed by another program, like Analog.  You can think of it as a
@@ -41,6 +41,6 @@ refer to the COPYING file for the copyright and the license of this program.
 
 
 imacat ^_*'
-2007-07-21
+2007-07-23
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

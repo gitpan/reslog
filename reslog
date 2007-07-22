@@ -48,7 +48,7 @@ use IO::Handle;
 our ($THIS_FILE, $VERBOSE);
 use vars qw($VERSION);
 $THIS_FILE = basename($0);
-$VERSION = "3.10";
+$VERSION = "3.11";
 $VERBOSE = 1;
 
 # Constants
@@ -808,7 +808,6 @@ sub new : method {
                                         or die "$THIS_FILE: tempfile: $!";
         $self->{"checktype"} = $tmp;
         $self->{"tmp"} = $tmp;
-        unlink0($FH, $tmp)              or die "$THIS_FILE: $tmp: $!";
     } else {
         undef $tmp;
         $FH = tempfile                  or die "$THIS_FILE: tempfile: $!";
@@ -830,6 +829,11 @@ sub new : method {
     $self->{"io"} = $self->check_io;
     # Set the output file
     $self->{"output"} = undef;
+    
+    # Unlink the temporarily working file first
+    if ($_private::LogFile::MAGIC_METHOD eq _private::LogFile::MAGIC_EXEC) {
+        unlink0($FH, $tmp)              or die "$THIS_FILE: $tmp: $!";
+    }
     
     return $self;
 }
@@ -2111,8 +2115,13 @@ package _private::Resolver::Threaded;
 use 5.8.0;
 use strict;
 use warnings;
-use threads;
-use threads::shared;
+BEGIN {
+eval "sub share {}"
+    if  !eval { require threads;
+                require threads::shared;
+                import threads::shared;
+                1; };
+}
 use base qw(_private::Resolver);
 BEGIN {
 import main;
@@ -2358,7 +2367,7 @@ Output version information and exit.
 
 =head1 VERSION
 
-3.10
+3.11
 
 =head1 COPYRIGHT
 

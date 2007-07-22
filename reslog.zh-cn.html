@@ -14,7 +14,7 @@
 <link rel="alternate" type="application/xhtml+xml" href="reslog.en.html"
      hreflang="en-us" title="English" />
 <link rel="author" href="mailto:imacat&#64;mail.imacat.idv.tw" />
-<title>reslog 3.10 版</title>
+<title>reslog 3.11 版</title>
 </head>
 <body>
 
@@ -30,7 +30,7 @@
 <hr />
 
 
-<h1><samp>reslog</samp> 3.10 版</h1>
+<h1><samp>reslog</samp> 3.11 版</h1>
 
 
 <div class="body">
@@ -38,6 +38,11 @@
 <h2>最新消息</h2>
 
 <dl>
+
+<dt>2007-07-23</dt>
+
+<dd><samp>reslog</samp> 最新版本 3.11 。修正在无线程 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 上执行的问题，以 <samp>file</samp> 程式检查标准输入档案类型的问题，修正安装档案位置以符合 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 标准安装设定，并加上支援用 <a href="http://search.cpan.org/dist/Module-Build/"><samp>Module::Build</samp></a> 安装。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.11.tar.gz" type="application/x-gzip">下载 <samp>reslog</samp> 3.11 版</a>。</dd>
+
 
 <dt>2007-07-22</dt>
 
@@ -136,7 +141,7 @@
 
 <ol>
 
-<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 以上。新版的 <samp>reslog</samp> 用多线程加速反查，要用到 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 之后的新 ithread 多线程模式。你若不想用多线程功能，可以不用，不过程式码本身，还是要用到 ithread 。若你用的是 5.8.0 以前的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 版本，请升级你的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。你可以输入 <samp>perl -v</samp> 查询你目前的 Perl 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若你是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下载 ActivePerl 安装。</li>
+<li><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 5.8.0 以上。我还没有在更早的版本上成功执行过。若你可以在更早的版本上执行，请告诉我。你可以输入 <samp>perl -v</samp> 查询你目前的 Perl 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 。若你是用 MSWin32 ，可以到 <a href="http://www.activestate.com/" hreflang="en">ActiveState 公司</a>下载 ActivePerl 安装。</li>
 
 <li>需搭配的 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 模组：无。</li>
 
@@ -199,12 +204,11 @@
 
 <h2>安装</h2>
 
+<p>若你是由 <samp>reslog</samp> 3.10 以前的版本升级，或是由 <samp>reslog.pl</samp> 3.02 以前的版本升级，请参阅 <samp>UPGRADE.zh-tw</samp> 档的升级说明。</p>
 
-<p>其实， <samp>reslog</samp> 根本不用安装。直接跑就是了。 ^_*&rsquo;</p>
+<h3>以 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 安装</h3>
 
-<p>好吧，如果你不给它安装个一下，就会辗转难眠的话，那就请看以下的安装指南吧。再次强调，你可以不用看以下的安装指南。直接跑就是了。</p>
-
-<p>从第三版起， <samp>reslog</samp> 改用 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 标准的 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en"><samp>ExtUtils::MakeMaker</samp></a> 安装，程序如下：</p>
+<p><samp>reslog</samp> 用 <acronym title="Practical Extraction and Reporting Language">Perl</acronym> 标准的 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 安装，程序如下：</p>
 
 <blockquote><pre>
 % perl Makefile.PL
@@ -213,19 +217,40 @@
 % make install
 </pre></blockquote>
 
-<p>在 <samp>make install</samp> 前，请先确认你有在安装目录存档的权限。通常这时后都要切到 <samp>root</samp> ，才能安装存档。</p>
+<p>在 <q><samp>make install</samp></q> 前，请先确认你有在安装目录存档的权限。通常这时候要切换为 <samp>root</samp> ，才能安装存档。</p>
 
-<p>如果你是用 MSWin32 下的 ActivePerl ， <samp>make</samp> 请改用 <samp>nmake</samp> 。 <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> 可由微软的 <abbr title="File Transfer Protocol">FTP</abbr> 站下载。</a></p>
+<p>若你是用 MSWin32 下的 ActivePerl ， <samp>make</samp> 请改用 <samp>nmake</samp> 。 <a href="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe" type="application/x-dosexec"><samp>nmake</samp> 可
+由微软的 <abbr title="File Transfer Protocol">FTP</abbr> 站下载</a>。</p>
 
-<p>若要安装到其它地方，请设定好 <samp>PREFIX</samp> 。例如，一个一般使用者，要安装在自己的目录下时：</p>
+<p>若要安装到其它地方，请设定好 <samp>PREFIX</samp> 。例如，一般使用者，要安装在自己的目录下时：</p>
 
 <blockquote><pre>
 % perl Makefile.PL PREFIX=/home/jessica
 </pre></blockquote>
 
-<p>要知道更多安装选项的细节，请参阅 <samp>ExtUtils::MakeMaker</samp> 的说明（请执行 <samp>perldoc ExtUtils::MakeMaker</samp> ）。</p>
+<p>要知道更多安装选项的细节，请参阅 <a href="http://search.cpan.org/dist/ExtUtils-MakeMaker/" hreflang="en" xml:lang="en"><samp>ExtUtils::MakeMaker</samp></a> 的说明（请执行 <q><samp>perldoc ExtUtils::MakeMaker</samp></q> ）。</p>
 
-<p>若你是由 <samp>reslog.pl</samp> 3.02 以前的版本升级，请参阅 <samp>UPGRADE.zh-cn</samp> 档的升级说明。</p>
+
+<h3>以 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 安装</h3>
+
+<p>若你喜欢，也可以用 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 安装，程序如下：</p>
+
+<blockquote><pre>
+% perl Build.PL
+% ./Build
+% ./Build test
+% ./Build install
+</pre></blockquote>
+
+<p>在 <q><samp>./Build install</samp></q> 前，请先确认你有在安装目录存档的权限。通常这时候要切换为 <samp>root</samp> ，才能安装存档。</p>
+
+<p>若要安装到其它地方，请设定好 <samp>--prefix</samp> 。例如，一般使用者，要安装在自己的目录下时：</p>
+
+<blockquote><pre>
+% perl Build.PL --prefix=/home/jessica
+</pre></blockquote>
+
+<p>要知道更多安装选项的细节，请参阅 <a href="http://search.cpan.org/dist/Module-Build/" hreflang="en" xml:lang="en"><samp>Module::Build</samp></a> 的说明（请执行 <q><samp>perldoc Module::Build</samp></q> ）。</p>
 
 
 <h2>命令列参数</h2>
@@ -352,7 +377,7 @@
 
 </div>
 
-<address><a href="mailto:imacat&#64;mail.imacat.idv.tw">依玛猫</a>，初稿 2001-07-04 ，上次更新日期 2007-07-22</address>
+<address><a href="mailto:imacat&#64;mail.imacat.idv.tw">依玛猫</a>，初稿 2001-07-04 ，上次更新日期 2007-07-23</address>
 
 
 <hr />

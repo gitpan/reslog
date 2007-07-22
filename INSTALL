@@ -1,95 +1,139 @@
-Table of Contents
+reslog Installation Guide
 
+* Table of Contents
+
+   * System Requirements
    * Installation Instruction
-   * Optional Perl Modules
+     ** Install with ExtUtils::MakeMaker
+     ** Install with Module::Build
 
 
-Installation Instruction
+* System Requirements
 
-    Well, reslog doesn't need installation. :p  Just run it.
+   1. Perl, version 5.8.0 or above.  I have not successfully run this
+on earlier versions.  Please tell me if you can.  You can run
+"perl -v" to see your current Perl version.  Perl is distributed
+with most Unix now.  If not, or if you have an older version of Perl,
+you can download and install/upgrade it from Perl website.
 
-    Okay, okay.  In case that you can't get a good sleep without proper
-installation, here is the instruction.  Notice that you can completely
-ignore this.  Just run it.
+http://www.perl.com/
 
-    Starting from version 3, reslog uses standard Perl installation with
-ExtUtils::MakeMaker.  Follow these steps:
+      If you are using MS-Win32, you can download and install
+ActiveState ActivePerl.
 
-  % perl Makefile.PL
-  % make
-  % make test
-  % make install
+http://www.activestate.com/
 
-    When running "make install", make sure you have the priviledge to write
-to the instalation location.  This usually requires the root priviledge.
+   2. Required Perl modules: None.
 
-    If you are using ActivePerl under MSWin32, you should use nmake instead
-of make.  nmake can be obtained from the Microsoft FTP site:
+   3. Optional Perl Modules
 
-  ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
+    * File::MMagic
 
-    If you want to install into another location, you can set the PREFIX.
-For example, to install into your home when you are not root:
+          This is used to check the file type.  If this is not
+      available, reslog will try to find the file executable instead.
+      If that is not available, too, reslog will try to judge the file
+      type by its name suffix (extension).  In that case reslog will
+      not be able to check the file type when reading from STDIN.
+      MSWin32 users can get file.exe from the GnuWin32 home page
+      instead: http://gnuwin32.sourceforge.net/.  Be sure to save it
+      as file.exe somewhere in your PATH.
 
-  % perl Makefile.PL PREFIX=/home/jessica
+    * Compress::Zlib
 
-    Refer to the docuemntation of ExtUtils::MakeMaker for more installation
-options (by running "perldoc ExtUtils::MakeMaker").
+          This is used to support read/write of gzip compressed files.
+      It is only needed when gzip compressed files are encountered.
+      If it is not available when needed, reslog will try to use the
+      gzip executable instead.  If that is not available, too, reslog
+      will fail.  ActivePerl MSWin32 users can install this using
+      "ppm install Compress::Zlib", or get gzip.exe from the gzip home
+      page: http://www.gzip.org/.  Be sure to save it as gzip.exe
+      somewhere in your PATH.
 
-    If you are upgrading from reslog.pl version 3.02 or earlier, please read
-UPGRADE for some upgrade instruction.
+    * Compress::Bzip2, version 2 or above
 
-    You need to have at least Perl 5.8.0 for this version of reslog.  This
-is due to the ithread threading support that's only available from Perl
-5.8.0.  You can always install/upgrade your perl to the newest version from
-then Perl website http://www.perl.com/.  If you are using MSWin32, you can
-download and install a free copy of binary Perl from the ActiveState
-Corportation: http://www.activestate.com/.
+          This is used to support read/write of bzip2 compressed
+      files.  It is only needed when bzip2 compressed files are
+      encountered.  If it is not available when needed, reslog will
+      try to use the bzip2 executable instead.  If that is not
+      available, too, reslog will fail.  Notice that older versions
+      before 2 does not work, since file I/O compression were not
+      implemented yet.  ActivePerl MSWin32 does not have
+      Compress::Bzip2 in their PPM deposit yet, at the time I'm
+      writing this.  You can get bzip.exe from the bzip home page
+      instead: http://www.bzip.org/.  Be sure to save it as bzip2.exe
+      somewhere in your PATH.
 
-Optional Perl Modules
+    * Term::ReadKey
 
-    You may install the following optional modules:
+          This is used to display the progress bar.  Without this
+      reslog won't display the progress bar, but nothing else is
+      different.  The progress bar is a good visual representation of
+      what reslog is currently doing.
 
-   1. File::MMagic
+      You can always search, download and install the missing Perl
+  modules from the the CPAN archieve.
 
-        This is used to check the file type.  If this is not available, reslog
-    will try to find the file executable instead.  If that is not available,
-    too, reslog will try to judge the file type by its name suffix
-    (extension).  In that case reslog will not be able to check the file type
-    when reading from STDIN.  MSWin32 users can get file.exe from the GnuWin32
-    home page instead: http://gnuwin32.sourceforge.net/.  Be sure to save it
-    as file.exe somewhere in your PATH.
 
-   2. Compress::Zlib
+* Installation Instruction
 
-        This is used to support read/write of gzip compressed files.  It is
-    only needed when gzip compressed files are encountered.  If it is not
-    available when needed, reslog will try to use the gzip executable instead.
-    If that is not available, too, reslog will fail.  ActivePerl MSWin32 users
-    can install this using "ppm install Compress::Zlib", or get gzip.exe from
-    the gzip home page: http://www.gzip.org/.  Be sure to save it as gzip.exe
-    somewhere in your PATH.
+    If you are upgrading from reslog 3.10 or earlier, or if you are
+upgrading from reslog.pl 3.02 or earlier, please read UPGRADE for some
+upgrade instruction.
 
-   3. Compress::Bzip2, version 2 or above
+** Install with ExtUtils::MakeMaker
 
-        This is used to support read/write of bzip2 compressed files.  It is
-    only needed when bzip2 compressed files are encountered.  If it is not
-    available when needed, reslog will try to use the bzip2 executable
-    instead.  If that is not available, too, reslog will fail.  Notice that
-    older versions before 2 does not work, since file I/O compression were not
-    implemented yet.  ActivePerl MSWin32 does not have Compress::Bzip2 in
-    their PPM deposit yet, as the time I'm writing this.  You can get bzip.exe
-    from the bzip home page instead: http://www.bzip.org/.  Be sure to save it
-    as bzip2.exe somewhere in your PATH.
+    reslog uses standard Perl installation with ExtUtils::MakeMaker.
+Follow these steps:
 
-   4. Term::ReadKey
+    % perl Makefile.PL
+    % make
+    % make test
+    % make install
 
-        This is used to display the progress bar.  Without this reslog won't
-    display the progress bar, but nothing else is different.  The progress bar
-    is a good visual representation of what reslog is currently doing.
+    When running make install, make sure you have the priviledge to
+write to the instalation location.  This usually requires the root
+priviledge.
+
+    If you are using ActivePerl under MSWin32, you should use nmake
+instead of make. nmake can be obtained from the Microsoft FTP site.
+
+ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
+
+    If you want to install into another location, you can set the
+PREFIX.  For example, to install into your home when you are not
+root:
+
+    % perl Makefile.PL PREFIX=/home/jessica
+
+    Refer to the docuemntation of ExtUtils::MakeMaker for more
+installation options (by running perldoc ExtUtils::MakeMaker).
+
+
+** Install with Module::Build
+
+    You can install with Module::Build instead, if you prefer.
+Follow these steps:
+
+    % perl Build.PL
+    % ./Build
+    % ./Build test
+    % ./Build install
+
+    When running ./Build install, make sure you have the priviledge to
+write to the instalation location.  This usually requires the root
+priviledge.
+
+    If you want to install into another location, you can set the
+--prefix.  For example, to install into your home when you are not
+root:
+
+    % perl Build.PL --prefix=/home/jessica
+
+    Refer to the docuemntation of Module::Build for more
+installation options (by running perldoc Module::Build).
 
 
 imacat
-2007-07-21
+2007-07-22
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/
