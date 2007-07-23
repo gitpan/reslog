@@ -48,7 +48,7 @@ use IO::Handle;
 our ($THIS_FILE, $VERBOSE);
 use vars qw($VERSION);
 $THIS_FILE = basename($0);
-$VERSION = "3.11";
+$VERSION = "3.12";
 $VERBOSE = 1;
 
 # Constants
@@ -131,7 +131,7 @@ sub main() {
     printf STDERR "%d IP found in %d records\n", scalar(@{$RESOLVER->{"IP"}}), $c
         if $VERBOSE > 0;
     # Resolve the IP
-    $RESOLVER->resolve_all;
+    $RESOLVER->resolve_all if scalar(@{$RESOLVER->{"IP"}}) > 0;
     # Replace the IP with the host name and output to the resolved result
     $_->write_result foreach @LOGFILES;
     # Remove the temporary working files

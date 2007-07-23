@@ -1,7 +1,7 @@
 #! /usr/bin/perl -w
 # Test the plain text log file
 
-# Copyright (c) 2005 imacat
+# Copyright (c) 2005-2007 imacat
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use warnings;
 use diagnostics;
 use Test;
 
-BEGIN { plan tests => 14 }
+BEGIN { plan tests => 16 }
 
 use File::Basename qw(basename);
 use File::Spec::Functions qw(catdir catfile updir devnull);
@@ -355,6 +355,50 @@ $_ = eval {
         if $cs1 ne $cs0;
     die "$ft1: temporary working file incorrect.\nGot:\n$ct1\nExpected:\n$ct0\n"
         if $ct1 ne $ct0;
+    1;
+};
+ok($_, 1, $@);
+
+# 15: No IP to be resolved
+$_ = eval {
+    my ($retno, $out, $err);
+    my ($fl, $fl1, $cs0, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    $cs0 = mknoiprndlog $fs1;
+    $reslog =~ s/"/\\"/g;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n 1), $fs1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
+    die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected:\n$cs0\n"
+        if $cr1 ne $cs0;
+    1;
+};
+ok($_, 1, $@);
+
+# 16: Empty log file
+$_ = eval {
+    my ($retno, $out, $err, $FH);
+    my ($fl, $fl1, $cr1, $tr1);
+    mkcldir $WORKDIR;
+    fwrite $fs1, "";
+    $reslog =~ s/"/\\"/g;
+    ($retno, $out, $err) = runcmd "", $reslog, qw(-d -d -d -n 1), $fs1;
+    ($fl, $fl1) = (join(" ", sort map basename($_), ($fr1)), flist $WORKDIR);
+    ($cr1, $tr1) = (fread $fr1, ftype $fr1);
+    rmalldir $WORKDIR;
+    die $out . $err if $retno != 0;
+    die "result files incorrect.\nGot: $fl1\nExpected: $fl\n"
+        if $fl1 ne $fl;
+    die "$fr1: result type incorrect.\nGot: $tr1\nExpected: $te\n"
+        if !$nofile && $tr1 ne $te;
+    die "$fr1: result incorrect.\nGot:\n$cr1\nExpected: Empty\n"
+        if $cr1 ne "";
     1;
 };
 ok($_, 1, $@);

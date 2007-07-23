@@ -1,15 +1,31 @@
 # _helper.pm -- A simple test suite helper
 
+# Copyright (c) 2005-2007 imacat
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 package _helper;
 use 5.005;
 use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT);
-$VERSION = "0.03";
+$VERSION = "0.04";
 @EXPORT = qw();
 push @EXPORT, qw(rmalldir mkcldir fread frread fwrite frwrite);
-push @EXPORT, qw(runcmd whereis ftype flist mkrndlog);
+push @EXPORT, qw(runcmd whereis ftype flist mkrndlog mknoiprndlog);
 # Prototype declaration
 sub thisfile();
 sub rmalldir(@);
@@ -23,6 +39,7 @@ sub whereis($);
 sub ftype($);
 sub flist($);
 sub mkrndlog($);
+sub mknoiprndlog($);
 sub randword();
 
 use ExtUtils::MakeMaker qw();
@@ -415,6 +432,80 @@ sub mkrndlog($) {
             push @_, (qw(net com))[int rand 2];
             $host = join ".", @_;
         }
+        $user = (0, 0, 1)[int rand 3]? "-": randword;
+        $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 3];
+        # 3-5 log entries foreach host
+        $hlogs = 3 + int rand 3;
+        @hlogs = qw();
+        while (@hlogs < $hlogs) {
+            my (@t, $method, $url, $status, $size);
+            $t += 0 + int rand 3;
+            @t = localtime $t;
+            $t[5] += 1900;
+            $t[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$t[4]];
+            
+            $method = (qw(GET GET GET HEAD POST))[int rand 5];
+            @_ = qw(/ /robots.txt /about/ /privacy.html /images/logo.png /images/backgrnd.png /stylesheets/common.css);
+            $url = @_[int rand @_];
+            $status = (200, 200, 304)[int rand 3];
+            if ($status == 304) {
+                $size = 0;
+            } else {
+                $size = 200 + int rand 35000;
+            }
+            push @hlogs, sprintf "%s - %s [%02d/%s/%04d:%02d:%02d:%02d %+03d00] \"%s %s %s\" %d %d\n",
+                $host, $user, @t[3,4,5,2,1,0], $tz, $method, $url, $htver, $status, $size;
+        }
+        push @logs, @hlogs;
+        $t += 0 + rand 5;
+    }
+    
+    # Insert 1-2 malformed lines
+    my $malformed;
+    $malformed = 1 + int rand 2;
+    while ($malformed > 0) {
+        my ($line, $pos);
+        # Generate the random malformed line
+        $_ = 3 + int rand 5;
+        @_ = qw();
+        push @_, randword while @_ < $_;
+        $line = join(" ", @_) . ".\n";
+        $line =~ s/^(.)/uc $1/e;
+        # The position to insert the line
+        $_ = int rand @logs;
+        @logs = (@logs[0...$_], $line, @logs[$_+1...$#logs]);
+        $malformed--;
+    }
+    
+    # Compose the content
+    $content = join "", @logs;
+    # Output the file
+    fwrite($file, $content);
+    # Return the content
+    return $content;
+}
+
+# mknoiprndlog: Create a random log file without IP.
+sub mknoiprndlog($) {
+    local ($_, %_);
+    my ($file, $hosts, @host_is_ip, @logs, $t, $tz, $content);
+    $file = $_[0];
+    
+    $hosts = 3 + int rand 3;
+    
+    # Start from sometime in the past year
+    $t = time - int rand(86400*365);
+    $tz = -11 + int rand 24;
+    
+    for (my $i = 0; $i < $hosts; $i++) {
+        my ($host, $user, $htver, @hlogs, $hlogs);
+        # Generate a random domain name
+        # 3-5 levels, end with net or com
+        $_ = 2 + int rand 3;
+        @_ = qw();
+        push @_, randword while @_ < $_;
+        push @_, (qw(net com))[int rand 2];
+        $host = join ".", @_;
         $user = (0, 0, 1)[int rand 3]? "-": randword;
         $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 3];
         # 3-5 log entries foreach host

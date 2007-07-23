@@ -1,10 +1,19 @@
 reslog change log
 
+2007-07-23	version 3.12
+	Fixed the error when there is no to be resolved.
+	 1. reslog: Fixed the "division by zero" error when there is no IP
+	    to be resolved.
+	 2. _helper.pm: Added subroutine mknoiprndlog($) to create random log
+	    files without any IP.
+	 3. t/01-plain.t, t/02-gzip.t, t/03-bzip2.t: Added test 15 and 16 to
+	    test resolving empty log files.
+
 2007-07-23	version 3.11
 	Fixed problem with systems without useithreads, fixed bug checking
 	STDIN file type with the file program, moved files back to the Perl
 	default installation directories, and added support for installation
-	with Module::Build
+	with Module::Build.
 	 1. Build.PL: Added to support installation with Module::Build.
 
 2007-07-22
