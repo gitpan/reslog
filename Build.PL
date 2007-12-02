@@ -4,7 +4,7 @@ use strict;
 use Config qw(%Config);
 use Module::Build;
 
-# Check if there is any old files
+# Check if there is any old file
 use vars qw(%old_version);
 %old_version = qw();
 foreach (qw(/usr/sbin/reslog.pl
@@ -40,14 +40,9 @@ foreach my $cnf (qw(installscript installsitescript installvendorscript
 if (keys %old_version > 0) {
     $_ = join " ", sort keys %old_version;
     warn << "EOT";
-================
-  Look like you are upgrading from an old version.
-  Remove the following old files after "make install":
-
-    $_
-
-  Refer to UPGRADE for more information.
-================
+-- Old Files Found
+You may remove the following old files after "make install":
+  $_
 EOT
 }
 
@@ -61,9 +56,19 @@ my $build = Module::Build->new(
     
     script_files	=> [ "reslog" ],
     requires		=> {
-        "perl"		=> "5.8.0",
+        "perl"			=> "5.8.0",
     },
-    add_to_cleanup	=> [ "t/logs/*" ],
+    recommends		=> {
+        "File::MMagic"		=> 0,
+        "Compress::Zlib"	=> 0,
+        "Compress::Bzip2"	=> 2,
+        "Term::ReadKey"		=> 0,
+    },
+    build_requires		=> {
+        "Module::Signature"	=> 0,
+        "Test::Pod"		=> 0,
+    },
+    add_to_cleanup	=> [ "t/logs*" ],
 );
 
 $build->create_build_script;

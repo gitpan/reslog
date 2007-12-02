@@ -1,13 +1,13 @@
 --- #YAML:1.0
 name:                reslog
-version:             3.12
+version:             3.13
 abstract:            Reverse-resolve IP in Apache log files
 license:             gpl
-generated_by:        ExtUtils::MakeMaker version 6.36
+author:              
+    - imacat <imacat@mail.imacat.idv.tw>
+generated_by:        ExtUtils::MakeMaker version 6.38
 distribution_type:   module
 requires:     
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
-author:
-    - imacat <imacat@mail.imacat.idv.tw>
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

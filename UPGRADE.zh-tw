@@ -1,50 +1,39 @@
 昇級指南
 
-　　若你由 3.10 或之前的版本昇級，請閱讀以下說明：
+　　若妳由 3.10 或之前的版本昇級，請閱讀以下說明：
 
 ◎預設安裝目錄為 /usr/bin
 
 　　說明檔則在 /usr/share/man/man1/reslog.1 。這是為符合 Perl 的標準安裝流程，
 敝免破壞 ExtUtils::MakeMaker 的預設設定，造成日後昇級的問題。
 
-　　執行 perl Makefile.PL 時，會提示你所在系統上發現的的舊檔案。請自行刪除。若
-妳程式存在其它地方，請記得要自己刪掉。
+　　執行 perl Makefile.PL 或 perl Build.PL 時，會提示妳所在系統上發現的的舊檔
+案。請自行刪除。若妳程式存在其它地方，請記得要自己刪掉。
 
-　　若你有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔名。不過你也可以
+　　若妳有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔名。不過妳也可以
 把 reslog 存到原來的目錄去，不會有任何問題。
 
 
-　　若你由 3.02 或之前的版本昇級，請閱讀以下說明：
+　　若妳由 3.02 或之前的版本昇級，請閱讀以下說明：
 
 ◎檔名由 reslog.pl 改為 reslog
 
-　　這很明顯吧。 :p 若你有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔
-名。不過你也可以把 reslog 改名回原來的 reslog.pl ，不會有任何問題。
+　　這很明顯吧。 :p 若妳有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔
+名。不過妳也可以把 reslog 改名回原來的 reslog.pl ，不會有任何問題。
 
-
-◎預設安裝目錄為 /usr/sbin
-
-　　說明檔則在 /usr/share/man/man8/reslog.8 。你可以執行 make upgrade 移除下列
-舊版檔案：
-
-      /usr/sbin/reslog.pl
-      /usr/share/man/man8/reslog.pl.8
-      /usr/local/sbin/reslog.pl
-      /usr/local/share/man/man8/reslog.pl.8
-      /usr/bin/reslog
-      /usr/share/man/man1/reslog.1
-
-　　若妳程式存在其它地方，請記得要自己刪掉。
-
-　　若你有寫程式，或設定 cron 排程來執行 reslog ，請記得更改檔名。不過你也可以
-把 reslog 存到原來的目錄去，不會有任何問題。
+　　改名原因如下：專案名稱含「.」會處處碰壁。 SourceForget 就不接受含「.」的專
+案名稱。此外，程式名稱 reslog 在 UNIX 下就可以跑了。副檔名 .pl 雖然在
+MS-Windows 下方便，但反正 MS-Windows 下也不會直接點兩下依副檔名執行。而且還有
+pl2bat 可以把 reslog 轉成 reslog.bat ，這樣反而比較合理。唯一不便的是我用的編
+輯器 UltraEdit 依副檔名決定程式語言語法標示，不過這也沒什麼大不了，手動設程式
+語言就好了。
 
 
 ◎ Perl 5.8.0 版以上
 
 　　新版的 reslog 用多線程加速反查，要用到 Perl 5.8.0 之後的新 ithread 多線程
-模式。你若不想用多線程功能，可以不用，不過程式碼本身，還是要用到 ithread 。若
-你用的是 5.8.0 以前的 Perl 版本，請昇級你的 Perl 。你可以輸入 perl -v 查詢你目
+模式。妳若不想用多線程功能，可以不用，不過程式碼本身，還是要用到 ithread 。若
+妳用的是 5.8.0 以前的 Perl 版本，請昇級妳的 Perl 。妳可以輸入 perl -v 查詢妳目
 前的 Perl 版本。
 
 
@@ -65,11 +54,11 @@
 
 　　一次讀取多個檔案時，只有標準輸入 STDIN 的結果會輸出到標準輸出，其它檔案都
 會輸出到各自該輸出的檔案去。以前一次讀取多檔時，或其中有一個是標準輸入，則會全
-部輸出到標準輸出去，現在不會了。若你需要把全部的結果輸出到標準輸出，請加上
+部輸出到標準輸出去，現在不會了。若妳需要把全部的結果輸出到標準輸出，請加上
 --stdout 選項。
 
 
 依瑪貓
-2007-07-23
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

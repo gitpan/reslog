@@ -1,7 +1,147 @@
 reslog change log
 
+2007-12-03	version 3.13
+	 1. t/03-errors.t: Added.
+	 2. t/reslog.*.html: Revised.
+	 3. t/_helper.pm: Fixed the way deal with time zone in the
+	    mkrndlog_normal() and mkrndlog_noip() subroutines, using
+	    gmtime($t + $tz) instead of calculating time zone offset
+	    with $tz + (timegm(localtime)-timelocal(localtime)).  This
+	    is the easy and right way to do.
+	 4. reslog.zh-tw.html, TODO.zh-tw, TODO.zh-cn: Changed
+	    '繁體中文' to '正體中文'.
+
+
+2007-12-02
+	 1. t/02-several.t: Added, to replace the t/04-hybrix.t.
+	 2. t/04-hybrix.t: Removed
+
+2007-12-01
+	 1. reslog: Use "use 5.008" instead of "use 5.8.0", for
+	    compatibility with older Perl, and get ride of the warning
+	    of Perl 5.10.
+
+2007-11-30
+	 1. reslog, reslog.*.html: The default keep mode in the
+	    documentation is "restart", but it is actually running
+	    "delete" in the source code and in the test suite.  The
+	    documentation is fixed to "delete" according to the
+	    actual program behavior.
+	 2. t/_helper.pm: Renamed the mkrndlog() subroutine to
+	    mkrndlog_normal().  Renamed the mknoiprndlog()
+	    subroutine to mkrndlog_noip().  Added the
+	    mkrndlog_empty() subroutine.
+	 3. reslog: Added check on whether the suffix to be appended
+	    is the same to the suffix to be trimmed.  This cause
+	    the same file be overwritten as the resolved result.
+	 4. t/01-exhaust.t: Combining t/01-plain.t, t/02-gzip.t,
+	    t/03-bzip2.t
+
+2007-11-27
+	 1. Makefile.PL, Build.PL: Clean-up old file found message.
+	 2. Makefile.PL: Added message for optional prerequisites.
+	 3. reslog.zh-tw.html, reslog.zh-cn.html: Tag the languages.
+
+2007-11-26
+	 1. t/_helper.pm, t/*.t: Updated the license to GPLv3.
+	 2. README.zh-tw, README.zh-cn: File "Changes.zh-tw" and
+	    "Changes.zh-cn" no longer exists.  Fixed as "Changes".
+	 3. fdl.txt: Added.
+	 4. MSWin32 and MS-Win32 is now written as MS-Windows in the
+	    documentation.
+	 5. reslog: Reorder the debug message in the check_gzip() and
+	    check_bzip2() methods of the _private::IO class.
+	 6. Makefile.PL, Build.PL: Fixed comment typo. ("any old files")
+	 7. Build.PL: Added "recommends" and "build_requires".
+
+2007-11-25
+	 1. reslog.en.html, INSTALL: Fixed the typo "archieve" as "archive".
+	 2. reslog: Fixed to return ref($GZIP_IO)->new instead of $GZIP_IO
+	    in the check_gzip() method, ref($BZIP2_IO)->new instead of
+	    $BZIP2_IO in the check_bzip2() method of the _private::IO class,
+	    so that a same I/O handler will not be returned to different log
+	    files.
+
+2007-11-22
+	 1. reslog: Fixed $SIG{__WARN__} to $SIG{"__WARN__"} in the
+	    parse_args() subroutine.
+
+2007-11-20
+	 1. t/_helper.pm: Added the randip() subroutine to provide random IP
+	    that has reliable reverse-lookup DNS.
+
+2007-11-19
+	 1. t/_helper.pm: Fixed the flist() subroutine to exclude non-files.
+	 2. t/_helper.pm, t/*.t: Add the prsrvsrc() subroutine to preserve the
+	    source file for debugging.
+	 3. t/_helper.pm, t/*.t: Add the cleanup() subroutine to clean-up the
+	    test directory after success or failure.
+	 4. t/*.t: Removed the strange escaping of double-quotation character
+	    of reslog path.
+
+2007-11-18
+	 1. reslog: Move the TYPE_PLAIN, TYPE_GZIP and TYPE_BZIP2 constants
+	    from the _private::LogFile package to the main package, so that
+	    other packages can use it, too.
+	 2. t/_helper.pm: Added the TYPE_PLAIN, TYPE_GZIP and TYPE_BZIP2
+	    constants for easier use.
+	 3. reslog: Clean up File::Spec::Functions references.
+	 4. Makefile.PL and Build.PL: Changed the clean-up list from "t/log/*"
+	    to "t/log*".
+
+2007-11-17
+	 1. _helper.pm: Moved rel2abs() from a method of the _private::LogFile
+	    class to a utility subroutine of the main package.  rel2abs() may
+	    be used elsewhere.
+
+2007-11-15
+	 1. UPGRADE, UPGRADE.zh-tw, UPGRADE.zh-cn: Removed the outdated file
+	    location change for version 3.02 or earlier.  The file location
+	    has changed later.  The old change is meaningless.
+	 2. UPGRADE, UPGRADE.zh-tw, UPGRADE.zh-cn: Added "perl Build.PL" to
+	    the file location change instruction.
+	 3. UPGRADE.zh-tw, UPGRADE.zh-cn: Added Chinese translation to the
+	    reason of the script name change.
+	 4. t/_helper.pm: Update the style of mkrndlog() and mknoiprndlog().
+	    Added more status, adjusting more possibility to HTTP/1.1 and
+	    status 200.  Fixed the comment that host type 1 is IP and 0 is
+	    domain name.
+	 5. t/_helper.pm: Added a random URL generator to mkrndlog() and
+	    mknoiprndlog().
+	 6. t/_helper.pm: Removed rmalldir() and mkcldir(), and replaced with
+	    mkpath() and rmtree() from File::Path.
+
+2007-11-14
+	 1. reslog: Moved the check_gzip() method and the check_bzip2() method
+	    from the _private::LogFile package to the _private::IO package,
+	    so that it can be used by other packages, and removed the $self
+	    variable.  It is not used anyway.  The 2 methods are called as
+	    static methods now.
+	 2. reslog: Renamed the new_read() method as open_read(), the
+	    new_write() method as open_write(), the new_append() method
+	    as open_append().  Replaced the strange architech that start
+	    a new instance with $ioclass, with reusing the same $io object.
+	 3. reslog: Renamed the new_read() method as open_read(), the
+	    new_write() method as open_write(), the new_append() method
+	    as open_append().  Replaced the strange architech that start
+	    a new instance with $ioclass, with reusing the same $io object.
+	 4. reslog: Changed " -- " to " - " in comment.
+	 5. reslog: Changed "Deal the ~ home directories under UNIX" to
+	    "Deal with the ~ user home directories under UNIX",
+	    "If start from user's home directory" to
+	    "If it starts from the user home directory".
+	 6. reslog: Fixed the rel2abs() method so that it use getpwuid()
+	    instead of getlogin(), and respect the HOME environment variable
+	    for the current user.
+	 7. reslog: Fixed parse_args() to treat "/dev/stdin" as STDIN on
+	    UNIX-like systems.
+	 8. reslog: Fixed parse_args() and removed the duplicated short help
+	    on Getopt::Long::GetOptions errors.
+	 9. reslog: Fixed show_progress() to reset the clean-up the start
+	    time when progress is finished.
+
 2007-07-23	version 3.12
-	Fixed the error when there is no to be resolved.
+	Fixed the error when there is no IP to be resolved.
 	 1. reslog: Fixed the "division by zero" error when there is no IP
 	    to be resolved.
 	 2. _helper.pm: Added subroutine mknoiprndlog($) to create random log

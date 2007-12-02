@@ -10,15 +10,16 @@ reslog Installation Guide
 
 * System Requirements
 
-   1. Perl, version 5.8.0 or above.  I have not successfully run this
-on earlier versions.  Please tell me if you can.  You can run
-"perl -v" to see your current Perl version.  Perl is distributed
-with most Unix now.  If not, or if you have an older version of Perl,
-you can download and install/upgrade it from Perl website.
+   1. Perl, version 5.8.0 or above.  reslog uses 3-argument open() to
+duplicate filehandles, which is only supported since 5.8.0.  I have
+not successfully port this onto earlier versions yet.  Please tell me
+if you made it.  You can run perl -v to see your current Perl version.
+If you do not have Perl, or if you have an older version of Perl, you
+can download and install/upgrade it from Perl website.
 
 http://www.perl.com/
 
-      If you are using MS-Win32, you can download and install
+      If you are using MS-Windows, you can download and install
 ActiveState ActivePerl.
 
 http://www.activestate.com/
@@ -30,13 +31,13 @@ http://www.activestate.com/
     * File::MMagic
 
           This is used to check the file type.  If this is not
-      available, reslog will try to find the file executable instead.
-      If that is not available, too, reslog will try to judge the file
-      type by its name suffix (extension).  In that case reslog will
-      not be able to check the file type when reading from STDIN.
-      MSWin32 users can get file.exe from the GnuWin32 home page
-      instead: http://gnuwin32.sourceforge.net/.  Be sure to save it
-      as file.exe somewhere in your PATH.
+      available, reslog will look for the file executable instead.
+      If that is not available, too, reslog will judge the file type
+      by its name suffix (extension).  In that case reslog will fail
+      when reading from STDIN.  MS-Windows users can get file.exe from
+      the GnuWin32 home page instead:
+      http://gnuwin32.sourceforge.net/.  Be sure to save it as
+      file.exe somewhere in your PATH.
 
     * Compress::Zlib
 
@@ -44,7 +45,7 @@ http://www.activestate.com/
       It is only needed when gzip compressed files are encountered.
       If it is not available when needed, reslog will try to use the
       gzip executable instead.  If that is not available, too, reslog
-      will fail.  ActivePerl MSWin32 users can install this using
+      will fail.  ActivePerl MS-Windows users can install this using
       "ppm install Compress::Zlib", or get gzip.exe from the gzip home
       page: http://www.gzip.org/.  Be sure to save it as gzip.exe
       somewhere in your PATH.
@@ -57,7 +58,7 @@ http://www.activestate.com/
       try to use the bzip2 executable instead.  If that is not
       available, too, reslog will fail.  Notice that older versions
       before 2 does not work, since file I/O compression were not
-      implemented yet.  ActivePerl MSWin32 does not have
+      implemented yet.  ActivePerl MS-Windows does not have
       Compress::Bzip2 in their PPM deposit yet, at the time I'm
       writing this.  You can get bzip.exe from the bzip home page
       instead: http://www.bzip.org/.  Be sure to save it as bzip2.exe
@@ -71,7 +72,7 @@ http://www.activestate.com/
       what reslog is currently doing.
 
       You can always search, download and install the missing Perl
-  modules from the the CPAN archieve.
+  modules from the the CPAN archive.
 
 
 * Installation Instruction
@@ -94,8 +95,9 @@ Follow these steps:
 write to the instalation location.  This usually requires the root
 priviledge.
 
-    If you are using ActivePerl under MSWin32, you should use nmake
-instead of make. nmake can be obtained from the Microsoft FTP site.
+    If you are using ActivePerl under MS-Windows, you should use
+nmake instead of make. nmake can be obtained from the Microsoft FTP
+site.
 
 ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
 
@@ -134,6 +136,6 @@ installation options (by running perldoc Module::Build).
 
 
 imacat
-2007-07-22
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

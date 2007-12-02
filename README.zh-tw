@@ -1,5 +1,17 @@
 reslog - Apache 記錄檔 IP 反查程式
 
+  版權所有 (c) 2000-2007 依瑪貓
+  
+  本程式是自由軟體，您可以遵照自由軟體基金會 (Free Software Foundation)
+  出版的 GNU 通用公共許可證條款 (GNU General Public License) 第三版來修
+  改和重新發佈這一程式，或者自由選擇使用任何更新的版本。
+  
+  發佈這一程式的目的是希望它有用，但沒有任何擔保。甚至沒有適合特定目的
+  而隱含的擔保。更詳細的情況請參閱 GNU 通用公共許可證。
+  
+  您應該已經和程式一起收到一份 GNU 通用公共許可證的副本。如果還沒有，參
+  閱<http://www.gnu.org/licenses/>。
+
 　　reslog 是記錄檔反查程式，用來反查 Apache 記錄檔裏 IP 的主機名稱。查過後，
 可以套用像 Analog 之類的記錄檔統計程式。妳可以把它當做 Apache HostNameLookups
 指令的替代品，每天一次反查當天所有的 IP 。
@@ -17,7 +29,7 @@ reslog - Apache 記錄檔 IP 反查程式
 
 ◎更新、修正說明
 
-　　請詳閱 Changes.zh-tw 檔案的更新說明，以瞭解新增功能、問題修正、更新等。
+　　請詳閱 Changes 檔案的更新說明，以瞭解新增功能、問題修正、更新等。
 
 
 ◎技術支援
@@ -33,11 +45,11 @@ https://lists.sourceforge.net/lists/listinfo/reslog-users 加入我們的郵件通訊
 
 ◎版權聲明
 
-　　本程式依 GNU 通用公共許可證（ GPL ）版權發佈，請參考 COPYING 檔案的說明，
-瞭解本程式的版權授權內容。
+　　本程式依 GNU 通用公共許可證 (GPL) 版權發佈，請參考 COPYING 檔案的說明，瞭
+解本程式的版權授權內容。
 
 
 依瑪貓 imacat ^_*'
-2007-07-23
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

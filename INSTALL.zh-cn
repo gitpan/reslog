@@ -10,10 +10,11 @@ reslog 安装指南
 
 ◎系统需求
 
-   1. Perl 5.8.0 或以上。我还没有在更早的版本上成功执行过。若你可以在
-更早的版本上执行，请告诉我。你可以输入 perl -v 查询你目前的 Perl 版本
-。目前大多数的 Unix 系统都有 Perl 。如果你没有 Perl 或需要升级，可以到
-Perl 网站下载安装最新版 Perl 。
+   1. Perl 5.8.0 或以上。 reslog 使用三参数的 open() 以复制档案操作，
+我还不知道怎么改写到更早的版本上执行。若你可以改写到更早的版本上执行，
+请告诉我。你可以输入 perl -v 查询你目前的 Perl 版本。目前大多数的 Unix
+系统都有 Perl 。如果你没有 Perl 或需要升级，可以到 Perl 网站下载安装最
+新版 Perl 。
 
   http://www.perl.com/
 
@@ -29,7 +30,7 @@ Perl 网站下载安装最新版 Perl 。
 
           这是检查档案类型用的。若没有安装， reslog 会试著去找 file 程
       式代替。若还找不到， reslog 会改用档尾（副档名）判断档案类型。这
-      时若从标准输入读档， reslog 会无法判断。 MSWin32 使用者可以由
+      时若从标准输入读档， reslog 会无法判断。 MS-Windows 使用者可以由
       GnuWin32 网站下载 file.exe 程式：
       http://gnuwin32.sourceforge.net/ 。请确认下载后，存档在系统的路
       径下，档名为 file.exe 。
@@ -38,7 +39,7 @@ Perl 网站下载安装最新版 Perl 。
 
           这是处理 gzip 压缩档用的，只有处理 gzip 压缩档时才会用到。若
       要用时没有安装， reslog 会试著改用 gzip 程式代替。若还找不到，
-      reslog 就无法执行。若你是 ActivePerl MSWin32 使用者，可以用
+      reslog 就无法执行。若你是 ActivePerl MS-Windows 使用者，可以用
       ppm install Compress::Zlib 安装，或由 gzip 网站下载 gzip.exe ：
       http://www.gzip.org/ 。请确认下载后，存档在系统的路径下，档名为
       gzip.exe 。
@@ -48,8 +49,8 @@ Perl 网站下载安装最新版 Perl 。
           这是支援读写 bzip2 压缩档用的，只有处理 bzip2 压缩档时才会用
       到。若要用时没有安装， reslog 会试著改用 bzip2 程式代替。若还找
       不到， reslog 就无法执行。到我写这一篇说明的时候为止，
-      ActivePerl MSWin32 的 PPM 模组库里都还没有 Compress::Bzip2 。不
-      过 MSWin32 的使用者还是可以由 bzip2 网站下载 bzip2.exe ：
+      ActivePerl MS-Windows 的 PPM 模组库里都还没有 Compress::Bzip2 。
+      不过 MS-Windows 的使用者还是可以由 bzip2 网站下载 bzip2.exe ：
       http://www.bzip.org/ 。请确认下载后，存档在系统的路径下，档名为
       bzip2.exe 。
 
@@ -78,8 +79,8 @@ Perl 网站下载安装最新版 Perl 。
     在 make install 前，请先确认你有在安装目录存档的权限。通常这时候
 要切换为 root ，才能安装存档。
 
-    若你是用 MSWin32 下的 ActivePerl ， make 请改用 nmake 。 nmake 可
-由微软的 FTP 站下载：
+    若你是用 MS-Windows 下的 ActivePerl ， make 请改用 nmake 。 nmake
+可由微软的 FTP 站下载：
 
   ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
 
@@ -114,6 +115,6 @@ perldoc Module::Build ）。
 
 
 依玛猫
-2007-07-22
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

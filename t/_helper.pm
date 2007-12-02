@@ -1,10 +1,10 @@
-# _helper.pm -- A simple test suite helper
+# _helper.pm - A simple test suite helper
 
 # Copyright (c) 2005-2007 imacat
 # 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
 # This program is distributed in the hope that it will be useful,
@@ -13,8 +13,7 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package _helper;
 use 5.005;
@@ -24,12 +23,15 @@ use base qw(Exporter);
 use vars qw($VERSION @EXPORT);
 $VERSION = "0.04";
 @EXPORT = qw();
-push @EXPORT, qw(rmalldir mkcldir fread frread fwrite frwrite);
-push @EXPORT, qw(runcmd whereis ftype flist mkrndlog mknoiprndlog);
+push @EXPORT, qw(fread frread fwrite frwrite);
+push @EXPORT, qw(runcmd whereis ftype flist prsrvsrc cleanup);
+push @EXPORT, qw(nofile nogzip nobzip2);
+push @EXPORT, qw(mkrndlog_normal mkrndlog_noip mkrndlog_empty);
+push @EXPORT, qw(randword);
+push @EXPORT, qw(TYPE_PLAIN TYPE_GZIP TYPE_BZIP2);
+push @EXPORT, qw(@CNTTYPES @SRCTYPES @KEEPTYPES @OVERTYPES @SUFTYPES @TSUFTYPES);
 # Prototype declaration
 sub thisfile();
-sub rmalldir(@);
-sub mkcldir(@);
 sub fread($);
 sub frread($);
 sub fwrite($$);
@@ -38,80 +40,126 @@ sub runcmd($@);
 sub whereis($);
 sub ftype($);
 sub flist($);
-sub mkrndlog($);
-sub mknoiprndlog($);
+sub prsrvsrc($);
+sub cleanup($$$);
+sub nofile();
+sub nogzip();
+sub nobzip2();
+sub mkrndlog_normal($);
+sub mkrndlog_noip($);
+sub mkrndlog_empty($);
 sub randword();
+sub randip();
 
 use ExtUtils::MakeMaker qw();
 use Fcntl qw(:seek);
 use File::Basename qw(basename);
 use File::Copy qw(copy);
+use File::Path qw(mkpath rmtree);
 use File::Spec::Functions qw(splitdir catdir catfile path);
 use File::Temp qw(tempfile);
+use Socket;
 
-use vars qw(%WHEREIS);
+use vars qw(%WHEREIS $NOFILE $NOGZIP $NOBZIP2 $RANDIP);
+%WHEREIS = qw();
+undef $NOFILE;
+undef $NOGZIP;
+undef $NOBZIP2;
+undef $RANDIP;
+
+use constant TYPE_PLAIN => "text/plain";
+use constant TYPE_GZIP => "application/x-gzip";
+use constant TYPE_BZIP2 => "application/x-bzip2";
+
+use vars qw(@CNTTYPES @SRCTYPES @KEEPTYPES @OVERTYPES @SUFTYPES @TSUFTYPES);
+# All the countent type information
+@CNTTYPES = (   {   "title" => "normal log file",
+                    "sub"   => \&mkrndlog_normal, },
+                {   "title" => "log file without IP",
+                    "sub"   => \&mkrndlog_noip, },
+                {   "title" => "empty log file",
+                    "sub"   => \&mkrndlog_empty, }, );
+# All the source type information
+@SRCTYPES = (   {   "title" => "plain text source",
+                    "type"  => TYPE_PLAIN,
+                    "suf"   => "",
+                    "skip"  => 0, },
+                {   "title" => "gzip source",
+                    "type"  => TYPE_GZIP,
+                    "suf"   => ".gz",
+                    "skip"  => nogzip, },
+                {   "title" => "bzip2 source",
+                    "type"  => TYPE_BZIP2,
+                    "suf"   => ".bz2",
+                    "skip"  => nobzip2, }, );
+# All the keep type information
+@KEEPTYPES = (  {   "title" => "keep default",
+                    "opts"  => [],
+                    "del"   => 1,
+                    "keep"  => 0,
+                    "cdel"  => 0,
+                    "ckeep" => 1, },
+                {   "title" => "keep all",
+                    "opts"  => [qw(-k a)],
+                    "del"   => 0,
+                    "keep"  => 1,
+                    "cdel"  => 0,
+                    "ckeep" => 1, },
+                {   "title" => "keep delete",
+                    "opts"  => [qw(-k d)],
+                    "del"   => 1,
+                    "keep"  => 0,
+                    "cdel"  => 1,
+                    "ckeep" => 0, },
+                {   "title" => "keep restart",
+                    "opts"  => [qw(-k r)],
+                    "del"   => 0,
+                    "keep"  => 0,
+                    "cdel"  => 0,
+                    "ckeep" => 0, }, );
+# All the override type information
+@OVERTYPES = (  {   "title" => "override no existing",
+                    "opts"  => [],
+                    "mkex"  => 0,
+                    "ok"    => 1,
+                    "ce"    => sub { $_[1]; }, },
+                {   "title" => "override default",
+                    "opts"  => [],
+                    "mkex"  => 1,
+                    "ok"    => 0,
+                    "ce"    => sub { $_[0]; }, },
+                {   "title" => "override overwrite",
+                    "opts"  => [qw(-o o)],
+                    "mkex"  => 1,
+                    "ok"    => 1,
+                    "ce"    => sub { $_[1]; }, },
+                {   "title" => "override append",
+                    "opts"  => [qw(-o a)],
+                    "mkex"  => 1,
+                    "ok"    => 1,
+                    "ce"    => sub { $_[0] . $_[1]; }, },
+                {   "title" => "override fail",
+                    "opts"  => [qw(-o f)],
+                    "mkex"  => 1,
+                    "ok"    => 0,
+                    "ce"    => sub { $_[0]; }, }, );
+# All the suffix information
+@SUFTYPES = (  {    "title" => "default suffix",
+                    "suf"   => ".resolved",
+                    "opts"  => sub { }, },
+                {   "title" => "custom suffix",
+                    "suf"   => undef,
+                    "opts"  => sub { ("-s", $_[0]); }, }, );
+# All the trim-suffix information
+@TSUFTYPES = (  {   "title" => "default trim-suffix",
+                    "suf"   => "",
+                    "opts"  => sub { }, },
+                {   "title" => "custom trim-suffix",
+                    "suf"   => undef,
+                    "opts"  => sub { ("-t", $_[0]); }, }, );
 
 # thisfile: Return the name of this file
 sub thisfile() { basename($0); }
-
-# rmalldir: Remove a whole directory
-sub rmalldir(@) {
-    local ($_, %_);
-    my (@dirs, $DH);
-    @dirs = @_;
-    foreach my $dir (@dirs) {
-        opendir $DH, $dir               or die thisfile . ": $dir: $!";
-        while (defined($_ = readdir $DH)) {
-            next if $_ eq "." || $_ eq "..";
-            $_ = "$dir/$_";
-            if (-d $_ && !-l $_) {
-                rmalldir $_;
-            } else {
-                unlink $_               or die thisfile . ": $_: $!";
-            }
-        }
-        closedir $DH                    or die thisfile . ": $dir: $!";
-        rmdir $dir                      or die thisfile . ": $dir: $!";
-    }
-    return;
-}
-
-# mkcldir: Create a clean directory
-sub mkcldir(@) {
-    local ($_, %_);
-    my (@dirs, $DH);
-    @dirs = @_;
-    foreach my $dir (@dirs) {
-        # Create the directory if not exists.
-        if (!-e $dir) {
-            my @parents;
-            @_ = splitdir $dir;
-            for ($_ = 0, @parents = qw(); $_ < @_; $_++) {
-                push @parents, catdir(@_[0..$_]);
-            }
-            foreach (@parents) {
-                if (!-e $_) {
-                    mkdir $_            or die thisfile . ": $_: $!";
-                }
-            }
-        
-        # Clean the content of the directory if exists
-        } else {
-            opendir $DH, $dir           or die thisfile . ": $dir: $!";
-            while (defined($_ = readdir $DH)) {
-                next if $_ eq "." || $_ eq "..";
-                $_ = "$dir/$_";
-                if (-d $_ && !-l $_) {
-                    rmalldir $_;
-                } else {
-                    unlink $_           or die thisfile . ": $_: $!";
-                }
-            }
-            closedir $DH                or die thisfile . ": $dir: $!";
-        }
-    }
-    return;
-}
 
 # fread: A simple reader to read a log file in any supported format
 sub fread($) {
@@ -358,18 +406,18 @@ sub ftype($) {
     # Use File::MMagic
     if (eval { require File::MMagic; 1; }) {
         $_ = new File::MMagic->checktype_filename($file);
-        return "application/x-gzip" if /gzip/;
-        return "application/x-bzip2" if /bzip2/;
+        return TYPE_GZIP if /gzip/;
+        return TYPE_BZIP2 if /bzip2/;
         # All else are text/plain
-        return "text/plain";
+        return TYPE_PLAIN;
     }
     # Use file executable
     if (defined($_ = whereis "file")) {
         $_ = join "", `"$_" "$file"`;
-        return "application/x-gzip" if /gzip/;
-        return "application/x-bzip2" if /bzip2/;
+        return TYPE_GZIP if /gzip/;
+        return TYPE_BZIP2 if /bzip2/;
         # All else are text/plain
-        return "text/plain";
+        return TYPE_PLAIN;
     }
     # No type checker available
     return undef;
@@ -383,45 +431,107 @@ sub flist($) {
     @_ = qw();
     opendir $DH, $dir                   or die thisfile . ": $dir: $!";
     while (defined($_ = readdir $DH)) {
-        next if $_ eq "." || $_ eq "..";
+        next if $_ eq "." || $_ eq ".." || !-f "$dir/$_";
         push @_, $_;
     }
     closedir $DH                        or die thisfile . ": $dir: $!";
     return join " ", sort @_;
 }
 
-# mkrndlog: Create a random log file
-sub mkrndlog($) {
+# prsrvsrc: Preserve the source test files
+sub prsrvsrc($) {
     local ($_, %_);
-    my ($file, $hosts, @host_is_ip, @logs, $t, $tz, $content);
+    my ($dir, $DH);
+    $dir = $_[0];
+    @_ = qw();
+    opendir $DH, $dir                   or die thisfile . ": $dir: $!";
+    while (defined($_ = readdir $DH)) {
+        next if $_ eq "." || $_ eq ".." || !-f "$dir/$_";
+        push @_, $_;
+    }
+    closedir $DH                        or die thisfile . ": $dir: $!";
+    rmtree "$dir/source";
+    mkpath "$dir/source";
+    frwrite "$dir/source/$_", frread "$dir/$_"
+        foreach @_;
+    return;
+}
+
+# cleanup: Clean up the test files
+sub cleanup($$$) {
+    local ($_, %_);
+    my ($r, $dir, $testno, $testname, $c);
+    ($r, $dir, $testno) = @_;
+    # Nothing to clean up
+    return unless -e $dir;
+    # Success
+    if ($r) {
+        rmtree $dir;
+        return;
+    }
+    # Fail - keep the test files for debugging
+    $testname = basename((caller)[1]);
+    $testname =~ s/\.t$//;
+    $c = 1;
+    $c++ while -e ($_ = "$dir.$testname.$testno.$c");
+    rename $dir, $_                     or die thisfile . ": $dir, $_: $!";
+    return;
+}
+
+# nofile: If we have the file type checker somewhere
+sub nofile() {
+    $NOFILE = eval { require File::MMagic; 1; }
+                || defined whereis "file"?
+            0: "File::MMagic or file executable not available"
+        if !defined $NOFILE;
+    return $NOFILE;
+}
+
+# nogzip: If we have gzip support somewhere
+sub nogzip() {
+    $NOGZIP = eval { require Compress::Zlib; 1; }
+                || defined whereis "gzip"?
+            0: "Compress::Zlib or gzip executable not available"
+        if !defined $NOGZIP;
+    return $NOGZIP;
+}
+
+# nobzip2: If we have bzip2 support somewhere
+sub nobzip2() {
+    $NOBZIP2 = eval { require Compress::Bzip2; import Compress::Bzip2 2.00; 1; }
+                || defined whereis "bzip2"?
+            0: "Compress::Bzip2 v2 or bzip2 executable not available"
+        if !defined $NOBZIP2;
+    return $NOBZIP2;
+}
+
+# mkrndlog_normal: Create a normal random log file
+sub mkrndlog_normal($) {
+    local ($_, %_);
+    my ($file, $hosts, @host_is_ip, @logs, $t, $content, $malformed, $tz);
+    my (%rlogs, $rcontent);
     $file = $_[0];
     
+    @logs = qw();
+    %rlogs = qw();
+    
+    # Start from sometime in the past year
+    $t = time - int rand(86400*365);
+    $tz = (-11 + (int rand 48) / 2) * 3600;
+    
+    # 3-5 hosts
     $hosts = 3 + int rand 3;
-    # Host type: 0: IP, 1: domain name
+    # Host type: 1: IP, 0: domain name
     @host_is_ip = qw();
     push @host_is_ip, 0 while @host_is_ip < $hosts;
     # We need exactly 2 IP
     $host_is_ip[int rand $hosts] = 1
         while grep($_ == 1, @host_is_ip) < 2;
-    
-    @logs = qw();
-    
-    # Start from sometime in the past year
-    $t = time - int rand(86400*365);
-    $tz = -11 + int rand 24;
-    
     foreach my $is_ip (@host_is_ip) {
-        my ($host, $user, $htver, @hlogs, $hlogs);
+        my ($host, $rhost, $user, $htver, @hlogs, $hlogs);
         if ($is_ip) {
             # Generate a random IP
-            # Always start from 127, not end with 0
-            do {
-                @_ = (127);
-                push @_, int rand 255;
-                push @_, int rand 255;
-                push @_, 1 + int rand 254;
-                $host = join ".", @_;
-            } while $host eq "127.0.0.1";
+            ($host, $rhost) = randip;
         
         } else {
             # Generate a random domain name
@@ -431,37 +541,57 @@ sub mkrndlog($) {
             push @_, randword while @_ < $_;
             push @_, (qw(net com))[int rand 2];
             $host = join ".", @_;
+            $rhost = $host;
         }
         $user = (0, 0, 1)[int rand 3]? "-": randword;
-        $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 3];
+        $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 4];
         # 3-5 log entries foreach host
         $hlogs = 3 + int rand 3;
         @hlogs = qw();
         while (@hlogs < $hlogs) {
-            my (@t, $method, $url, $status, $size);
-            $t += 0 + int rand 3;
-            @t = localtime $t;
-            $t[5] += 1900;
-            $t[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$t[4]];
+            my ($ttxt, $method, $url, $dirs, @dirs, $type, $status, $size);
+            my $record;
+            # 0-2 seconds later
+            $t += int rand 3;
+            # Time text
+            @_ = gmtime($t + $tz);
+            $_[5] += 1900;
+            $_[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$_[4]];
+            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+03d%02d",
+                @_[3,4,5,2,1,0], int($tz / 3600), ($tz % 3600) / 60;
             
             $method = (qw(GET GET GET HEAD POST))[int rand 5];
-            @_ = qw(/ /robots.txt /about/ /privacy.html /images/logo.png /images/backgrnd.png /stylesheets/common.css);
-            $url = @_[int rand @_];
-            $status = (200, 200, 304)[int rand 3];
+            
+            # Generate a random URL
+            # 0-3 levels of directories
+            $dirs = int rand 4;
+            @dirs = qw();
+            push @dirs, "/" . randword while @dirs < $dirs;
+            $type = ("", qw(html html txt css png jpg))[int rand 7];
+            if ($type eq "") {
+                $url = join("", @dirs) . "/";
+            } else {
+                $url = join("", @dirs) . "/" . randword . ".$type";
+            }
+            
+            $status = (200, 200, 200, 200, 304, 400, 403, 404)[int rand 8];
             if ($status == 304) {
                 $size = 0;
             } else {
                 $size = 200 + int rand 35000;
             }
-            push @hlogs, sprintf "%s - %s [%02d/%s/%04d:%02d:%02d:%02d %+03d00] \"%s %s %s\" %d %d\n",
-                $host, $user, @t[3,4,5,2,1,0], $tz, $method, $url, $htver, $status, $size;
+            $record = sprintf "%s - %s [%s] \"%s %s %s\" %d %d\n",
+                $host, $user, $ttxt, $method, $url, $htver, $status, $size;
+            $rlogs{$record} = sprintf "%s - %s [%s] \"%s %s %s\" %d %d\n",
+                $rhost, $user, $ttxt, $method, $url, $htver, $status, $size;
+            push @hlogs, $record;
         }
         push @logs, @hlogs;
-        $t += 0 + rand 5;
+        # 0-5 seconds later
+        $t += int rand 6;
     }
     
     # Insert 1-2 malformed lines
-    my $malformed;
     $malformed = 1 + int rand 2;
     while ($malformed > 0) {
         my ($line, $pos);
@@ -479,24 +609,27 @@ sub mkrndlog($) {
     
     # Compose the content
     $content = join "", @logs;
+    $rcontent = join "", map exists $rlogs{$_}? $rlogs{$_}: $_, @logs;
     # Output the file
     fwrite($file, $content);
     # Return the content
-    return $content;
+    return ($content, $rcontent);
 }
 
-# mknoiprndlog: Create a random log file without IP.
-sub mknoiprndlog($) {
+# mkrndlog_noip: Create a random log file without IP.
+sub mkrndlog_noip($) {
     local ($_, %_);
-    my ($file, $hosts, @host_is_ip, @logs, $t, $tz, $content);
+    my ($file, $hosts, @logs, $t, $content, $malformed, $tz);
     $file = $_[0];
     
-    $hosts = 3 + int rand 3;
+    @logs = qw();
     
     # Start from sometime in the past year
     $t = time - int rand(86400*365);
-    $tz = -11 + int rand 24;
+    $tz = (-11 + (int rand 48) / 2) * 3600;
     
+    # 3-5 hosts
+    $hosts = 3 + int rand 3;
     for (my $i = 0; $i < $hosts; $i++) {
         my ($host, $user, $htver, @hlogs, $hlogs);
         # Generate a random domain name
@@ -507,35 +640,50 @@ sub mknoiprndlog($) {
         push @_, (qw(net com))[int rand 2];
         $host = join ".", @_;
         $user = (0, 0, 1)[int rand 3]? "-": randword;
-        $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 3];
+        $htver = (qw(HTTP/1.1 HTTP/1.1 HTTP/1.1 HTTP/1.0))[int rand 4];
         # 3-5 log entries foreach host
         $hlogs = 3 + int rand 3;
         @hlogs = qw();
         while (@hlogs < $hlogs) {
-            my (@t, $method, $url, $status, $size);
-            $t += 0 + int rand 3;
-            @t = localtime $t;
-            $t[5] += 1900;
-            $t[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$t[4]];
+            my ($ttxt, $method, $url, $dirs, @dirs, $type, $status, $size);
+            # 0-2 seconds later
+            $t += int rand 3;
+            # Time text
+            @_ = gmtime($t + $tz);
+            $_[5] += 1900;
+            $_[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$_[4]];
+            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+03d%02d",
+                @_[3,4,5,2,1,0], int($tz / 3600), ($tz % 3600) / 60;
             
             $method = (qw(GET GET GET HEAD POST))[int rand 5];
-            @_ = qw(/ /robots.txt /about/ /privacy.html /images/logo.png /images/backgrnd.png /stylesheets/common.css);
-            $url = @_[int rand @_];
-            $status = (200, 200, 304)[int rand 3];
+            
+            # Generate a random URL
+            # 0-3 levels of directories
+            $dirs = int rand 4;
+            @dirs = qw();
+            push @dirs, "/" . randword while @dirs < $dirs;
+            $type = ("", qw(html html txt css png jpg))[int rand 7];
+            if ($type eq "") {
+                $url = join("", @dirs) . "/";
+            } else {
+                $url = join("", @dirs) . "/" . randword . ".$type";
+            }
+            
+            $status = (200, 200, 200, 200, 304, 400, 403, 404)[int rand 8];
             if ($status == 304) {
                 $size = 0;
             } else {
                 $size = 200 + int rand 35000;
             }
-            push @hlogs, sprintf "%s - %s [%02d/%s/%04d:%02d:%02d:%02d %+03d00] \"%s %s %s\" %d %d\n",
-                $host, $user, @t[3,4,5,2,1,0], $tz, $method, $url, $htver, $status, $size;
+            push @hlogs, sprintf "%s - %s [%s] \"%s %s %s\" %d %d\n",
+                $host, $user, $ttxt, $method, $url, $htver, $status, $size;
         }
         push @logs, @hlogs;
-        $t += 0 + rand 5;
+        # 0-5 seconds later
+        $t += int rand 6;
     }
     
     # Insert 1-2 malformed lines
-    my $malformed;
     $malformed = 1 + int rand 2;
     while ($malformed > 0) {
         my ($line, $pos);
@@ -556,7 +704,15 @@ sub mknoiprndlog($) {
     # Output the file
     fwrite($file, $content);
     # Return the content
-    return $content;
+    return ($content, $content);
+}
+
+# mkrndlog_empty: Create an empty log file.
+sub mkrndlog_empty($) {
+    local ($_, %_);
+    $_ = $_[0];
+    fwrite($_, "");
+    return ("", "");
 }
 
 # randword: Supply a random English word
@@ -570,6 +726,83 @@ bifocal rapacious steak reinserts overhaul glaringly playwrights wagoner
 garland hampered effie messy despaired orthodoxy bacterial bernardine driving
 danization vapors uproar sects litmus sutton lacrosse);
     return $_[int rand @_];
+}
+
+# randip: Supply a random IP
+#   Big public web companies have more reliable reverse DNS
+sub randip() {
+    local ($_, %_);
+    # Initialize our resolvable IP pool
+    if (!defined $RANDIP) {
+        my (@ip, @hosts);
+        $RANDIP = {};
+        @ip = qw();
+        # Famous websites - they are resolved to several IPs, and their
+        # reverse domain is guarenteed by the akadns.net service.
+        foreach my $host (qw(www.google.com
+                www.yahoo.com www.microsoft.com)) {
+            # Find the addresses
+            push @ip, map join(".", unpack "C4", $_), @_[4...$#_]
+                if (@_ = gethostbyname $host) > 0;
+        }
+        # 127.0.0.1 may be resolved to localhost
+        push @ip, "127.0.0.1";
+        foreach my $ip (@ip) {
+            my $host;
+            # Find its reverse lookup domain name
+            next if !defined($host = gethostbyaddr inet_aton($ip), AF_INET);
+            # Find the address again
+            next unless (@_ = gethostbyname $host) > 0;
+            next if (@_ = @_[4...$#_]) > 1;
+            $_ = join ".", unpack "C4", $_[0];
+            # Not match
+            next if $_ ne $ip;
+            # OK.  Record it.
+            $$RANDIP{$ip} = $host;
+        }
+        # Hosts reliably resolve to themselves
+        @hosts = qw();
+        # My own hosts
+        push @hosts, qw(rinse.wov.idv.tw cotton.wov.idv.tw);
+        # Yahoo! mail servers
+        for (my $i = 101; $i <= 109; $i++) {
+            push @hosts, "smtp$i.mail.mud.yahoo.com";
+        }
+        # HiNet mail servers
+        for (my $i = 1; $i <= 89; $i++) {
+            push @hosts, "ms$i.hinet.net"
+                if $i % 10 != 0;
+        }
+        foreach my $host (@hosts) {
+            my $ip;
+            # Find the address
+            next unless (@_ = gethostbyname $host) > 0;
+            next if (@_ = @_[4...$#_]) > 1;
+            $ip = join ".", unpack "C4", $_[0];
+            # Find its reverse lookup domain name again
+            next if !defined($_ = gethostbyaddr inet_aton($ip), AF_INET);
+            # Not match
+            next if $_ ne $host;
+            # OK.  Record it.
+            $$RANDIP{$ip} = $host;
+        }
+    }
+    # 1: Resolvables
+    if (keys %$RANDIP > 0 && int rand 2) {
+        @_ = sort keys %$RANDIP;
+        $_ = $_[int rand @_];
+        return ($_, $$RANDIP{$_});
+    }
+    # 0: Unresolvables
+    # Use loopback (127.0.0.0/8) and link local (169.254.0.0/16)
+    do {
+        if (int rand 2) {
+            $_ = join ".", 127, int rand 255, int rand 255, 1 + int rand 254;
+        } else {
+            $_ = join ".", 169, 254, int rand 255, 1 + int rand 254;
+        }
+    } until !defined gethostbyaddr inet_aton($_), AF_INET;
+    return ($_, $_);
 }
 
 1;

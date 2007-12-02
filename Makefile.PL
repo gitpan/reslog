@@ -1,12 +1,12 @@
 #! /usr/bin/perl -w
 # Makefile.PL: Installation configuration for ExtUtils::MakeMaker
-use 5.8.0;
+use 5.006;
 use strict;
 use warnings;
 use Config qw(%Config);
 use ExtUtils::MakeMaker;
 
-# Check if there is any old files
+# Check if there is any old file
 use vars qw(%old_version);
 %old_version = qw();
 foreach (qw(/usr/sbin/reslog.pl
@@ -42,20 +42,34 @@ foreach my $cnf (qw(installscript installsitescript installvendorscript
 if (keys %old_version > 0) {
     $_ = join " ", sort keys %old_version;
     warn << "EOT";
-================
-  Look like you are upgrading from an old version.
-  Remove the following old files after "make install":
+-- Old Files Found
+You may remove the following old files after "make install":
+  $_
+EOT
+}
 
-    $_
-
-  Refer to UPGRADE for more information.
-================
+# Optional prerequisite modules
+use vars qw(%OPT_PREREQ);
+%OPT_PREREQ = (
+    "File::MMagic"	=> 0,
+    "Compress::Zlib"	=> 0,
+    "Compress::Bzip2"	=> 2,
+    "Term::ReadKey"	=> 0,
+);
+delete $OPT_PREREQ{$_}
+    foreach grep eval "use $_ $OPT_PREREQ{$_}; 1;", sort keys %OPT_PREREQ;
+if (keys %OPT_PREREQ > 0) {
+    $_ = join " ", sort keys %OPT_PREREQ;
+    warn << "EOT";
+-- Optional Prerequisites
+You may wish to install these modules altogether.
+  $_
 EOT
 }
 
 WriteMakefile(
-    NAME                => "reslog",
-    VERSION_FROM        => "reslog",
+    NAME		=> "reslog",
+    VERSION_FROM	=> "reslog",
     ABSTRACT		=> "Reverse-resolve IP in Apache log files",
     AUTHOR		=> "imacat <imacat\@mail.imacat.idv.tw>",
     LICENSE		=> "gpl",
@@ -68,7 +82,7 @@ WriteMakefile(
         SUFFIX		=> ".gz",
     },
     clean		=> {
-        FILES		=> "t/logs/*",
+        FILES		=> "t/logs*",
     },
 );
 

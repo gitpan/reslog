@@ -4,6 +4,7 @@ AUTHORS.zh-tw
 Build.PL
 Changes
 COPYING
+fdl.txt
 INSTALL
 INSTALL.zh-cn
 INSTALL.zh-tw
@@ -20,10 +21,9 @@ reslog.zh-cn.html
 reslog.zh-tw.html
 SIGNATURE
 t/00-signature.t
-t/01-plain.t
-t/02-gzip.t
-t/03-bzip2.t
-t/04-hybrix.t
+t/01-exhaust.t
+t/02-several.t
+t/03-errors.t
 t/99-pod.t
 t/_helper.pm
 THANKS

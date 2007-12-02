@@ -1,5 +1,20 @@
 reslog - Reverse-resolve IP in Apache log files
 
+  Copyright (c) 2000-2007 imacat.
+  
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
     reslog reverse-resolves IP in the Apache log files. These log files can
 then be analyzed by another program, like Analog.  You can think of it as a
 replacement of Apache HostNameLookups directive, in the sense that it resolves
@@ -41,6 +56,6 @@ refer to the COPYING file for the copyright and the license of this program.
 
 
 imacat ^_*'
-2007-07-23
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/

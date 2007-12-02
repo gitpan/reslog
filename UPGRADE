@@ -8,8 +8,8 @@ Upgrade Instruction
 Perl's standard convension, and to avoid breaking ExtUtils::MakeMaker with
 future versions.
 
-    When you run "perl Makefile.PL", it will hint a list of old files found to
-be removed.  Please delete them manually.
+    When you run "perl Makefile.PL" or "perl Build.PL", it will hint a list of
+old files found to be removed.  Please delete them manually.
 
     If you saved them in other places, you have to delete them yourself.
 
@@ -30,31 +30,12 @@ rename reslog to reslog.pl.  It will still work.
     The reason I changed the script and project name is that:  A dot "." in
 the project name is not valid everywhere.  At least SourceForge don't accept
 it.  Besides, "reslog" is enough for a script name under UNIX.  The ".pl" file
-name suffix/extension may be convienent for MSWin32, but MSWin32 users won't
-run it with explorer file name association anyway, and there is a pl2bat to
-turn "reslog" to "reslog.bat", which would make more sense.  The only
+name suffix/extension may be convienent for MS-Windows, but MS-Windows users
+won't run it with explorer file name association anyway, and there is a pl2bat
+to convert "reslog" to "reslog.bat", which would make more sense.  The only
 disadvantage is that I use UltraEdit, which depends on the file name extension
 for the automatic syntax highlighting rules.  But this is not much trouble.  I
 can manuall set it anyway.
-
-
-* The Default Installation Location Is at /usr/sbin
-
-    Also, the man page is at /usr/share/man/man1/reslog.1.  You should check and
-remove the following old version files:
-
-      /usr/sbin/reslog.pl
-      /usr/share/man/man8/reslog.pl.8
-      /usr/local/sbin/reslog.pl
-      /usr/local/share/man/man8/reslog.pl.8
-      /usr/bin/reslog
-      /usr/share/man/man1/reslog.1
-
-    If you saved them in other places, you have to delete them yourself.
-
-    Also, if you have any scripts or cron jobs that are running reslog, remember
-to modify your script for the new reslog location.  Of course, you can copy
-reslog to the original location.  It will still work.
 
 
 * You Need Perl 5.8.0 or Above
@@ -88,6 +69,6 @@ everything to STDOUT, be sure to add the --stdout option.
 
 
 imacat
-2007-07-23
+2007-11-26
 imacat@mail.imacat.idv.tw
 http://www.imacat.idv.tw/
