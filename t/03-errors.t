@@ -134,7 +134,7 @@ $_ = eval {
     my ($num, @fs, @fo, @cs, @csr, @co, @st, $suf, $tsuf, $dup);
     rmtree $WORKDIR;
     mkpath $WORKDIR;
-    $title = join ", ", "several log files", "all listed as arguments";
+    $title = "A same log file is specified more than once";
     $suf = "." . randword;
     do { $tsuf = "." . randword; } until $tsuf ne $suf;
     # (2-4 times available compression) log files

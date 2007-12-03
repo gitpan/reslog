@@ -25,7 +25,7 @@ h2, em {
     width: 0.5em;
 }
 </style>
-<title>reslog Version 3.13</title>
+<title>reslog Version 3.14</title>
 </head>
 <body>
 
@@ -45,12 +45,19 @@ h2, em {
 <div class="accessguide"><a accesskey="C"
     href="#body" title="Page Content Area">:::</a></div>
 
-<h1><samp>reslog</samp> Version 3.13</h1>
+<h1><samp>reslog</samp> Version 3.14</h1>
 
 
 <h2>What&rsquo;s New?</h2>
 
 <dl>
+
+<dt>2007-12-03</dt>
+
+<dd>
+<p><samp>reslog</samp> version 3.14 is released.  There are several documentation and test suite fixes.  Upgrade is not necessary if you have installed <samp>reslog</samp> version 3.13.  <a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.14.tar.gz" type="application/x-gzip">Download <samp>reslog</samp> version 3.14</a>.</p>
+</dd>
+
 
 <dt>2007-12-03</dt>
 
@@ -175,7 +182,7 @@ h2, em {
 
 <h2>Description</h2>
 
-<p><samp>reslog</samp> reverse-resolves <abbr title="internet protocol">IP</abbr> in the <a href="http://httpd.apache.org/">Apache</a> log files.  These log files can then be analyzed by another program, like <a href="http://analog.cx/">Analog</a>.  You can think of it as a replacement of Apache <samp>HostNameLookups</samp> directive, in the sense that it resolves the client <abbr title="internet protocol">IP</abbr> altogether once a day.</p>
+<p><dfn><samp>reslog</samp></dfn> reverse-resolves <abbr title="internet protocol">IP</abbr> in the <a href="http://httpd.apache.org/">Apache</a> log files.  These log files can then be analyzed by another program, like <a href="http://analog.cx/">Analog</a>.  You can think of it as a replacement of Apache <samp>HostNameLookups</samp> directive, in the sense that it resolves the client <abbr title="internet protocol">IP</abbr> altogether once a day.</p>
 
 
 <h2>Caution</h2>
@@ -198,7 +205,6 @@ h2, em {
 <h2>System Requirement</h2>
 
 <ol>
-
 <li><p><acronym title="Practical Extraction and Reporting Language">Perl</acronym>, version 5.8.0 or above.  <samp>reslog</samp> uses 3-argument <samp>open()</samp> to duplicate filehandles, which is only supported since 5.8.0.  I have not successfully port this onto earlier versions yet.  Please tell me if you made it.  You can run <q><samp>perl -v</samp></q> to see your current <acronym title="Practical Extraction and Reporting Language">Perl</acronym> version.  If you don't have <acronym title="Practical Extraction and Reporting Language">Perl</acronym>, or if you have an older version of <acronym title="Practical Extraction and Reporting Language">Perl</acronym>, you can download and install/upgrade it from <a href="http://www.perl.com/">Perl website</a>.  If you are using <abbr title="Microsoft">MS</abbr>-Windows, you can download and install <a href="http://www.activestate.com/">ActiveState ActivePerl</a>.</p></li>
 
 <li><p>Required <acronym title="Practical Extraction and Reporting Language">Perl</acronym> modules: none.</p></li>

@@ -1,5 +1,22 @@
 reslog change log
 
+2007-12-03	version 3.14
+	Documentation and test suite fixes.
+	 1. reslog.zh-tw.html, reslog.zh-cn.html: Revised the Chinese
+	    text on "3-argument open()" so that it is more readable.
+	 2. t/_helper.pm: Increased time zone range from -1200 to
+	    +1400 in the mkrandlog_normal() and mkrandlog_noip()
+	    subroutines.
+	 3. t/_helper.pm: Version number increased to 0.05.
+	 4. t/_helper.pm: Fixed time zone text generation in the
+	    mkrandlog_normal() and mkrandlog_noip() subroutines,
+	    using "%+05d" instead of "%+03d%02d" so that we will
+	    get a correct representation in time zones +0030 and
+	    -0030.
+	 5. t/03-errors.t: Fixed the title of the "a same log file
+	    specified more than once" test.
+	 6. reslog.*.html: Added <dfn>...</dfn> to the description.
+
 2007-12-03	version 3.13
 	 1. t/03-errors.t: Added.
 	 2. t/reslog.*.html: Revised.
@@ -10,7 +27,6 @@ reslog change log
 	    is the easy and right way to do.
 	 4. reslog.zh-tw.html, TODO.zh-tw, TODO.zh-cn: Changed
 	    '繁體中文' to '正體中文'.
-
 
 2007-12-02
 	 1. t/02-several.t: Added, to replace the t/04-hybrix.t.

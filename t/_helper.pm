@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT);
-$VERSION = "0.04";
+$VERSION = "0.05";
 @EXPORT = qw();
 push @EXPORT, qw(fread frread fwrite frwrite);
 push @EXPORT, qw(runcmd whereis ftype flist prsrvsrc cleanup);
@@ -517,7 +517,8 @@ sub mkrndlog_normal($) {
     
     # Start from sometime in the past year
     $t = time - int rand(86400*365);
-    $tz = (-11 + (int rand 48) / 2) * 3600;
+    # Time zone
+    $tz = (-12 + (int rand 53) / 2) * 3600;
     
     # 3-5 hosts
     $hosts = 3 + int rand 3;
@@ -557,8 +558,9 @@ sub mkrndlog_normal($) {
             @_ = gmtime($t + $tz);
             $_[5] += 1900;
             $_[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$_[4]];
-            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+03d%02d",
-                @_[3,4,5,2,1,0], int($tz / 3600), ($tz % 3600) / 60;
+            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+05d",
+                @_[3,4,5,2,1,0],
+                int($tz / 3600) * 100 + ($tz - int($tz / 3600) * 3600) / 60;
             
             $method = (qw(GET GET GET HEAD POST))[int rand 5];
             
@@ -626,7 +628,8 @@ sub mkrndlog_noip($) {
     
     # Start from sometime in the past year
     $t = time - int rand(86400*365);
-    $tz = (-11 + (int rand 48) / 2) * 3600;
+    # Time zone
+    $tz = (-12 + (int rand 53) / 2) * 3600;
     
     # 3-5 hosts
     $hosts = 3 + int rand 3;
@@ -652,8 +655,9 @@ sub mkrndlog_noip($) {
             @_ = gmtime($t + $tz);
             $_[5] += 1900;
             $_[4] = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$_[4]];
-            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+03d%02d",
-                @_[3,4,5,2,1,0], int($tz / 3600), ($tz % 3600) / 60;
+            $ttxt = sprintf "%02d/%s/%04d:%02d:%02d:%02d %+05d",
+                @_[3,4,5,2,1,0],
+                int($tz / 3600) * 100 + ($tz - int($tz / 3600) * 3600) / 60;
             
             $method = (qw(GET GET GET HEAD POST))[int rand 5];
             

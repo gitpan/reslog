@@ -31,7 +31,7 @@ q:lang(en) {
     quotes: "\201C" "\201D" "\2018" "\2019";
 }
 </style>
-<title>reslog 3.13 版</title>
+<title>reslog 3.14 版</title>
 </head>
 <body>
 
@@ -51,12 +51,19 @@ q:lang(en) {
 <div class="accessguide"><a accesskey="C"
     href="#body" title="网页内文区">:::</a></div>
 
-<h1><samp xml:lang="en">reslog</samp> 3.13 版</h1>
+<h1><samp xml:lang="en">reslog</samp> 3.14 版</h1>
 
 
 <h2>最新消息</h2>
 
 <dl>
+
+<dt>2007-12-03</dt>
+
+<dd>
+<p><samp xml:lang="en">reslog</samp> 最新版本 3.14 。新版有好几个说明文件、测试程式修正。若你之前安装了 <samp xml:lang="en">reslog</samp> 3.13 版，不需要升级新版。<a href="ftp://ftp.imacat.idv.tw/pub/reslog/reslog-3.14.tar.gz" type="application/x-gzip">下载 <samp xml:lang="en">reslog</samp> 3.14 版</a>。</p>
+</dd>
+
 
 <dt>2007-12-03</dt>
 
@@ -181,7 +188,7 @@ q:lang(en) {
 
 <h2>说明</h2>
 
-<p><samp xml:lang="en">reslog</samp> 是记录档的反查程式，用来反查 <a href="http://httpd.apache.org/" hreflang="en" xml:lang="en">Apache</a> 记录档里 <abbr title="internet protocol" xml:lang="en">IP</abbr> 的主机名称。查过后，可以套用像 <a href="http://analog.cx/" hreflang="en" xml:lang="en">Analog</a> 之类的记录档统计程式。你可以把它当做 <span xml:lang="en">Apache</span> <samp xml:lang="en">HostNameLookups</samp> 指令的替代品，每天一次反查当天所有的 <abbr title="internet protocol" xml:lang="en">IP</abbr> 。</p>
+<p><dfn xml:lang="en"><samp>reslog</samp></dfn> 是记录档的反查程式，用来反查 <a href="http://httpd.apache.org/" hreflang="en" xml:lang="en">Apache</a> 记录档里 <abbr title="internet protocol" xml:lang="en">IP</abbr> 的主机名称。查过后，可以套用像 <a href="http://analog.cx/" hreflang="en" xml:lang="en">Analog</a> 之类的记录档统计程式。你可以把它当做 <span xml:lang="en">Apache</span> <samp xml:lang="en">HostNameLookups</samp> 指令的替代品，每天一次反查当天所有的 <abbr title="internet protocol" xml:lang="en">IP</abbr> 。</p>
 
 
 <h2>注意事项</h2>
@@ -204,7 +211,7 @@ q:lang(en) {
 <h2>系统需求</h2>
 
 <ol>
-<li><p><acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 5.8.0 以上。 <samp xml:lang="en">reslog</samp> 使用三参数的 <samp xml:lang="en">open()</samp> 以复制档案操作，我还不知道怎么改写到更早的版本上执行。若你可以改写到更早的版本上执行，请告诉我。你可以输入 <q xml:lang="en"><samp>perl -v</samp></q> 查询你目前的 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 。若你是用 <span xml:lang="en"><abbr title="Microsoft">MS</abbr>-Windows</span> ，可以到 <a href="http://www.activestate.com/" hreflang="en"><span xml:lang="en">ActiveState</span> 公司</a>下载 <span xml:lang="en">ActivePerl</span> 安装。</p></li>
+<li><p><acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 5.8.0 以上。 <samp xml:lang="en">reslog</samp> 用三个参数的 <samp xml:lang="en">open()</samp> 来复制档案操作，我还不知道怎么改写到更早的版本上执行。若你可以改写到更早的版本上执行，请告诉我。你可以输入 <q xml:lang="en"><samp>perl -v</samp></q> 查询你目前的 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 版本。如果你没有 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 或需要升级，可以到 <a href="http://www.perl.com/" hreflang="en"><acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 网站</a>下载安装最新版 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 。若你是用 <span xml:lang="en"><abbr title="Microsoft">MS</abbr>-Windows</span> ，可以到 <a href="http://www.activestate.com/" hreflang="en"><span xml:lang="en">ActiveState</span> 公司</a>下载 <span xml:lang="en">ActivePerl</span> 安装。</p></li>
 
 <li><p>需搭配的 <acronym title="Practical Extraction and Reporting Language" xml:lang="en">Perl</acronym> 模组：无。</p></li>
 
