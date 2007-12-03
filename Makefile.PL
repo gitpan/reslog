@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # Makefile.PL: Installation configuration for ExtUtils::MakeMaker
-use 5.006;
+use 5.008;
 use strict;
 use warnings;
 use Config qw(%Config);

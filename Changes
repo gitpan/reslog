@@ -1,5 +1,11 @@
 reslog change log
 
+2007-12-03	version 3.15
+	Build system fix.
+	 1. Makefile.PL: Fixed the required Perl version from
+	    "use 5.006" to "use 5.008;".  reslog requires Perl 5.8.0
+	    to work.
+
 2007-12-03	version 3.14
 	Documentation and test suite fixes.
 	 1. reslog.zh-tw.html, reslog.zh-cn.html: Revised the Chinese
