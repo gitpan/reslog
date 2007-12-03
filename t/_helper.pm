@@ -300,8 +300,10 @@ sub fwrite($$) {
             my ($FH, $bz);
             open $FH, ">$file"          or die thisfile . ": $file: $!";
             $bz = bzopen($FH, "wb9")    or die thisfile . ": $file: $!";
-            ($bz->bzwrite($content, length $content) == length $content)
+            if ($content ne "") {
+                ($bz->bzwrite($content, length $content) == length $content)
                                         or die thisfile . ": $file: " . $bz->bzerror;
+            }
             $bz->bzclose                and die thisfile . ": $file: " . $bz->bzerror;
             return;
         

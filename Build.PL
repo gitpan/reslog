@@ -1,6 +1,7 @@
 #! /usr/bin/perl -w
-# Makefile.PL: Installation configuration for Module::Build
+# Build.PL: Installation configuration for Module::Build
 use strict;
+use warnings;
 use Config qw(%Config);
 use Module::Build;
 

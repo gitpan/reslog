@@ -1,5 +1,20 @@
 reslog change log
 
+2007-12-04	version 3.16
+	Fixed a bug with empty files created with Compress::Bzip2.
+	 1. Makefile.PL: Fixed to prevent importing symbols when
+	    checking optional prerequisites.
+	 2. reslog: Fixed the check_type() method of the
+	    _private::LogFile class, so that empty files are checked
+	    with the file name suffix, too.  This solve the issue
+	    that Compress::Bzip2 creates empty files which confuse
+	    further processing on file name suffix stripping.
+
+2007-12-03
+	 1. Build.PL: Fixed the comment.  This file is "Build.PL",
+	    not "Makefile.PL".
+	 2. Build.PL: Added "use warnings;".
+
 2007-12-03	version 3.15
 	Build system fix.
 	 1. Makefile.PL: Fixed the required Perl version from

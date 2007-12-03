@@ -57,7 +57,7 @@ use vars qw(%OPT_PREREQ);
     "Term::ReadKey"	=> 0,
 );
 delete $OPT_PREREQ{$_}
-    foreach grep eval "use $_ $OPT_PREREQ{$_}; 1;", sort keys %OPT_PREREQ;
+    foreach grep eval "use $_ $OPT_PREREQ{$_} qw(); 1;", sort keys %OPT_PREREQ;
 if (keys %OPT_PREREQ > 0) {
     $_ = join " ", sort keys %OPT_PREREQ;
     warn << "EOT";
